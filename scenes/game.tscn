@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://d2owacgvq4kjs"]
+
+[ext_resource type="Script" uid="uid://s2l0jf8klkju" path="res://scenes/player.gd" id="1_yqjtg"]
+[ext_resource type="Texture2D" uid="uid://cgwee64kbhpqb" path="res://icon.svg" id="2_lnu2h"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lbhrr"]
+size = Vector2(128, 128)
+
+[node name="Game" type="Control" unique_id=138910531]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Background" type="ColorRect" parent="." unique_id=1795114974]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.101960786, 0.07058824, 0.14901961, 1)
+
+[node name="Label" type="Label" parent="." unique_id=782567287]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 120.0
+theme_override_colors/font_color = Color(0.23529412, 0.7058824, 0.8980392, 1)
+theme_override_font_sizes/font_size = 48
+text = "Touch and drag to move"
+horizontal_alignment = 1
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=1560375071]
+position = Vector2(585, 1266)
+script = ExtResource("1_yqjtg")
+speed = 1800.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1552237925]
+texture = ExtResource("2_lnu2h")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=676175030]
+shape = SubResource("RectangleShape2D_lbhrr")

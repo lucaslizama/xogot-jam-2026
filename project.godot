@@ -1,0 +1,44 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="xogot-jam-2026"
+config/features=PackedStringArray("4.6", "Mobile")
+config/icon="res://icon.svg"
+run/main_scene="res://scenes/main_menu.tscn"
+
+[display]
+
+window/size/viewport_width=1170
+window/size/viewport_height=2532
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation="portrait"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="mobile"
+
+[xogot]
+
+project/editorState=[{
+"column": 0,
+"line": 0,
+"path": "res://scenes/player.gd",
+"type": "file"
+}]
+project/shaderEditorState=[]
+project/breakpoints={}
+project/disabled_breakpoints={}
