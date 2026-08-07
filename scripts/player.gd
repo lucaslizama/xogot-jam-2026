@@ -25,14 +25,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		_target = event.position
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not _active:
 		velocity = Vector2.ZERO
 		return
 
 	var to_target := _target - global_position
-	if to_target.length() <= arrive_threshold:
+	var distance := to_target.length()
+	if distance <= arrive_threshold:
 		velocity = Vector2.ZERO
-	else:
-		velocity = to_target.normalized() * speed
+		return
+
+	# Never travel further in one tick than the distance left, or the body overshoots the
+	# target and oscillates around it instead of settling. At 60 Hz a speed of 1800 moves
+	# 30 px per tick, which alone can never land inside an 8 px arrive_threshold.
+	var step_speed := minf(speed, distance / delta)
+	velocity = to_target / distance * step_speed
 	move_and_slide()
