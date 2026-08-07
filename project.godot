@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="xogot-jam-2026"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
-run/main_scene="res://scenes/main_menu.tscn"
 
 [display]
 
@@ -36,7 +36,7 @@ renderer/rendering_method="mobile"
 project/editorState=[{
 "column": 0,
 "line": 0,
-"path": "res://scenes/player.gd",
+"path": "res://scripts/player.gd",
 "type": "file"
 }]
 project/shaderEditorState=[]

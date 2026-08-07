@@ -31,12 +31,18 @@ baton, a responsibility — from one hand (or one moment, or one player) to the 
 xogot-jam-2026/
 ├── project.godot          # Engine + iOS/display/input configuration
 ├── icon.svg               # App/placeholder icon
-└── scenes/
-    ├── main_menu.tscn      # Title screen
-    ├── main_menu.gd        # Start button → loads the game scene
-    ├── game.tscn           # Gameplay prototype
-    └── player.gd           # Touch-and-drag movement
+├── scenes/                # Scene files (.tscn) — layout, values, arrangement
+│   ├── main_menu.tscn      # Title screen
+│   └── game.tscn           # Gameplay prototype
+├── scripts/               # GDScript (.gd) — behaviour
+│   ├── main_menu.gd        # Start button → loads the game scene
+│   └── player.gd           # Touch-and-drag movement
+├── sprites/               # Textures and art
+└── sounds/                # Music and SFX
 ```
+
+Scenes own the *values* (positions, colours, sizes, wording) so they stay editable in
+Xogot/Godot; scripts own the *behaviour*. Tunables are `@export`ed rather than hardcoded.
 
 ## Controls
 
