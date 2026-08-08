@@ -6,51 +6,59 @@ A mobile game built with [Godot](https://godotengine.org/) (via [Xogot](https://
 
 ## About
 
-This is an early-stage project targeting **iOS** (portrait, touch-first). It currently
-contains a playable prototype scaffold — a main menu and a touch-controlled scene — that
-we're building the jam entry on top of.
+You are a pizza delivery rider on an endless street. You sit at the bottom of the screen and
+never move sideways; the houses scroll past you in parallax. On the back of your bike is a
+stack of pizza boxes, and you throw them at the houses that are waiting for one.
 
-The *Handoff* theme is our design north star: passing something — control, momentum, a
-baton, a responsibility — from one hand (or one moment, or one player) to the next.
+Land a box in a drop point and the delivery counts. Miss and it hits the wall, which costs
+you a strike. The strikes are dots along the top of the screen, and when the last one is
+crossed the round is over. Otherwise you keep going until the stack is empty.
 
-> ⚠️ **Work in progress.** The core game loop is still being designed. What's in the repo
-> today is the technical foundation, not the finished game.
+The throw carries the theme: once the box leaves your hands it is committed, and all you can
+do is watch.
+
+> ⚠️ **Work in progress.** The flight model and gesture reading are built and tested; the
+> street, the houses and the art are not.
 
 ## Current state
 
-- **Main menu** (`scenes/main_menu.tscn`) — title screen with a **Start** button that hands
-  off into the game scene.
-- **Game scene** (`scenes/game.tscn`) — a touch-controlled avatar you steer by
-  **touching and dragging**. Serves as the movement testbed for the jam mechanic.
-- **iOS-ready setup** — mobile renderer, 1170×2532 portrait base resolution, expand-aspect
-  stretch for varied device sizes, and mouse→touch emulation so it's testable on desktop.
+- **Throw model** — a released flick becomes power, aim and spin, and the pizza arcs through
+  a fake-3D street. Curve comes from how much the gesture turned, so a deliberate pre-spin and
+  the accidental hook of a curved flick feed the same number.
+- **Projection** — sideways offset, height and distance become screen pixels, kept apart from
+  the flight maths so the camera can be reframed on its own.
+- **Tests** — the throw, the gesture and the projection are covered headlessly, with no art
+  involved.
+
+Still to build: the scrolling street, houses and drop points, landing and scoring, the strike
+dots, the pizza stack on the bike, and everything visual.
 
 ## Project structure
 
 ```
 xogot-jam-2026/
-├── project.godot          # Engine + iOS/display/input configuration
-├── icon.svg               # App/placeholder icon
-├── scenes/                # Scene files (.tscn) — layout, values, arrangement
-│   ├── main_menu.tscn      # Title screen
-│   └── game.tscn           # Gameplay prototype
-├── scripts/               # GDScript (.gd) — behaviour
-│   ├── main_menu.gd        # Start button → loads the game scene
-│   └── player.gd           # Touch-and-drag movement
-├── sprites/               # Textures and art
-└── sounds/                # Music and SFX
+├── project.godot           # Engine + iOS/display/input configuration
+├── icon.svg                # App/placeholder icon
+├── scenes/                 # Scene files (.tscn): layout, values, arrangement
+├── scripts/pizza/          # Throw physics, gesture reading, street projection
+├── tests/                  # Headless test scenes
+├── docs/design/            # What is being built and why
+├── docs/ideas/             # Shelved concepts kept for later
+├── sprites/                # Textures and art
+└── sounds/                 # Music and SFX
 ```
 
 Scenes own the *values* (positions, colours, sizes, wording) so they stay editable in
-Xogot/Godot; scripts own the *behaviour*. Tunables are `@export`ed rather than hardcoded.
+Xogot/Godot; scripts own the *behaviour*. Tunables live in exported resources rather than
+hardcoded, so they can be retuned without opening a script.
 
 ## Controls
 
-| Input            | Action                         |
-| ---------------- | ------------------------------ |
-| Touch + drag     | Move the avatar (on device)    |
-| Click + drag     | Same, via mouse (in editor)    |
-| **Start** button | Enter the game scene           |
+| Input                        | Action                                 |
+| ---------------------------- | -------------------------------------- |
+| Drag and release             | Throw a pizza; flick speed sets power   |
+| Lean the flick left or right | Aim                                    |
+| Circle before releasing      | Wind up spin, curving the flight        |
 
 ## Requirements
 
@@ -59,15 +67,21 @@ Xogot/Godot; scripts own the *behaviour*. Tunables are `@export`ed rather than h
 
 ## Running
 
-1. Open the project in Xogot (or Godot 4.6).
-2. Press **Play** — the project boots into the main menu.
-3. Tap **Start**, then touch-and-drag to move.
+Open the project in Xogot (or Godot 4.6) and press **Play**.
+
+To run the tests:
+
+```
+godot --headless res://tests/test_throw.tscn
+```
 
 ## Roadmap
 
-- [ ] Nail down the core *Handoff* mechanic and game loop
-- [ ] Real art and audio to replace placeholders
-- [ ] Win/lose states and scoring
+- [ ] Scrolling street with parallax and generated houses
+- [ ] Drop points, landing detection and misses
+- [ ] Strike dots and the pizza stack on the bike
+- [ ] Level pacing: fewer strikes, tighter houses, faster street
+- [ ] Art and audio to replace placeholders
 - [ ] iOS export preset (bundle ID, icons, launch screen)
 
 ## Team
