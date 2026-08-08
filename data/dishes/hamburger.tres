@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Dish" format=3]
+
+[ext_resource type="Resource" path="res://data/minigames/stub_cook.tres" id="1_d8nk1"]
+[ext_resource type="Script" path="res://scripts/data/ingredient.gd" id="2_oqr3y"]
+[ext_resource type="Resource" path="res://data/ingredients/beef.tres" id="3_eeh47"]
+[ext_resource type="Script" path="res://scripts/data/dish.gd" id="4_76ouw"]
+
+[resource]
+script = ExtResource("4_76ouw")
+display_name = "Hamburger"
+ingredients = Array[ExtResource("2_oqr3y")]([ExtResource("3_eeh47")])
+cook_game = ExtResource("1_d8nk1")

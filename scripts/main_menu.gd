@@ -1,7 +1,7 @@
 extends Control
 
 ## Scene loaded when the player presses Start.
-@export_file("*.tscn") var game_scene: String = "res://scenes/game.tscn"
+@export_file("*.tscn") var game_scene: String = "res://scenes/main.tscn"
 
 @onready var start_button: Button = $MenuContainer/StartButton
 

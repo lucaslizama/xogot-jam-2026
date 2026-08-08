@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MinigameInfo" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/minigames/stub_harvest.tscn" id="1_jixyv"]
+[ext_resource type="Script" path="res://scripts/data/minigame_info.gd" id="2_5dw87"]
+
+[resource]
+script = ExtResource("2_5dw87")
+display_name = "Stub harvest"
+prompt_verb = "HARVEST!"
+base_duration = 4.0
+scene = ExtResource("1_jixyv")

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MinigameInfo" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/minigames/stub_cook.tscn" id="1_hi4e5"]
+[ext_resource type="Script" path="res://scripts/data/minigame_info.gd" id="2_kb2gn"]
+
+[resource]
+script = ExtResource("2_kb2gn")
+display_name = "Stub cook"
+prompt_verb = "COOK!"
+control_hint = "tap fast"
+phase = 2
+base_duration = 4.0
+scene = ExtResource("1_hi4e5")

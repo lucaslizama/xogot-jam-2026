@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Ingredient" format=3]
+
+[ext_resource type="Resource" path="res://data/minigames/stub_harvest.tres" id="1_d3bcf"]
+[ext_resource type="Script" path="res://scripts/data/ingredient.gd" id="2_twaa4"]
+[ext_resource type="Script" path="res://scripts/data/minigame_info.gd" id="3_gqio5"]
+[ext_resource type="Resource" path="res://data/minigames/stub_transport.tres" id="4_y1tbv"]
+
+[resource]
+script = ExtResource("2_twaa4")
+display_name = "Potatoes"
+harvest_game = ExtResource("1_d3bcf")
+transport_games = Array[ExtResource("3_gqio5")]([ExtResource("4_y1tbv"), ExtResource("4_y1tbv")])

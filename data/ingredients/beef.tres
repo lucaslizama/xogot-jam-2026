@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Ingredient" format=3]
+
+[ext_resource type="Resource" path="res://data/minigames/stub_harvest.tres" id="1_fesrg"]
+[ext_resource type="Script" path="res://scripts/data/ingredient.gd" id="2_1tfek"]
+[ext_resource type="Script" path="res://scripts/data/minigame_info.gd" id="3_ud78l"]
+[ext_resource type="Resource" path="res://data/minigames/stub_transport.tres" id="4_sfcpm"]
+
+[resource]
+script = ExtResource("2_1tfek")
+display_name = "Beef"
+harvest_game = ExtResource("1_fesrg")
+transport_games = Array[ExtResource("3_ud78l")]([ExtResource("4_sfcpm")])

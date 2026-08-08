@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/run_director.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/core/run_state.gd" id="2_state"]
+[ext_resource type="Script" path="res://scripts/core/minigame_host.gd" id="3_host"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/handoff_transition.tscn" id="5_handoff"]
+[ext_resource type="PackedScene" path="res://scenes/ui/run_end_card.tscn" id="6_end"]
+[ext_resource type="Resource" path="res://data/orders/burger_and_fries.tres" id="7_order"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+order = ExtResource("7_order")
+
+[node name="RunState" type="Node" parent="."]
+script = ExtResource("2_state")
+
+[node name="GameLayer" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="MinigameHost" type="Control" parent="GameLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_host")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="GameLayer/MinigameHost"]
+offset_right = 1170.0
+offset_bottom = 2532.0
+mouse_filter = 2
+
+[node name="SubViewport" type="SubViewport" parent="GameLayer/MinigameHost/SubViewportContainer"]
+disable_3d = true
+size = Vector2i(1170, 2532)
+render_target_update_mode = 4
+
+[node name="Clock" type="Timer" parent="GameLayer/MinigameHost"]
+one_shot = true
+
+[node name="HudLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Hud" parent="HudLayer" instance=ExtResource("4_hud")]
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="HandoffTransition" parent="TransitionLayer" instance=ExtResource("5_handoff")]
+
+[node name="RunEndCard" parent="TransitionLayer" instance=ExtResource("6_end")]

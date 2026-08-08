@@ -1,0 +1,119 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/handoff_transition.gd" id="1_handoff"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 64.0
+content_margin_top = 48.0
+content_margin_right = 64.0
+content_margin_bottom = 48.0
+bg_color = Color(0.101960786, 0.07058824, 0.14901961, 0.9137255)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+
+[node name="HandoffTransition" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_handoff")
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.101960786, 0.07058824, 0.14901961, 0.7176471)
+
+[node name="Hands" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -120.0
+offset_right = 520.0
+offset_bottom = 120.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Palm" type="ColorRect" parent="Hands"]
+layout_mode = 0
+offset_top = 72.0
+offset_right = 320.0
+offset_bottom = 168.0
+mouse_filter = 2
+color = Color(0.9098039, 0.7176471, 0.5411765, 1)
+
+[node name="Parcel" type="ColorRect" parent="Hands"]
+layout_mode = 0
+offset_left = 240.0
+offset_top = 24.0
+offset_right = 400.0
+offset_bottom = 184.0
+mouse_filter = 2
+color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+
+[node name="Card" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -260.0
+offset_right = 440.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Rows" type="VBoxContainer" parent="Card"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="About" type="Label" parent="Card/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.23529412, 0.7058824, 0.8980392, 1)
+theme_override_font_sizes/font_size = 52
+text = "Potatoes"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Verb" type="Label" parent="Card/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 128
+text = "HARVEST!"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="Card/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.7137255, 0.6509804, 0.827451, 1)
+theme_override_font_sizes/font_size = 56
+text = "tap"
+horizontal_alignment = 1
