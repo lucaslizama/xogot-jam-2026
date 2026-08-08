@@ -21,7 +21,12 @@ extends Resource
 ## Finger speed, in screen pixels per second, that maps to a full-power throw.
 @export_range(200.0, 12000.0, 50.0) var full_power_flick: float = 4200.0
 ## Forward speed of a full-power throw, in world units per second.
-@export_range(1.0, 200.0, 0.5) var max_forward_speed: float = 46.0
+@export_range(1.0, 200.0, 0.5) var max_forward_speed: float = 36.0
+## Shapes how flick speed becomes power. Distance grows with the SQUARE of
+## power, because power buys both forward speed and hang time, so a straight
+## mapping wastes most of the flick range on throws that sail past everything.
+## Around 0.5 undoes that and makes distance roughly linear in flick speed.
+@export_range(0.2, 2.0, 0.05) var power_curve: float = 0.55
 ## Upward speed of a full-power throw. Without this the pizza is dropped rather
 ## than lobbed: it would be on the ground in about a third of a second, too
 ## quick to watch and too quick for spin to do anything.
@@ -55,7 +60,7 @@ func launch_from(flick: Vector2, windup: float) -> Dictionary:
 	# not a throw, it is a flourish.
 	var up_speed: float = maxf(0.0, -flick.y)
 	var power: float = clampf(up_speed / full_power_flick, 0.0, 1.0)
-	power = lerpf(min_power, 1.0, power)
+	power = lerpf(min_power, 1.0, pow(power, power_curve))
 
 	# Aim comes from how far the flick leaned off vertical, not its raw width,
 	# so a fast throw and a slow one with the same lean go to the same place.

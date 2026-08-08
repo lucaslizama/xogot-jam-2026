@@ -57,9 +57,14 @@ func update(position: Vector2, time: float) -> void:
 func release(position: Vector2, time: float) -> Vector2:
 	update(position, time)
 	_active = false
+	return current_flick()
+
+
+## The flick this drag would throw with if it ended right now, without ending
+## it. The aim preview asks this every frame.
+func current_flick() -> Vector2:
 	if _points.size() < 2:
 		return Vector2.ZERO
-
 	var span: float = _times[_times.size() - 1] - _times[0]
 	if span <= 0.0001:
 		return Vector2.ZERO

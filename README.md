@@ -31,6 +31,8 @@ Playable. Drag and release to throw, land boxes in the blue drop circles, miss a
   a level is reproducible. Some houses are scenery, so picking a target matters.
 - **The round** — a stack of pizzas, a budget of strikes, and a level that ends when the stack
   does. Three streets are set up, each tighter than the last.
+- **Aiming help** — while you drag, a dotted arc and a landing ring show where the throw would
+  go, and a shadow tracks the pizza along the road while it flies. Both can be turned off.
 - **Placeholder visuals** — sky, road, parallax skyline, houses, rider, the stack on the bike
   and the strike dots, all drawn as flat shapes.
 
@@ -63,6 +65,7 @@ hardcoded, so they can be retuned without opening a script.
 | Drag and release             | Throw a pizza; flick speed sets power   |
 | Lean the flick left or right | Aim                                    |
 | Circle before releasing      | Wind up spin, curving the flight        |
+| Release slowly               | Fumble; the pizza stays on the bike      |
 
 ## Requirements
 

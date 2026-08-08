@@ -34,6 +34,8 @@ signal round_ended(won: bool, delivered: int)
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: Node2D = $Pizza
+@onready var _shadow: GroundShadow = $Shadow
+@onready var _aim: AimPreview = $AimPreview
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
@@ -56,7 +58,10 @@ func _ready() -> void:
 	_result.again_pressed.connect(_on_again)
 	_result.hide()
 	_pizza.visible = false
+	_shadow.visible = false
 	_backdrop.projection = projection
+	_aim.projection = projection
+	_aim.physics = physics
 
 	if start_automatically:
 		# Deferred: the first houses would otherwise be added while this node is
@@ -73,6 +78,8 @@ func start_level() -> void:
 		push_error("PizzaGame: physics, projection and house_scene must all be assigned.")
 		return
 
+	# The landing ring promises exactly the room this street actually gives.
+	_aim.marker_radius = _config.drop_radius
 	_street = StreetModel.new(_config, street_seed + _level_index)
 	_travelled = 0.0
 	_clear_flight()
@@ -109,9 +116,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.index == _touch_index and _gesture.is_active():
 			var flick := _gesture.release(event.position, now)
 			_touch_index = -1
+			_aim.clear()
 			_throw(flick, _gesture.windup())
 	elif event is InputEventScreenDrag and event.index == _touch_index:
 		_gesture.update(event.position, now)
+		_aim.show_for(_gesture.current_flick(), _gesture.windup())
 
 
 func _throw(flick: Vector2, windup: float) -> void:
@@ -143,6 +152,7 @@ func _resolve_landing() -> void:
 	var house: House = _street.delivery_at(_flight.side, _flight.distance)
 	_flight = null
 	_pizza.visible = false
+	_shadow.visible = false
 
 	if house != null:
 		house.served = true
@@ -157,6 +167,13 @@ func _place_pizza() -> void:
 	_pizza.position = projection.project(_flight.side, _flight.height, _flight.distance)
 	var scale := projection.scale_at(_flight.distance)
 	_pizza.scale = Vector2(scale, scale)
+
+	# The shadow sits at the same spot on the ground, which is what tells the
+	# player how far out the throw actually is.
+	_shadow.visible = true
+	_shadow.position = projection.project(_flight.side, 0.0, _flight.distance)
+	_shadow.scale = Vector2(scale, scale)
+	_shadow.z_index = clampi(int(-_flight.distance), -4000, 4000)
 	# Draw order is by depth, so a pizza passing behind a near house is hidden
 	# by it. Negative because nearer means a smaller distance.
 	_pizza.z_index = clampi(int(-_flight.distance), -4000, 4000)
@@ -204,6 +221,8 @@ func _clear_flight() -> void:
 	_flight = null
 	_touch_index = -1
 	_pizza.visible = false
+	_shadow.visible = false
+	_aim.clear()
 
 
 # --- the round ---------------------------------------------------------------

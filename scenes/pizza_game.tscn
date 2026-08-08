@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/level_state.gd" id="2_state"]
@@ -17,6 +17,8 @@
 [ext_resource type="Resource" path="res://data/backdrop/far.tres" id="15_far"]
 [ext_resource type="Resource" path="res://data/backdrop/mid.tres" id="16_mid"]
 [ext_resource type="Resource" path="res://data/backdrop/near.tres" id="17_near"]
+[ext_resource type="Script" path="res://scripts/pizza/ground_shadow.gd" id="18_shadow"]
+[ext_resource type="Script" path="res://scripts/pizza/aim_preview.gd" id="19_aim"]
 
 [node name="PizzaGame" type="Node2D"]
 script = ExtResource("1_game")
@@ -35,6 +37,14 @@ projection = ExtResource("11_proj")
 layers = Array[ExtResource("5_layercfg")]([ExtResource("15_far"), ExtResource("16_mid"), ExtResource("17_near")])
 
 [node name="Houses" type="Node2D" parent="."]
+
+[node name="Shadow" type="Node2D" parent="."]
+visible = false
+script = ExtResource("18_shadow")
+
+[node name="AimPreview" type="Node2D" parent="."]
+z_index = 3000
+script = ExtResource("19_aim")
 
 [node name="Pizza" type="Node2D" parent="."]
 

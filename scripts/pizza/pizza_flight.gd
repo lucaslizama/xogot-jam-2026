@@ -68,3 +68,30 @@ func has_landed() -> bool:
 ## How fast the pizza is turning, for spinning the sprite while it flies.
 func current_spin() -> float:
 	return _spin
+
+
+## Run a whole throw at once and hand back where it went, as (side, height,
+## distance) samples ending on the ground. Used to draw the aim preview, so the
+## line the player sees is produced by exactly the same maths that will fly.
+static func trace(tuning: PizzaPhysics, launch: Dictionary, samples: int = 26) -> PackedVector3Array:
+	var path := PackedVector3Array()
+	var flight := PizzaFlight.new(tuning, launch)
+	var step := 1.0 / 120.0
+	var guard := 0
+	var taken := 0
+	while guard < 20000:
+		guard += 1
+		var landed := flight.step(step)
+		taken += 1
+		# Thin the samples out so a long throw is not a thousand points.
+		if landed or taken % 5 == 0:
+			path.append(Vector3(flight.side, flight.height, flight.distance))
+		if landed:
+			break
+	if path.size() > samples:
+		var thinned := PackedVector3Array()
+		var stride: float = float(path.size() - 1) / float(samples - 1)
+		for i in samples:
+			thinned.append(path[mini(path.size() - 1, int(round(float(i) * stride)))])
+		return thinned
+	return path

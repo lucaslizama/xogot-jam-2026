@@ -18,6 +18,8 @@ func _ready() -> void:
 	_test_straight_drag_has_no_windup()
 	_test_hooked_flick_has_windup()
 	_test_circling_beats_hooking()
+	_test_preview_matches_the_real_flight()
+	_test_preview_is_bounded()
 	_test_projection_shrinks_with_distance()
 	_test_projection_ground_meets_horizon()
 
@@ -136,6 +138,34 @@ func _test_circling_beats_hooking() -> void:
 		absf(circle.windup()) > absf(hook.windup()) * 2.0)
 	_check("two circles land near two full turns (got %.2f rad)" % circle.windup(),
 		absf(absf(circle.windup()) - 2.0 * TAU) < 1.0)
+
+
+# --- the aim preview --------------------------------------------------------
+
+## The preview is only honest if it is produced by the same maths that flies.
+func _test_preview_matches_the_real_flight() -> void:
+	var tuning := PizzaPhysics.new()
+	for spin in [0.0, 6.0, -6.0]:
+		for speed in [1200.0, 2400.0, 3600.0]:
+			var launch := tuning.launch_from(_flick(speed), spin)
+			var path := PizzaFlight.trace(tuning, launch)
+			var flown := PizzaFlight.new(tuning, launch)
+			while not flown.step(1.0 / 120.0):
+				pass
+			var predicted := path[path.size() - 1]
+			var gap := Vector2(predicted.x - flown.side, predicted.z - flown.distance).length()
+			_check("preview landing matches the flown one at flick %.0f spin %.0f (off by %.3f)"
+					% [speed, spin, gap], gap < 0.05)
+			_check("preview ends on the ground at flick %.0f spin %.0f (height %.3f)"
+					% [speed, spin, predicted.y], absf(predicted.y) < 0.01)
+
+
+func _test_preview_is_bounded() -> void:
+	var tuning := PizzaPhysics.new()
+	var path := PizzaFlight.trace(tuning, tuning.launch_from(_flick(4200.0), 0.0), 26)
+	_check("the preview has enough points to draw an arc (got %d)" % path.size(), path.size() >= 8)
+	_check("and is capped so a long throw is not a thousand points (got %d)" % path.size(),
+		path.size() <= 26)
 
 
 # --- projection -------------------------------------------------------------
