@@ -4,9 +4,13 @@ extends RefCounted
 ## One pizza in the air. Pure arithmetic with no nodes in it, so the whole of
 ## the throw can be tested without drawing anything.
 ##
-## Axes: `side` is offset from the rider's line, positive to the right.
-## `height` is distance off the ground, zero being the ground. `distance` is
-## how far up the street the pizza has travelled.
+## Axes: `side` runs along the street, positive to the right, and is the axis
+## the world scrolls down. `distance` runs across the street away from the road,
+## toward the houses, and is what power buys. `height` is off the ground.
+##
+## A pizza does not scroll with the street, because it keeps the bike's speed
+## when it leaves your hands. In the rider's frame that means the houses slide
+## past underneath it, so throws have to lead a moving target.
 
 var side: float = 0.0
 var height: float = 0.0
