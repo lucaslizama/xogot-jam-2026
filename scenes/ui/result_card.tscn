@@ -1,0 +1,104 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/result_card.gd" id="1_result"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 72.0
+content_margin_top = 64.0
+content_margin_right = 72.0
+content_margin_bottom = 64.0
+bg_color = Color(0.14901961, 0.101960786, 0.20392157, 1)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+content_margin_left = 48.0
+content_margin_top = 24.0
+content_margin_right = 48.0
+content_margin_bottom = 24.0
+bg_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
+
+[node name="ResultCard" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_result")
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.101960786, 0.07058824, 0.14901961, 0.8666667)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -360.0
+offset_right = 470.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Rows" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="LevelLabel" type="Label" parent="Panel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23529412, 0.7058824, 0.8980392, 1)
+theme_override_font_sizes/font_size = 48
+text = "Street 1"
+horizontal_alignment = 1
+
+[node name="Heading" type="Label" parent="Panel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 96
+text = "ROUND DONE"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Body" type="Label" parent="Panel/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7137255, 0.6509804, 0.827451, 1)
+theme_override_font_sizes/font_size = 44
+text = "7 delivered."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="AgainButton" type="Button" parent="Panel/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 52
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn")
+text = "Next street"

@@ -26,6 +26,9 @@ extends Resource
 ## than lobbed: it would be on the ground in about a third of a second, too
 ## quick to watch and too quick for spin to do anything.
 @export_range(0.0, 120.0, 0.5) var max_lift_speed: float = 21.0
+## A release slower than this is a fumble, not a throw: the pizza stays on the
+## bike and no box is spent. Without it every stray tap costs a pizza.
+@export_range(0.0, 3000.0, 10.0) var min_throw_flick: float = 260.0
 ## A throw can never be feebler than this fraction of full power, so a nervous
 ## flick still leaves the bike.
 @export_range(0.0, 1.0, 0.01) var min_power: float = 0.18

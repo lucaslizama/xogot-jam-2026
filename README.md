@@ -17,21 +17,24 @@ crossed the round is over. Otherwise you keep going until the stack is empty.
 The throw carries the theme: once the box leaves your hands it is committed, and all you can
 do is watch.
 
-> ⚠️ **Work in progress.** The flight model and gesture reading are built and tested; the
-> street, the houses and the art are not.
+> ⚠️ **Work in progress.** It is playable end to end, but everything you see is a grey box.
+> No art, no sound.
 
 ## Current state
+
+Playable. Drag and release to throw, land boxes in the blue drop circles, miss and lose a dot.
 
 - **Throw model** — a released flick becomes power, aim and spin, and the pizza arcs through
   a fake-3D street. Curve comes from how much the gesture turned, so a deliberate pre-spin and
   the accidental hook of a curved flick feed the same number.
-- **Projection** — sideways offset, height and distance become screen pixels, kept apart from
-  the flight maths so the camera can be reframed on its own.
-- **Tests** — the throw, the gesture and the projection are covered headlessly, with no art
-  involved.
+- **Endless street** — houses stream in ahead and are dropped behind, generated from a seed so
+  a level is reproducible. Some houses are scenery, so picking a target matters.
+- **The round** — a stack of pizzas, a budget of strikes, and a level that ends when the stack
+  does. Three streets are set up, each tighter than the last.
+- **Placeholder visuals** — sky, road, parallax skyline, houses, rider, the stack on the bike
+  and the strike dots, all drawn as flat shapes.
 
-Still to build: the scrolling street, houses and drop points, landing and scoring, the strike
-dots, the pizza stack on the bike, and everything visual.
+Still to build: art, sound, and whatever sits between one street and the next.
 
 ## Project structure
 
@@ -40,7 +43,8 @@ xogot-jam-2026/
 ├── project.godot           # Engine + iOS/display/input configuration
 ├── icon.svg                # App/placeholder icon
 ├── scenes/                 # Scene files (.tscn): layout, values, arrangement
-├── scripts/pizza/          # Throw physics, gesture reading, street projection
+├── data/                   # Tuning and level resources, editable in the editor
+├── scripts/pizza/          # Throw, street, round rules and their views
 ├── tests/                  # Headless test scenes
 ├── docs/design/            # What is being built and why
 ├── docs/ideas/             # Shelved concepts kept for later
@@ -72,15 +76,18 @@ Open the project in Xogot (or Godot 4.6) and press **Play**.
 To run the tests:
 
 ```
-godot --headless res://tests/test_throw.tscn
+godot --headless res://tests/test_throw.tscn    # flight, gesture, projection
+godot --headless res://tests/test_street.tscn   # streaming, landing, round rules
+godot --headless res://tests/test_game.tscn     # the scene, driven by fake touches
 ```
 
 ## Roadmap
 
-- [ ] Scrolling street with parallax and generated houses
-- [ ] Drop points, landing detection and misses
-- [ ] Strike dots and the pizza stack on the bike
-- [ ] Level pacing: fewer strikes, tighter houses, faster street
+- [x] Scrolling street with parallax and generated houses
+- [x] Drop points, landing detection and misses
+- [x] Strike dots and the pizza stack on the bike
+- [x] Level pacing: fewer strikes, tighter houses, faster street
+- [ ] Tune the throw against a real thumb
 - [ ] Art and audio to replace placeholders
 - [ ] iOS export preset (bundle ID, icons, launch screen)
 

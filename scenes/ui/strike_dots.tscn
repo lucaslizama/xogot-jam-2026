@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/strike_dots.gd" id="1_dots"]
+
+[node name="StrikeDots" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_dots")
+
+[node name="Dots" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_top = 56.0
+offset_right = 250.0
+offset_bottom = 160.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 26
+alignment = 1
+
+[node name="Dot1" type="Label" parent="Dots"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.98039216, 0.9019608, 1)
+theme_override_font_sizes/font_size = 76
+text = "●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Dot2" type="Label" parent="Dots"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.98039216, 0.9019608, 1)
+theme_override_font_sizes/font_size = 76
+text = "●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Dot3" type="Label" parent="Dots"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.98039216, 0.9019608, 1)
+theme_override_font_sizes/font_size = 76
+text = "●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Dot4" type="Label" parent="Dots"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.98039216, 0.9019608, 1)
+theme_override_font_sizes/font_size = 76
+text = "●"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Dot5" type="Label" parent="Dots"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.98039216, 0.9019608, 1)
+theme_override_font_sizes/font_size = 76
+text = "●"
+horizontal_alignment = 1
+vertical_alignment = 1
