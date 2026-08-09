@@ -85,6 +85,20 @@ func windup() -> float:
 	return _windup
 
 
+## Bleed wind-up away, in radians. Called every frame while the gesture is held,
+## so the reading reflects how fast the finger is circling *now* rather than
+## everything it has ever done. Stop circling and the spin runs down.
+func bleed(radians: float) -> void:
+	_windup = move_toward(_windup, 0.0, maxf(0.0, radians))
+
+
+## Cap the wind-up. Spin saturates well before a finger stops circling, and
+## without a cap all that surplus has to drain away before the player sees the
+## spin react at all, which reads as the wind-up having stuck.
+func limit(max_radians: float) -> void:
+	_windup = clampf(_windup, -max_radians, max_radians)
+
+
 func is_active() -> bool:
 	return _active
 

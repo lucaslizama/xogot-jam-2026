@@ -20,6 +20,7 @@ func _ready() -> void:
 	_test_circling_beats_hooking()
 	_test_windup_survives_a_fast_sampling_device()
 	_test_idle_wobble_loads_no_spin()
+	_test_wind_up_runs_down_when_the_finger_stops()
 	_test_preview_matches_the_real_flight()
 	_test_preview_is_bounded()
 	_test_projection_shrinks_with_distance()
@@ -183,6 +184,42 @@ func _test_idle_wobble_loads_no_spin() -> void:
 	var half := t.spin_deadzone + (t.full_spin_windup - t.spin_deadzone) * 0.5
 	_check("halfway past the deadzone is half spin (got %.2f)" % t.spin_from(half),
 		absf(t.spin_from(half) - 0.5) < 0.01)
+
+
+## A finger that stops circling should watch the spin run down, not hold it
+## forever off one flick of the wrist. And the wind-up must be capped, or the
+## surplus has to drain before anything visibly changes.
+func _test_wind_up_runs_down_when_the_finger_stops() -> void:
+	var t := PizzaPhysics.new()
+	var g := ThrowGesture.new()
+	var centre := Vector2(600.0, 1200.0)
+	g.begin(centre + Vector2(130.0, 0.0), 0.0)
+	var time := 0.0
+	for i in range(1, 81):                      # two full circles
+		var a: float = TAU * float(i) / 40.0
+		time += 1.0 / 120.0
+		g.update(centre + Vector2(cos(a), sin(a)) * 130.0, time)
+
+	g.limit(t.full_spin_windup * 1.25)
+	_check("wind-up is capped rather than banking every turn (got %.2f rad)" % g.windup(),
+		absf(g.windup()) <= t.full_spin_windup * 1.25 + 0.01)
+	_check("and is still fully wound at the cap (spin %.2f)" % t.spin_from(g.windup()),
+		is_equal_approx(t.spin_from(g.windup()), 1.0))
+
+	# One second of a still finger, bled a sixtieth at a time.
+	var trail: Array[float] = []
+	for frame in 90:
+		g.bleed(t.windup_bleed / 60.0)
+		trail.append(t.spin_from(g.windup()))
+	_check("the spin falls rather than holding (%.2f -> %.2f)" % [trail[0], trail[trail.size() - 1]],
+		trail[trail.size() - 1] < trail[0])
+	_check("it reaches nothing within a second and a half (got %.2f)" % trail[trail.size() - 1],
+		is_zero_approx(trail[trail.size() - 1]))
+	var monotonic := true
+	for i in range(1, trail.size()):
+		if trail[i] > trail[i - 1] + 0.001:
+			monotonic = false
+	_check("and falls smoothly the whole way, never rising", monotonic)
 
 
 # --- the aim preview --------------------------------------------------------

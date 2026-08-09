@@ -40,6 +40,10 @@ signal round_ended(won: bool, delivered: int)
 ## which reads as the wind-up having broken. A spinning object says "loaded" the
 ## way a still one at an odd angle never will.
 @export_range(0.0, 40.0, 0.5) var spin_visual_rate: float = 11.0
+## How far past full the wind-up may bank before it is capped. A little headroom
+## keeps a hard wind from dropping off the moment the finger eases, but too much
+## and the spin appears frozen while the surplus drains.
+@export_range(1.0, 3.0, 0.05) var windup_headroom: float = 1.25
 ## How much of the previous turn survives each sixtieth of a second. Higher is
 ## heavier and calmer; 0 snaps straight to the target.
 @export_range(0.0, 0.95, 0.05) var windup_smoothing: float = 0.35
@@ -234,7 +238,13 @@ func _update_ready_pizza(delta: float) -> void:
 	_ready_pizza.visible = _flight == null and not _state.is_over() and _state.can_throw()
 	if _returning:
 		return
-	if not _gesture.is_active():
+	if _gesture.is_active():
+		# Drain the wind-up every frame and re-read it, so a finger that stops
+		# circling watches the spin run down instead of holding forever.
+		_gesture.bleed(physics.windup_bleed * delta)
+		_gesture.limit(physics.full_spin_windup * windup_headroom)
+		_spin_now = physics.spin_from(_gesture.windup())
+	else:
 		_spin_now = 0.0
 		_ready_pizza.position = _ready_home
 
@@ -259,7 +269,6 @@ func _update_ready_pizza(delta: float) -> void:
 func _show_windup(touch: Vector2) -> void:
 	var screen := get_viewport_rect().size
 	_ready_pizza.position = (touch + _grab_offset).clamp(Vector2(120.0, 260.0), screen - Vector2(120.0, -120.0))
-	_spin_now = physics.spin_from(_gesture.windup())
 
 
 ## Drop the pizza back into your hand after a release too slow to be a throw.
