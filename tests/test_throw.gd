@@ -19,6 +19,7 @@ func _ready() -> void:
 	_test_hooked_flick_has_windup()
 	_test_circling_beats_hooking()
 	_test_windup_survives_a_fast_sampling_device()
+	_test_up_and_down_loads_no_spin()
 	_test_idle_wobble_loads_no_spin()
 	_test_wind_up_runs_down_when_the_finger_stops()
 	_test_preview_matches_the_real_flight()
@@ -168,6 +169,40 @@ func _test_windup_survives_a_fast_sampling_device() -> void:
 	var spread: float = readings.max() - readings.min()
 	_check("and reads the same however fast the device samples (spread %.2f rad)" % spread,
 		spread < 0.4)
+
+
+## Dragging the pizza straight up and down reverses direction, and a reversal
+## reads as a half turn in a single reading, with the sign decided by a pixel of
+## sideways noise. That banked random wind-up and made the pizza jump.
+func _test_up_and_down_loads_no_spin() -> void:
+	var t := PizzaPhysics.new()
+	for noisy in [false, true]:
+		var g := ThrowGesture.new()
+		var at := Vector2(600.0, 1600.0)
+		g.begin(at, 0.0)
+		var time := 0.0
+		for sweep in 6:
+			var dir: float = -1.0 if sweep % 2 == 0 else 1.0
+			for i in 60:
+				time += 1.0 / 120.0
+				var wobble: float = sin(time * 91.7) * 1.5 if noisy else 0.0
+				g.update(at + Vector2(wobble, dir * float(i) * 6.0), time)
+			at += Vector2(0.0, dir * 354.0)
+		_check("six up-and-down sweeps%s load no spin (windup %.2f rad)"
+				% [" with a wobbling thumb" if noisy else "", g.windup()],
+			is_zero_approx(t.spin_from(g.windup())))
+
+	# The fix must not have deafened the recogniser to real circling.
+	var circle := ThrowGesture.new()
+	var centre := Vector2(600.0, 1200.0)
+	circle.begin(centre + Vector2(130.0, 0.0), 0.0)
+	var clock := 0.0
+	for i in range(1, 241):
+		var a: float = TAU * float(i) / 240.0
+		clock += 1.0 / 120.0
+		circle.update(centre + Vector2(cos(a), sin(a)) * 130.0, clock)
+	_check("a genuine circle still winds fully (spin %.2f)" % t.spin_from(circle.windup()),
+		is_equal_approx(t.spin_from(circle.windup()), 1.0))
 
 
 ## Carrying the pizza around racks up small turns that were never an attempt to

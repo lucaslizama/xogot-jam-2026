@@ -23,6 +23,15 @@ const FLICK_WINDOW: float = 0.09
 ## discarding them instead threw away the entire gesture. Aggregating to a fixed
 ## arc gives the same answer whatever rate the device samples at.
 const MIN_ARC: float = 8.0
+## The most one reading may turn and still count as circling.
+##
+## Reversing direction registers as a full half turn in a single reading, and
+## which way it lands is decided by a pixel of sideways noise. Dragging the
+## pizza straight up and down therefore banked random half turns of wind-up.
+## Circling turns gradually: at this reading distance even a tight circle turns
+## a fraction of a radian at a time, so anything sharper is a corner, not a
+## curve, and counts for nothing.
+const MAX_TURN_PER_READING: float = 0.8
 
 var _points: Array[Vector2] = []
 var _times: Array[float] = []
@@ -52,7 +61,9 @@ func update(position: Vector2, time: float) -> void:
 			# Signed angle between one reading and the next. Summed over the
 			# whole gesture this is its total turning: zero for a straight drag,
 			# one full turn per circle of the finger.
-			_windup += _last_direction.angle_to(direction)
+			var turn := _last_direction.angle_to(direction)
+			if absf(turn) <= MAX_TURN_PER_READING:
+				_windup += turn
 		_last_direction = direction
 		_anchor = position
 
