@@ -13,6 +13,7 @@ func _ready() -> void:
 	_test_street_stays_stocked_forever()
 	_test_street_is_reproducible()
 	_test_houses_respect_their_ranges()
+	_test_every_house_can_be_reached()
 	_test_landing_in_a_drop_point_delivers()
 	_test_landing_short_misses()
 	_test_a_house_cannot_be_served_twice()
@@ -97,6 +98,27 @@ func _test_houses_respect_their_ranges() -> void:
 			bad_gap += 1
 	_check("every house sits within the configured distance range (%d outside)" % bad_distance, bad_distance == 0)
 	_check("every gap sits within the configured range (%d outside)" % bad_gap, bad_gap == 0)
+
+
+## Every house on every street has to be reachable by the hardest throw the
+## physics allow. Tuning the throw down once left a street whose far houses
+## could not be delivered to at all, however hard the player pulled, and nothing
+## said so: the level simply became impossible partway along.
+func _test_every_house_can_be_reached() -> void:
+	var tuning := PizzaPhysics.new()
+	var hardest := PizzaFlight.new(tuning, tuning.launch_from(Vector2(0.0, -99999.0), 0.0))
+	while not hardest.step(1.0 / 240.0):
+		pass
+
+	for name in ["street_1", "street_2", "street_3"]:
+		var level: LevelConfig = load("res://data/levels/%s.tres" % name)
+		var needed: float = level.distance_max - level.drop_radius
+		_check("%s: its furthest house can be reached (hardest throw %.1f, needs %.1f)"
+				% [name, hardest.distance, needed], hardest.distance >= needed)
+		_check("%s: and with room to spare, not on the very edge (%.1f over)"
+				% [name, hardest.distance - needed], hardest.distance >= needed + 3.0)
+		_check("%s: its nearest house is not trivially close (%.1f)" % [name, level.distance_min],
+			level.distance_min > 20.0)
 
 
 # --- landing ----------------------------------------------------------------

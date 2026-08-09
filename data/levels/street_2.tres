@@ -9,6 +9,6 @@ street_speed = 36.0
 gap_min = 26.0
 gap_max = 44.0
 distance_min = 62.0
-distance_max = 95.0
+distance_max = 88.0
 drop_radius = 12.0
 waiting_chance = 0.6

@@ -45,7 +45,7 @@ visible = false
 script = ExtResource("18_shadow")
 
 [node name="AimPreview" type="Node2D" parent="."]
-z_index = 3000
+z_index = 5
 script = ExtResource("19_aim")
 
 [node name="Pizza" type="Node2D" parent="."]
@@ -55,27 +55,29 @@ corner_mark = true
 
 [node name="ReadyPizza" type="Node2D" parent="."]
 position = Vector2(585, 2470)
-z_index = 4050
+z_index = 10
 script = ExtResource("21_ph")
 size = Vector2(420, 420)
 corner_mark = true
 
 [node name="Rider" type="Node2D" parent="."]
 position = Vector2(585, 1700)
-z_index = 4000
+z_index = -14
 scale = Vector2(0.667, 0.667)
 script = ExtResource("21_ph")
 size = Vector2(240, 350)
 anchor = Vector2(0.5, 1)
 colour = Color(0.5137255, 0.2784314, 0.6784314, 1)
 
+[node name="PizzaStack" parent="." instance=ExtResource("8_stack")]
+unique_name_in_owner = true
+z_index = -13
+
 [node name="Ui" type="CanvasLayer" parent="."]
 
 [node name="StrikeDots" parent="Ui" instance=ExtResource("7_dots")]
 unique_name_in_owner = true
 
-[node name="PizzaStack" parent="Ui" instance=ExtResource("8_stack")]
-unique_name_in_owner = true
 
 [node name="ResultCard" parent="Ui" instance=ExtResource("9_result")]
 unique_name_in_owner = true
