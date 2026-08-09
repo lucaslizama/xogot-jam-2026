@@ -49,8 +49,6 @@ func _draw() -> void:
 		if layer != null:
 			_draw_layer(layer, view)
 
-	_draw_ground(view)
-	_draw_road_markings(view)
 
 
 func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
@@ -80,35 +78,3 @@ func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
 			draw_texture_rect(layer.art, box, false, tint)
 		else:
 			draw_rect(box, layer.colour * tint)
-
-
-## Dashes painted along the road, scrolling with the world. Only the span that
-## can be seen is drawn, so a mark far up the street costs nothing.
-func _draw_road_markings(view: Vector2) -> void:
-	var stride: float = lane_dash + lane_gap
-	if stride <= 0.001 or lane_colour.a <= 0.0:
-		return
-	var scale := projection.scale_at(lane_distance)
-	var half_span: float = (view.x * 0.75) / maxf(0.001, projection.pixels_per_unit * scale)
-	var first: int = int(floor((-half_span + _travelled) / stride))
-	var last: int = int(ceil((half_span + _travelled) / stride))
-
-	var tint := projection.haze_tint(lane_distance)
-	for i in range(first, last + 1):
-		var from_side: float = float(i) * stride - _travelled
-		var a := projection.project(from_side, 0.0, lane_distance)
-		var b := projection.project(from_side + lane_dash, 0.0, lane_distance)
-		draw_line(a, b, lane_colour * tint, lane_thickness * projection.pixels_per_unit * scale)
-
-
-func _draw_ground(view: Vector2) -> void:
-	# The road is a band between the rider's line and the far verge, drawn as a
-	# trapezoid because the far edge is narrower than the near one.
-	var near_y: float = projection.project(0.0, 0.0, 0.0).y
-	var far_y: float = projection.project(0.0, 0.0, road_depth).y
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(0.0, far_y), Vector2(view.x, far_y),
-		Vector2(view.x, view.y), Vector2(0.0, view.y),
-	]), road)
-	draw_rect(Rect2(0.0, far_y - 6.0, view.x, 6.0), verge)
-	draw_rect(Rect2(0.0, near_y, view.x, maxf(0.0, view.y - near_y)), road.darkened(0.25))

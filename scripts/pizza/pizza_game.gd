@@ -97,6 +97,7 @@ func _ready() -> void:
 	_ready_home = _ready_pizza.position
 	_backdrop.projection = projection
 	($Sky as NightSky).projection = projection
+	($Street as StreetSurface).projection = projection
 	_aim.projection = projection
 	_aim.physics = physics
 
@@ -133,6 +134,7 @@ func _process(delta: float) -> void:
 		_street.advance(delta)
 		_travelled += _config.street_speed * delta
 	_backdrop.set_travelled(_travelled)
+	($Street as StreetSurface).set_travelled(_travelled)
 	_sync_views()
 	_advance_flight(delta)
 	_update_ready_pizza(delta)

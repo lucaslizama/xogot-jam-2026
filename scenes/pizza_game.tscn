@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/level_state.gd" id="2_state"]
@@ -23,6 +23,8 @@
 [ext_resource type="Script" path="res://scripts/pizza/placeholder_2d.gd" id="21_ph"]
 [ext_resource type="Script" path="res://scripts/pizza/night_sky.gd" id="22_sky"]
 [ext_resource type="Shader" path="res://shaders/night_sky.gdshader" id="23_skyshader"]
+[ext_resource type="Script" path="res://scripts/pizza/street_surface.gd" id="24_street"]
+[ext_resource type="Shader" path="res://shaders/street.gdshader" id="25_streetshader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -37,6 +39,21 @@ shader_parameter/star_brightness = 1.4
 shader_parameter/twinkle_speed = 1.3
 shader_parameter/twinkle_depth = 0.32
 shader_parameter/thin_towards_horizon = 0.8
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_street"]
+shader = ExtResource("25_streetshader")
+shader_parameter/road_far = 18.0
+shader_parameter/asphalt = Color(0.15, 0.14, 0.17, 1)
+shader_parameter/asphalt_grain = Color(0.21, 0.2, 0.24, 1)
+shader_parameter/grain_amount = 0.35
+shader_parameter/grain_scale = 1.1
+shader_parameter/verge_colour = Color(0.19, 0.21, 0.17, 1)
+shader_parameter/verge_depth = 1.6
+shader_parameter/lane_colour = Color(0.78, 0.74, 0.55, 0.7)
+shader_parameter/lane_distance = 7.0
+shader_parameter/lane_width = 1.1
+shader_parameter/lane_dash = 7.0
+shader_parameter/lane_gap = 9.0
 
 [node name="PizzaGame" type="Node2D"]
 script = ExtResource("1_game")
@@ -55,6 +72,14 @@ offset_right = 1170.0
 offset_bottom = 2532.0
 mouse_filter = 2
 script = ExtResource("22_sky")
+
+[node name="Street" type="ColorRect" parent="."]
+z_index = -4094
+material = SubResource("ShaderMaterial_street")
+offset_right = 1170.0
+offset_bottom = 2532.0
+mouse_filter = 2
+script = ExtResource("24_street")
 
 [node name="Backdrop" type="Node2D" parent="."]
 z_index = -4095
