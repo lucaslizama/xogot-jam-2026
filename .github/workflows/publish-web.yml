@@ -1,0 +1,104 @@
+name: Publish web build to itch.io
+
+# Deliberately manual. Publishing moves the version the team is testing against,
+# so it happens when someone decides to, not on every push.
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "itch.io channel to push to"
+        required: false
+        default: "html5"
+
+env:
+  GODOT_VERSION: 4.6.1-stable
+  ITCH_TARGET: lucaslizama/pizza-flicker
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The templates are well over a gigabyte, so they are cached on the engine
+      # version. A cold run takes a few minutes; a warm one takes seconds.
+      - name: Cache Godot and its export templates
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot-bin
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Install Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot-bin
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}"
+          curl -sSL -o /tmp/godot.zip "${base}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          mv "/tmp/godot/Godot_v${GODOT_VERSION}_linux.x86_64" ~/godot-bin/godot
+          chmod +x ~/godot-bin/godot
+
+      - name: Install export templates
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}"
+          curl -sSL -o /tmp/templates.tpz "${base}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -tq /tmp/templates.tpz > /dev/null
+          unzip -q /tmp/templates.tpz -d /tmp/tpl
+          target=~/.local/share/godot/export_templates/${GODOT_VERSION/-/.}
+          mkdir -p "$(dirname "$target")"
+          rm -rf "$target"
+          mv /tmp/tpl/templates "$target"
+
+      - name: Run the test suites
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/godot-bin:$PATH"
+          godot --headless --import || true
+          failed=0
+          for suite in test_throw test_street test_game; do
+            output="$(godot --headless "res://tests/${suite}.tscn" 2>&1 | sed 's/\x1b\[[0-9;]*m//g')"
+            summary="$(echo "$output" | grep -E '^=== ' || echo 'no summary')"
+            echo "${suite}: ${summary}"
+            echo "$output" | grep -E '^  FAIL' || true
+            echo "$summary" | grep -qE '0 failed' || failed=1
+          done
+          exit $failed
+
+      - name: Export the web build
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/godot-bin:$PATH"
+          mkdir -p build/web
+          godot --headless --export-debug "Web" build/web/index.html
+          test -s build/web/index.wasm
+          test -s build/web/index.pck
+
+      - name: Install butler
+        run: |
+          set -euo pipefail
+          # broth serves a zip holding butler plus the two libraries it needs
+          # alongside it, so the whole archive is extracted, not just the binary.
+          curl -sSL -o /tmp/butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q /tmp/butler.zip -d ~/butler-bin
+          chmod +x ~/butler-bin/butler
+          ~/butler-bin/butler -V
+
+      - name: Push to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BUTLER_API_KEY}" ]; then
+            echo "BUTLER_API_KEY is not set. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          ~/butler-bin/butler push build/web \
+            "${ITCH_TARGET}:${{ inputs.channel }}" \
+            --userversion "ci.${{ github.run_number }}"
+          ~/butler-bin/butler status "${ITCH_TARGET}:${{ inputs.channel }}"
