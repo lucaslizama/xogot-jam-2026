@@ -127,3 +127,27 @@ guessing.
 Handheld orientation is an integer in Godot 4, not the string it was in Godot 3.
 A leftover `"portrait"` fails to convert and silently falls back to landscape, so
 the game looks right everywhere except on the phone.
+
+## Publishing
+
+The browser build goes to itch.io from a workflow rather than from anyone's
+machine. It runs the three test suites first and refuses to publish if any check
+fails.
+
+There are two ways to set it off, and no others: an ordinary push never
+publishes, because that would move the version the team is testing against
+without anyone deciding to.
+
+Pressing Run workflow in the Actions tab publishes a build named after the run
+number, which is for trying something out.
+
+Pushing a tag that is a plain version number publishes a build named after the
+tag, which is for releases:
+
+```
+git tag 0.7.0
+git push origin 0.7.0
+```
+
+No leading v. The number is also recorded in the project itself, so the two
+should be moved together.

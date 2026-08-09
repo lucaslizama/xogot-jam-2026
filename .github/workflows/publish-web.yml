@@ -1,7 +1,8 @@
 name: Publish web build to itch.io
 
-# Deliberately manual. Publishing moves the version the team is testing against,
-# so it happens when someone decides to, not on every push.
+# Never on an ordinary push. Publishing moves the version the team is testing
+# against, so it takes a deliberate act: either pressing the button, or tagging
+# a release.
 on:
   workflow_dispatch:
     inputs:
@@ -9,6 +10,11 @@ on:
         description: "itch.io channel to push to"
         required: false
         default: "html5"
+  push:
+    tags:
+      # Plain version numbers, no leading v. Glob rather than a pattern, since
+      # that is all tag filters understand: this matches 0.7.0 and 1.10.2 alike.
+      - "[0-9]*.[0-9]*.[0-9]*"
 
 env:
   GODOT_VERSION: 4.6.1-stable
@@ -98,7 +104,18 @@ jobs:
             echo "BUTLER_API_KEY is not set. Add it under Settings > Secrets and variables > Actions."
             exit 1
           fi
-          ~/butler-bin/butler push build/web \
-            "${ITCH_TARGET}:${{ inputs.channel }}" \
-            --userversion "ci.${{ github.run_number }}"
-          ~/butler-bin/butler status "${ITCH_TARGET}:${{ inputs.channel }}"
+          # A tag push carries no inputs, so the channel falls back to the default.
+          channel="${{ inputs.channel }}"
+          channel="${channel:-html5}"
+
+          # A tagged run is named after its tag, so what is on itch can be traced
+          # back to a commit. Anything else is named after the run that made it.
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="ci.${{ github.run_number }}"
+          fi
+          echo "publishing to ${ITCH_TARGET}:${channel} as ${version}"
+
+          ~/butler-bin/butler push build/web "${ITCH_TARGET}:${channel}" --userversion "${version}"
+          ~/butler-bin/butler status "${ITCH_TARGET}:${channel}"
