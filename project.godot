@@ -21,6 +21,12 @@ window/size/viewport_width=1170
 window/size/viewport_height=2532
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+; On a phone the game should fill whatever shape the screen is, so it expands.
+; In a browser it is handed an arbitrary frame that is usually landscape, and
+; expanding into that shows a wide, shallow slice of the game. Keeping the
+; aspect letterboxes instead, so the portrait game stays portrait whatever
+; itch.io or anyone else embeds it in.
+window/stretch/aspect.web="keep"
 window/handheld/orientation=1
 
 [input_devices]
