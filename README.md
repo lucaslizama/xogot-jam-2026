@@ -58,7 +58,7 @@ xogot-jam-2026/
 ├── docs/design/            # What is being built and why
 ├── docs/                   # Art brief, machine setup
 ├── sprites/                # Textures and art
-├── fonts/                  # Fredoka and Nunito, with their OFL licences
+├── fonts/                  # Fredoka and Nunito, with credits and their OFL licences
 └── sounds/                 # Sound effects, with credits
 ```
 
@@ -134,4 +134,4 @@ Built for Xogot Jam 2026.
 ## License
 
 TBD. Sound is CC0; see `sounds/CREDITS.md`. Fonts are Fredoka and Nunito, both under
-the SIL Open Font License; see `fonts/OFL-Fredoka.txt` and `fonts/OFL-Nunito.txt`.
+the SIL Open Font License; see `fonts/CREDITS.md`.
