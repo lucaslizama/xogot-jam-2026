@@ -61,6 +61,33 @@ jobs:
           rm -rf "$target"
           mv /tmp/tpl/templates "$target"
 
+      - name: Work out the version and stamp it into the project
+        run: |
+          set -euo pipefail
+          # A tagged run is its tag. Anything else is named after the run that
+          # made it, so a trial build can never be mistaken for a release.
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="0.0.0-ci.${{ github.run_number }}"
+          fi
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+
+          recorded="$(sed -n 's|^config/version="\(.*\)"$|\1|p' project.godot)"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${recorded}" != "${version}" ]; then
+            echo "::warning::the project records ${recorded:-nothing} but the tag is ${version}; the build will carry the tag"
+          fi
+
+          # Stamped into the checkout only, never committed. The build therefore
+          # always agrees with the tag it was made from, even if someone tagged
+          # without bumping.
+          if grep -q '^config/version=' project.godot; then
+            sed -i "s|^config/version=.*|config/version=\"${version}\"|" project.godot
+          else
+            sed -i "s|^config/name=|config/version=\"${version}\"\nconfig/name=|" project.godot
+          fi
+          grep '^config/version=' project.godot
+
       - name: Run the test suites
         run: |
           set -euo pipefail
@@ -108,14 +135,6 @@ jobs:
           channel="${{ inputs.channel }}"
           channel="${channel:-html5}"
 
-          # A tagged run is named after its tag, so what is on itch can be traced
-          # back to a commit. Anything else is named after the run that made it.
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            version="${GITHUB_REF_NAME}"
-          else
-            version="ci.${{ github.run_number }}"
-          fi
-          echo "publishing to ${ITCH_TARGET}:${channel} as ${version}"
-
-          ~/butler-bin/butler push build/web "${ITCH_TARGET}:${channel}" --userversion "${version}"
+          echo "publishing to ${ITCH_TARGET}:${channel} as ${VERSION}"
+          ~/butler-bin/butler push build/web "${ITCH_TARGET}:${channel}" --userversion "${VERSION}"
           ~/butler-bin/butler status "${ITCH_TARGET}:${channel}"

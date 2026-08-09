@@ -142,12 +142,18 @@ Pressing Run workflow in the Actions tab publishes a build named after the run
 number, which is for trying something out.
 
 Pushing a tag that is a plain version number publishes a build named after the
-tag, which is for releases:
+tag, which is for releases. One command does the lot:
 
 ```
-git tag 0.7.0
-git push origin 0.7.0
+bash tools/release.sh 0.8.0
 ```
 
-No leading v. The number is also recorded in the project itself, so the two
-should be moved together.
+That bumps the version the project records, commits it, tags it and pushes,
+which is the only way to be sure the number in the project and the tag agree. It
+refuses a version that is not three numbers with dots, since the tag filter
+would ignore anything else and the release would quietly publish nothing. It
+also refuses to tag a dirty working tree.
+
+The workflow stamps the tag into its own checkout before exporting, so a build
+carries the version it was tagged with even if someone tagged without bumping.
+That stamp is never committed; it only makes the artefact honest.
