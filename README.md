@@ -4,6 +4,8 @@ A mobile game built with [Godot](https://godotengine.org/) (via [Xogot](https://
 
 > **Theme:** Handoff
 
+Play it: **[lucaslizama.itch.io/pizza-flicker](https://lucaslizama.itch.io/pizza-flicker)**
+
 ## About
 
 You are a pizza delivery rider on an endless street. You sit at the bottom of the screen and
@@ -17,26 +19,29 @@ crossed the round is over. Otherwise you keep going until the stack is empty.
 The throw carries the theme: once the box leaves your hands it is committed, and all you can
 do is watch.
 
-> ⚠️ **Work in progress.** It is playable end to end, but everything you see is a grey box.
-> No art, no sound.
+> ⚠️ **Work in progress.** It plays end to end and it has a voice, but everything you *see*
+> is still a placeholder rectangle.
 
 ## Current state
 
-Playable. Drag and release to throw, land boxes in the blue drop circles, miss and lose a dot.
+Playable, tuned on a real phone, and published to itch on every version tag.
 
-- **Throw model** — a released flick becomes power, aim and spin, and the pizza arcs through
-  a fake-3D street. Curve comes from how much the gesture turned, so a deliberate pre-spin and
-  the accidental hook of a curved flick feed the same number.
+- **The throw** — a released flick becomes power, aim and spin, and the pizza arcs through a
+  fake-3D street. Full power asks for a committed drag; the arc holds its shape for the whole
+  flight; a wound-up pizza spins in your hand and runs down when you stop circling.
 - **Endless street** — houses stream in ahead and are dropped behind, generated from a seed so
   a level is reproducible. Some houses are scenery, so picking a target matters.
 - **The round** — a stack of pizzas, a budget of strikes, and a level that ends when the stack
-  does. Three streets are set up, each tighter than the last.
-- **Aiming help** — while you drag, a dotted arc and a landing ring show where the throw would
-  go, and a shadow tracks the pizza along the road while it flies. Both can be turned off.
-- **Placeholder visuals** — sky, road, parallax skyline, houses, rider, the stack on the bike
-  and the strike dots, all drawn as flat shapes.
+  does. Three streets, each tighter and faster than the last.
+- **Day cycle** — the first street is delivered at night, the second at sunrise, the third in
+  daylight, crossing between them rather than cutting.
+- **Two shaders** — a generated night sky with stars, and a road that inverts the projection
+  per pixel so its grain and markings scroll at the rate their depth deserves.
+- **Sound** — public domain foley for throwing, landing, missing and losing a strike.
+- **Tuning panel** — an on-device "tune" button with sliders for the throw and a readout of
+  what your last drag actually measured. Also a button that clears a street outright.
 
-Still to build: art, sound, and whatever sits between one street and the next.
+Still to build: art, and whatever sits between one street and the next.
 
 ## Project structure
 
@@ -45,32 +50,46 @@ xogot-jam-2026/
 ├── project.godot           # Engine + iOS/display/input configuration
 ├── icon.svg                # App/placeholder icon
 ├── scenes/                 # Scene files (.tscn): layout, values, arrangement
-├── data/                   # Tuning and level resources, editable in the editor
+├── shaders/                # Night sky, road surface
+├── data/                   # Tuning, levels and times of day, editable in the editor
 ├── scripts/pizza/          # Throw, street, round rules and their views
 ├── tests/                  # Headless test scenes
+├── tools/                  # Machine setup and releasing
 ├── docs/design/            # What is being built and why
-├── docs/ideas/             # Shelved concepts kept for later
+├── docs/                   # Art brief, machine setup
 ├── sprites/                # Textures and art
-└── sounds/                 # Music and SFX
+└── sounds/                 # Sound effects, with credits
 ```
 
 Scenes own the *values* (positions, colours, sizes, wording) so they stay editable in
 Xogot/Godot; scripts own the *behaviour*. Tunables live in exported resources rather than
 hardcoded, so they can be retuned without opening a script.
 
+Every visible piece has an empty texture slot waiting for it. Dropping a picture in makes the
+placeholder disappear; see `docs/art-brief.md` for the list and the measured sizes.
+
 ## Controls
 
-| Input                        | Action                                 |
-| ---------------------------- | -------------------------------------- |
-| Drag and release             | Throw a pizza; flick speed sets power   |
-| Lean the flick left or right | Aim                                    |
-| Circle before releasing      | Wind up spin, curving the flight        |
-| Release slowly               | Fumble; the pizza stays on the bike      |
+| Input                        | Action                                  |
+| ---------------------------- | --------------------------------------- |
+| Take hold of the pizza       | Pick it up; it follows your finger       |
+| Drag and release             | Throw; flick speed sets how far it goes  |
+| Lean the flick left or right | Aim                                     |
+| Circle it before releasing   | Wind up spin, curving the flight         |
+| Release slowly               | Fumble; it drops back into your hand     |
 
 ## Requirements
 
 - **Godot / Xogot 4.6** (Mobile renderer)
 - For iOS export: macOS + Xcode, an Apple Developer account, and the iOS export template
+
+Everything else a machine needs is installed by one script:
+
+```
+bash tools/setup-dev-env.sh
+```
+
+See `docs/dev-setup.md`, which also covers the parts that must be done on a phone.
 
 ## Running
 
@@ -79,10 +98,20 @@ Open the project in Xogot (or Godot 4.6) and press **Play**.
 To run the tests:
 
 ```
-godot --headless res://tests/test_throw.tscn    # flight, gesture, projection
-godot --headless res://tests/test_street.tscn   # streaming, landing, round rules
-godot --headless res://tests/test_game.tscn     # the scene, driven by fake touches
+godot-4.6 --headless res://tests/test_throw.tscn    # flight, gesture, projection
+godot-4.6 --headless res://tests/test_street.tscn   # streaming, landing, round rules
+godot-4.6 --headless res://tests/test_game.tscn     # the scene, driven by fake touches
 ```
+
+## Releasing
+
+```
+bash tools/release.sh 0.11.0
+```
+
+Bumps the version, commits, tags and pushes. Pushing the tag runs the tests and, if they all
+pass, publishes the browser build to itch.io named after the tag. An ordinary push publishes
+nothing.
 
 ## Roadmap
 
@@ -90,8 +119,11 @@ godot --headless res://tests/test_game.tscn     # the scene, driven by fake touc
 - [x] Drop points, landing detection and misses
 - [x] Strike dots and the pizza stack on the bike
 - [x] Level pacing: fewer strikes, tighter houses, faster street
-- [ ] Tune the throw against a real thumb
-- [ ] Art and audio to replace placeholders
+- [x] Tune the throw against a real thumb
+- [x] Sound
+- [x] Day cycle across the three streets
+- [ ] Art to replace the placeholders
+- [ ] Whatever happens between one street and the next
 - [ ] iOS export preset (bundle ID, icons, launch screen)
 
 ## Team
@@ -100,4 +132,4 @@ Built for Xogot Jam 2026.
 
 ## License
 
-TBD.
+TBD. Sound is CC0; see `sounds/CREDITS.md`.
