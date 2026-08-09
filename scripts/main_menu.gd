@@ -4,19 +4,18 @@ extends Control
 @export_file("*.tscn") var game_scene: String = "res://scenes/pizza_game.tscn"
 
 @onready var menu_container: VBoxContainer = $MenuContainer
-@onready var credits_page: Control = $CreditsPage
+@onready var credits_page: Credits = $CreditsPage
 @onready var how_to_play_page: HowToPlay = $HowToPlayPage
 @onready var start_button: Button = $MenuContainer/StartButton
 @onready var how_to_play_button: Button = $MenuContainer/HowToPlayButton
 @onready var credits_button: Button = $MenuContainer/CreditsButton
-@onready var back_button: Button = $CreditsPage/CreditsContainer/BackButton
 
 
 func _ready() -> void:
 	start_button.pressed.connect(_start_game)
 	how_to_play_button.pressed.connect(_show_how_to_play)
 	credits_button.pressed.connect(_show_credits)
-	back_button.pressed.connect(_show_menu)
+	credits_page.back_pressed.connect(_show_menu)
 	how_to_play_page.back_pressed.connect(_show_menu)
 	_alternate_box_flips()
 	_show_menu()

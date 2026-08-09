@@ -1,11 +1,13 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/how_to_play.gd" id="1_howto"]
 [ext_resource type="PackedScene" path="res://scenes/ui/how_to_step.tscn" id="2_step"]
 [ext_resource type="Script" path="res://scripts/pizza/pizza_box_button.gd" id="3_boxbtn"]
 [ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="4_box"]
+[ext_resource type="Theme" path="res://data/ui_theme.tres" id="5_theme"]
 
 [node name="HowToPlay" type="Control"]
+theme = ExtResource("5_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,9 +44,8 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 48
 
 [node name="Title" type="Label" parent="Scroll/Steps"]
+theme_type_variation = &"PageTitle"
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
-theme_override_font_sizes/font_size = 96
 text = "How to play"
 horizontal_alignment = 1
 
@@ -81,10 +82,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_font_sizes/font_size = 56
 text = "Back"
 script = ExtResource("3_boxbtn")
 art = ExtResource("4_box")

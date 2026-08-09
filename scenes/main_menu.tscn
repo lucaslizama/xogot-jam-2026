@@ -1,12 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://dywnhe0kaq0mp"]
+[gd_scene load_steps=8 format=3 uid="uid://dywnhe0kaq0mp"]
 
 [ext_resource type="Script" uid="uid://dyb8uy6eaxac4" path="res://scripts/main_menu.gd" id="1_l6cm7"]
 [ext_resource type="PackedScene" uid="uid://dmt65b37wpllc" path="res://scenes/ui/menu_background.tscn" id="2_menubg"]
 [ext_resource type="Script" path="res://scripts/pizza/pizza_box_button.gd" id="3_boxbtn"]
 [ext_resource type="PackedScene" path="res://scenes/ui/how_to_play.tscn" id="4_howto"]
 [ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="5_box"]
+[ext_resource type="PackedScene" path="res://scenes/ui/credits.tscn" id="6_credits"]
+[ext_resource type="Theme" path="res://data/ui_theme.tres" id="7_theme"]
 
 [node name="MainMenu" type="Control" unique_id=416969500]
+theme = ExtResource("7_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -40,9 +43,8 @@ theme_override_constants/separation = 24
 alignment = 1
 
 [node name="Title" type="Label" parent="MenuContainer" unique_id=1087584877]
+theme_type_variation = &"GameTitle"
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
-theme_override_font_sizes/font_size = 128
 text = "Pizza Flicker"
 horizontal_alignment = 1
 
@@ -54,22 +56,15 @@ layout_mode = 2
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_font_sizes/font_size = 56
 text = "Start"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
 
 [node name="HowToPlayButton" type="Button" parent="MenuContainer" unique_id=2008867430]
+theme_type_variation = &"SmallButton"
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_font_sizes/font_size = 48
 text = "How to play"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
@@ -79,113 +74,12 @@ flip_art_h = true
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_font_sizes/font_size = 56
 text = "Credits"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
 
-[node name="CreditsPage" type="Control" parent="." unique_id=555000001]
+[node name="CreditsPage" parent="." instance=ExtResource("6_credits")]
 visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Background" type="ColorRect" parent="CreditsPage" unique_id=555000002]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.101960786, 0.07058824, 0.14901961, 0.35)
-mouse_filter = 2
-
-[node name="CreditsContainer" type="VBoxContainer" parent="CreditsPage" unique_id=555000003]
-layout_mode = 0
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -420.0
-offset_top = -360.0
-offset_right = 420.0
-offset_bottom = 360.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 24
-alignment = 1
-
-[node name="CreditsTitle" type="Label" parent="CreditsPage/CreditsContainer" unique_id=555000004]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
-theme_override_font_sizes/font_size = 96
-text = "Credits"
-horizontal_alignment = 1
-
-[node name="JamLabel" type="Label" parent="CreditsPage/CreditsContainer" unique_id=555000005]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.8784314, 0.83137256, 0.93333334, 1)
-theme_override_font_sizes/font_size = 44
-text = "Made for the Xogot Game Jam 2026"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Spacer" type="Control" parent="CreditsPage/CreditsContainer" unique_id=555000006]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-
-[node name="RoleDesignProg" type="Label" parent="CreditsPage/CreditsContainer" unique_id=555000007]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.5803922, 0.34117648, 0.7411765, 1)
-theme_override_font_sizes/font_size = 40
-text = "Design & Programming"
-horizontal_alignment = 1
-
-[node name="NameDesignProg" type="Label" parent="CreditsPage/CreditsContainer" unique_id=555000008]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 48
-text = "Lucas Lizama & Belén Fuentes"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Spacer2" type="Control" parent="CreditsPage/CreditsContainer" unique_id=555000009]
-custom_minimum_size = Vector2(0, 16)
-layout_mode = 2
-
-[node name="RoleDesignArt" type="Label" parent="CreditsPage/CreditsContainer" unique_id=555000010]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.5803922, 0.34117648, 0.7411765, 1)
-theme_override_font_sizes/font_size = 40
-text = "Design & Art"
-horizontal_alignment = 1
-
-[node name="NameDesignArt" type="Label" parent="CreditsPage/CreditsContainer" unique_id=555000011]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 48
-text = "Ian Genskowsky"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="Spacer3" type="Control" parent="CreditsPage/CreditsContainer" unique_id=555000012]
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-
-[node name="BackButton" type="Button" parent="CreditsPage/CreditsContainer" unique_id=555000013]
-custom_minimum_size = Vector2(660, 130)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
-theme_override_font_sizes/font_size = 56
-text = "Back"
-script = ExtResource("3_boxbtn")
-art = ExtResource("5_box")
 
 [node name="HowToPlayPage" parent="." instance=ExtResource("4_howto")]
 visible = false

@@ -1,0 +1,55 @@
+[gd_resource type="Theme" load_steps=4 format=3]
+
+[ext_resource type="FontFile" path="res://fonts/Fredoka-SemiBold.ttf" id="1_display"]
+[ext_resource type="FontFile" path="res://fonts/Nunito-Regular.ttf" id="2_body"]
+[ext_resource type="FontFile" path="res://fonts/Nunito-SemiBold.ttf" id="3_bodybold"]
+
+[resource]
+default_font = ExtResource("2_body")
+default_font_size = 40
+Button/colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+Button/colors/font_focus_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+Button/colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+Button/colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+Button/font_sizes/font_size = 56
+Button/fonts/font = ExtResource("1_display")
+GameTitle/base_type = &"Label"
+GameTitle/colors/font_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+GameTitle/font_sizes/font_size = 128
+GameTitle/fonts/font = ExtResource("1_display")
+PageTitle/base_type = &"Label"
+PageTitle/colors/font_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+PageTitle/font_sizes/font_size = 96
+PageTitle/fonts/font = ExtResource("1_display")
+PageSubtitle/base_type = &"Label"
+PageSubtitle/colors/font_color = Color(0.8784314, 0.83137256, 0.93333334, 1)
+PageSubtitle/font_sizes/font_size = 44
+PageSubtitle/fonts/font = ExtResource("2_body")
+CreditRole/base_type = &"Label"
+CreditRole/colors/font_color = Color(0.5803922, 0.34117648, 0.7411765, 1)
+CreditRole/font_sizes/font_size = 40
+CreditRole/fonts/font = ExtResource("3_bodybold")
+CreditName/base_type = &"Label"
+CreditName/colors/font_color = Color(1, 1, 1, 1)
+CreditName/font_sizes/font_size = 48
+CreditName/fonts/font = ExtResource("1_display")
+Caption/base_type = &"Label"
+Caption/colors/font_color = Color(0.9411765, 0.89411765, 0.827451, 1)
+Caption/font_sizes/font_size = 40
+Caption/fonts/font = ExtResource("2_body")
+ResultHeading/base_type = &"Label"
+ResultHeading/colors/font_color = Color(1, 1, 1, 1)
+ResultHeading/font_sizes/font_size = 88
+ResultHeading/fonts/font = ExtResource("1_display")
+ResultBadge/base_type = &"Label"
+ResultBadge/colors/font_color = Color(0, 0, 0, 1)
+ResultBadge/font_sizes/font_size = 34
+ResultBadge/fonts/font = ExtResource("1_display")
+SmallButton/base_type = &"Button"
+SmallButton/font_sizes/font_size = 48
+GoButton/base_type = &"Button"
+GoButton/colors/font_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
+GoButton/colors/font_focus_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
+GoButton/colors/font_hover_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
+GoButton/colors/font_pressed_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
+GoButton/font_sizes/font_size = 52

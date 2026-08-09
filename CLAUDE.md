@@ -85,6 +85,12 @@ and delete the script afterwards.
 project setting the command line will not name. Open the editor's export dialog,
 which prints the real reason.
 
+**A running editor overwrites `project.godot` too.** A hand-added key is written
+back out from the editor's own in-memory settings and silently disappears, with
+no error and nothing in the diff. `gui/theme/custom` was lost this way twice in a
+row. Set project settings in the GUI with the editor open, or close it first; for
+anything a scene can carry itself, prefer putting it in the scene.
+
 **A running Godot editor overwrites `editor_settings-4.6.tres` when it saves**,
 including blanking the Android Java SDK path. Close it before editing that file,
 and prefer setting such values in the GUI.
@@ -96,6 +102,17 @@ in code: `@export` rather than a constant, values authored in the `.tscn`, tunin
 grouped into `Resource` files. Code owns behaviour, the editor owns values. The
 existing `PizzaPhysics`, `LevelConfig` and `StreetProjection` resources are the
 pattern to follow.
+
+Text styling lives in `data/ui_theme.tres`, not in per-node `theme_override_*`. A
+label or button picks its look with `theme_type_variation` (`PageTitle`,
+`CreditName`, `Caption`, `GoButton`, …), so a size or colour is changed once for
+every screen at once. Reach for an override only for a genuine one-off, and if a
+second node wants it, make it a variation instead.
+
+The theme is assigned on each page scene's root node rather than through the
+project-wide `gui/theme/custom` setting. See the trap below: that setting does
+not survive an editor save, and because the scenes carry no font sizes of their
+own, losing it drops every screen to the 16 px default.
 
 Prefer a scene with real nodes over generating nodes in `_ready`, so the scene is
 worth opening. Where the count is variable, author the maximum in the scene and

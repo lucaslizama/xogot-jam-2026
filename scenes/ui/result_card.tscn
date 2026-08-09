@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/result_card.gd" id="1_result"]
 [ext_resource type="Script" path="res://scripts/pizza/pizza_icon.gd" id="2_pizza"]
 [ext_resource type="Texture2D" uid="uid://djxcvnvv3gpsg" path="res://sprites/pizza_lose.png" id="3_lose"]
 [ext_resource type="Script" path="res://scripts/pizza/checkered_button.gd" id="4_checkbtn"]
 [ext_resource type="Script" path="res://scripts/pizza/circle_badge.gd" id="5_badge"]
+[ext_resource type="Theme" path="res://data/ui_theme.tres" id="7_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_box"]
 content_margin_left = 64.0
@@ -25,6 +26,7 @@ shadow_color = Color(0, 0, 0, 0.4)
 shadow_size = 36
 
 [node name="ResultCard" type="Control"]
+theme = ExtResource("7_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -70,10 +72,9 @@ layout_mode = 2
 script = ExtResource("5_badge")
 
 [node name="LevelLabel" type="Label" parent="Panel/Rows/Stamp/Badge"]
+theme_type_variation = &"ResultBadge"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 34
 text = "Street
 1"
 horizontal_alignment = 1
@@ -89,30 +90,25 @@ radius = 150.0
 art_dropped = ExtResource("3_lose")
 
 [node name="Heading" type="Label" parent="Panel/Rows"]
+theme_type_variation = &"ResultHeading"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 88
 text = "GOOD JOB!"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Body" type="Label" parent="Panel/Rows"]
+theme_type_variation = &"Caption"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9411765, 0.89411765, 0.827451, 1)
-theme_override_font_sizes/font_size = 40
 text = "7 delivered."
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="AgainButton" type="Button" parent="Panel/Rows"]
+theme_type_variation = &"GoButton"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
-theme_override_colors/font_pressed_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
-theme_override_colors/font_hover_color = Color(0.16078432, 0.6784314, 0.34117648, 1)
-theme_override_font_sizes/font_size = 52
 text = "Next street"
 script = ExtResource("4_checkbtn")
