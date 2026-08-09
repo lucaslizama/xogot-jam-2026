@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TimeOfDay" format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/time_of_day.gd" id="1_mbgw8"]
+
+[resource]
+script = ExtResource("1_mbgw8")
+display_name = "Day"
+sky_top = Color(0.35, 0.63, 0.92, 1)
+sky_horizon = Color(0.76, 0.88, 0.97, 1)
+star_brightness = 0.0
+star_chance = 0.0
+haze_colour = Color(0.8, 0.87, 0.95, 1)
+haze_strength = 0.55
+asphalt = Color(0.35, 0.35, 0.37, 1)
+asphalt_grain = Color(0.46, 0.46, 0.48, 1)
+verge = Color(0.42, 0.52, 0.28, 1)
+lane = Color(0.98, 0.97, 0.92, 0.85)

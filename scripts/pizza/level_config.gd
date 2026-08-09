@@ -11,6 +11,10 @@ extends Resource
 ## Misses allowed before the round is lost. Clamped to the dots the scene has.
 @export_range(1, 8) var strikes: int = 3
 
+## The hour this street is delivered in. The game crosses to it from whatever
+## the last street was, so the sun comes up over the course of a run.
+@export var time_of_day: TimeOfDay
+
 @export_group("The street")
 ## How fast the world slides past, in world units per second.
 @export_range(0.0, 80.0, 0.5) var street_speed: float = 33.0
