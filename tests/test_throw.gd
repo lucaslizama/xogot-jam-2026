@@ -74,28 +74,35 @@ func _test_spin_curves_the_flight() -> void:
 
 ## A curve must banana out and then settle into a straight diagonal. If the
 ## drift kept accelerating to the end it would be a spiral, and unaimable.
+##
+## Swept across the throws that actually reach the street, taken from the tuning
+## rather than a fixed number. A previous version tested one hardcoded flick, and
+## when the power ceiling moved that flick became a throw that lands short of
+## everything, where the shape genuinely is still opening and nobody cares.
 func _test_spin_bends_early_not_late() -> void:
 	var tuning := PizzaPhysics.new()
-	var flight := PizzaFlight.new(tuning, tuning.launch_from(_flick(3000.0), 7.5))
-	var trail: Array[float] = []
-	while not flight.step(STEP):
-		trail.append(flight.side)
-	if trail.size() < 9:
-		_check("curved flight lasted long enough to sample (%d steps)" % trail.size(), false)
-		return
+	for share in [0.66, 0.8, 1.0]:
+		var flick: float = tuning.full_power_flick * share
+		var flight := PizzaFlight.new(tuning, tuning.launch_from(_flick(flick), 99.0))
+		var trail: Array[float] = []
+		while not flight.step(STEP):
+			trail.append(flight.side)
+		if trail.size() < 9:
+			_check("a throw at %.0f px/s lasted long enough to sample" % flick, false)
+			continue
 
-	var third: int = trail.size() / 3
-	var first: float = trail[third] - trail[0]
-	var middle: float = trail[third * 2] - trail[third]
-	var last: float = trail[trail.size() - 1] - trail[third * 2]
+		var third: int = trail.size() / 3
+		var first: float = trail[third] - trail[0]
+		var middle: float = trail[third * 2] - trail[third]
+		var last: float = trail[trail.size() - 1] - trail[third * 2]
 
-	_check("the curve is still building over the first third (%.2f vs %.2f)" % [first, middle],
-		first < middle)
-	# The point is that it is not a runaway spiral, not that it is perfectly
-	# straight by the end. A curve that keeps opening a little is dramatic and
-	# still learnable; one that keeps tightening cannot be aimed at all.
-	_check("the curve has settled by the end, not spiralling (middle %.2f vs last %.2f)" % [middle, last],
-		last < middle * 1.45)
+		_check("at %.0f px/s the curve is still building over the first third (%.2f vs %.2f)"
+				% [flick, first, middle], first < middle)
+		# Not that it is perfectly straight by the end: a curve that keeps opening
+		# a little is dramatic and learnable. One that keeps tightening cannot be
+		# aimed at all.
+		_check("at %.0f px/s it has settled, not spiralling (middle %.2f vs last %.2f)"
+				% [flick, middle, last], last < middle * 1.35)
 
 
 # --- gesture ----------------------------------------------------------------
