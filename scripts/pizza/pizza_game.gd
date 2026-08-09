@@ -33,10 +33,13 @@ signal round_ended(won: bool, delivered: int)
 ## How much the pizza's sideways position at release shifts where the throw
 ## starts from. 1.0 means the throw leaves from exactly where you let go.
 @export_range(0.0, 3.0, 0.05) var drag_aim_gain: float = 1.0
-## How far the pizza has turned in your hand at full wind-up. It is driven by
-## the spin the throw will actually get, not by raw finger movement, so what you
-## see is what the pizza will do.
-@export_range(0.0, 12.0, 0.1) var spin_visual_turn: float = 3.8
+## How fast the pizza spins in your hand at full wind-up, in radians a second.
+##
+## It has to be a rate, not an angle. Showing the loaded spin as a fixed angle
+## meant the pizza turned a little and then sat there while you kept circling,
+## which reads as the wind-up having broken. A spinning object says "loaded" the
+## way a still one at an odd angle never will.
+@export_range(0.0, 40.0, 0.5) var spin_visual_rate: float = 11.0
 ## How much of the previous turn survives each sixtieth of a second. Higher is
 ## heavier and calmer; 0 snaps straight to the target.
 @export_range(0.0, 0.95, 0.05) var windup_smoothing: float = 0.35
@@ -241,7 +244,11 @@ func _update_ready_pizza(delta: float) -> void:
 	var blend: float = 1.0 - pow(windup_smoothing, delta * 60.0) if windup_smoothing > 0.0 else 1.0
 	blend = clampf(blend, 0.0, 1.0)
 	var charge: float = absf(_spin_now)
-	_ready_pizza.rotation = lerpf(_ready_pizza.rotation, _spin_now * spin_visual_turn, blend)
+	if _gesture.is_active():
+		# Keep turning while it is wound, faster the more spin is loaded.
+		_ready_pizza.rotation += _spin_now * spin_visual_rate * delta
+	else:
+		_ready_pizza.rotation = lerpf(wrapf(_ready_pizza.rotation, -PI, PI), 0.0, blend)
 	_ready_pizza.scale = _ready_pizza.scale.lerp(Vector2.ONE * lerpf(1.0, charged_scale, charge), blend)
 	_ready_pizza.modulate = _ready_pizza.modulate.lerp(Color.WHITE.lerp(charged_tint, charge), blend)
 
@@ -258,6 +265,9 @@ func _show_windup(touch: Vector2) -> void:
 ## Drop the pizza back into your hand after a release too slow to be a throw.
 func _return_ready_pizza() -> void:
 	_returning = true
+	# Unwind by the short way round rather than spooling back through every
+	# turn the pizza has just made.
+	_ready_pizza.rotation = wrapf(_ready_pizza.rotation, -PI, PI)
 	var tween := create_tween()
 	tween.tween_property(_ready_pizza, "position", _ready_home, return_duration) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
