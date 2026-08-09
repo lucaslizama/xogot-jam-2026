@@ -25,9 +25,12 @@ uniform float star_cells : hint_range(4.0, 400.0) = 90.0;
 uniform float star_chance : hint_range(0.0, 1.0) = 0.12;
 uniform float star_size : hint_range(0.001, 0.3) = 0.055;
 uniform vec4 star_colour : source_color = vec4(1.0, 0.97, 0.9, 1.0);
+// One knob for how much the stars stand out, kept separate from their colour so
+// brightness can be tuned without also shifting the tint.
+uniform float star_brightness : hint_range(0.0, 4.0) = 1.4;
 uniform float twinkle_speed : hint_range(0.0, 8.0) = 1.3;
 // How much of a star's brightness the twinkle takes away at its dimmest.
-uniform float twinkle_depth : hint_range(0.0, 1.0) = 0.45;
+uniform float twinkle_depth : hint_range(0.0, 1.0) = 0.32;
 // Stars thin out towards the horizon, the way haze thins them in real air.
 uniform float thin_towards_horizon : hint_range(0.0, 1.0) = 0.8;
 
@@ -57,7 +60,7 @@ void fragment() {
 		float twinkle = 1.0 - twinkle_depth * (0.5 + 0.5 * sin(TIME * twinkle_speed + phase));
 
 		// A little variety in brightness, so the field does not read as a grid.
-		float brightness = 0.45 + 0.55 * hash21(cell + 5.1);
+		float brightness = (0.55 + 0.45 * hash21(cell + 5.1)) * star_brightness;
 		float thinning = mix(1.0, height, thin_towards_horizon);
 
 		float star = smoothstep(star_size, 0.0, d) * twinkle * brightness * thinning;
