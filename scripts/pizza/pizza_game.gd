@@ -321,6 +321,7 @@ func _place_house(view: HouseView, house: House) -> void:
 	view.position = projection.project(house.side, 0.0, house.distance)
 	view.scale = Vector2(scale, scale)
 	view.z_index = clampi(int(-house.distance), -4000, 4000)
+	view.modulate = projection.haze_tint(house.distance)
 	view.show_state(house.waiting, house.served, house.drop_radius)
 
 

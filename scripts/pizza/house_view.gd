@@ -21,6 +21,15 @@ extends Node2D
 ## resource, or houses will not sit at the size the street expects.
 @export_range(1.0, 400.0, 1.0) var pixels_per_unit: float = 46.0
 
+@export_group("Drop point")
+## Roughly half the houses that go by are scenery, so the eye has to find the
+## ones that want a pizza among them. A drop point that breathes is found
+## faster than a still one, and unlike anything drawn it keeps working whatever
+## art turns up.
+@export_range(0.0, 4.0, 0.05) var pulse_rate: float = 1.0
+## How much it swells and brightens. Too much and the street starts throbbing.
+@export_range(0.0, 0.6, 0.01) var pulse_depth: float = 0.16
+
 @export_group("Art, when it arrives")
 ## Drawn bottom-centred on the ground point, filling width by wall plus roof.
 ## Leave empty and the placeholder shapes are drawn instead.
@@ -44,6 +53,11 @@ var _served: bool = false
 var _drop_radius: float = 3.2
 
 
+func _ready() -> void:
+	# Only a house still waiting has anything to animate.
+	set_process(false)
+
+
 ## Told by the street each frame. Redraws only when something actually changed,
 ## since most houses are static most of the time.
 func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
@@ -52,6 +66,11 @@ func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 	_waiting = waiting
 	_served = served
 	_drop_radius = drop_radius
+	set_process(pulse_depth > 0.0 and _waiting and not _served)
+	queue_redraw()
+
+
+func _process(_delta: float) -> void:
 	queue_redraw()
 
 
@@ -95,7 +114,12 @@ func _draw_placeholder_body() -> void:
 func _draw_drop_point() -> void:
 	if not _waiting:
 		return
-	var radius := _drop_radius * pixels_per_unit
+	# One clock for every house, so the street breathes together rather than
+	# each one flickering on its own beat.
+	var beat := 1.0
+	if pulse_depth > 0.0 and not _served:
+		beat += sin(float(Time.get_ticks_msec()) / 1000.0 * TAU * pulse_rate) * pulse_depth
+	var radius := _drop_radius * pixels_per_unit * beat
 	if art_drop_marker != null:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
 		draw_texture_rect(art_drop_marker, Rect2(-radius, -radius, radius * 2.0, radius * 2.0), false)

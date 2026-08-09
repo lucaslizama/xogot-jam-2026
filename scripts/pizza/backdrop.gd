@@ -19,6 +19,18 @@ extends Node2D
 ## How far back the road surface reaches, in world units.
 @export_range(5.0, 400.0, 1.0) var road_depth: float = 18.0
 
+@export_group("Road markings")
+## Without these the road is a flat band and the only thing saying the rider is
+## moving is the houses going by. Marks on the road say it directly, and they
+## come free from the same scroll the houses use.
+@export var lane_colour: Color = Color(0.78, 0.74, 0.55, 0.65)
+## How far back from the rider the marks are painted.
+@export_range(0.5, 100.0, 0.5) var lane_distance: float = 7.0
+## Length of one mark and the gap to the next, in world units.
+@export_range(0.5, 60.0, 0.5) var lane_dash: float = 7.0
+@export_range(0.5, 60.0, 0.5) var lane_gap: float = 9.0
+@export_range(1.0, 60.0, 0.5) var lane_thickness: float = 1.4
+
 var _travelled: float = 0.0
 
 
@@ -42,6 +54,7 @@ func _draw() -> void:
 			_draw_layer(layer, view)
 
 	_draw_ground(view)
+	_draw_road_markings(view)
 
 
 func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
@@ -66,10 +79,30 @@ func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
 		var top := projection.project(world_side, height, layer.distance)
 		var half: float = layer.width * 0.5 * projection.pixels_per_unit * scale
 		var box := Rect2(base.x - half, top.y, half * 2.0, base.y - top.y)
+		var tint := projection.haze_tint(layer.distance)
 		if layer.art != null:
-			draw_texture_rect(layer.art, box, false)
+			draw_texture_rect(layer.art, box, false, tint)
 		else:
-			draw_rect(box, layer.colour)
+			draw_rect(box, layer.colour * tint)
+
+
+## Dashes painted along the road, scrolling with the world. Only the span that
+## can be seen is drawn, so a mark far up the street costs nothing.
+func _draw_road_markings(view: Vector2) -> void:
+	var stride: float = lane_dash + lane_gap
+	if stride <= 0.001 or lane_colour.a <= 0.0:
+		return
+	var scale := projection.scale_at(lane_distance)
+	var half_span: float = (view.x * 0.75) / maxf(0.001, projection.pixels_per_unit * scale)
+	var first: int = int(floor((-half_span + _travelled) / stride))
+	var last: int = int(ceil((half_span + _travelled) / stride))
+
+	var tint := projection.haze_tint(lane_distance)
+	for i in range(first, last + 1):
+		var from_side: float = float(i) * stride - _travelled
+		var a := projection.project(from_side, 0.0, lane_distance)
+		var b := projection.project(from_side + lane_dash, 0.0, lane_distance)
+		draw_line(a, b, lane_colour * tint, lane_thickness * projection.pixels_per_unit * scale)
 
 
 func _draw_ground(view: Vector2) -> void:
