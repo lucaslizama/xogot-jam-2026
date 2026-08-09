@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/level_state.gd" id="2_state"]
@@ -25,6 +25,8 @@
 [ext_resource type="Shader" path="res://shaders/night_sky.gdshader" id="23_skyshader"]
 [ext_resource type="Script" path="res://scripts/pizza/street_surface.gd" id="24_street"]
 [ext_resource type="Shader" path="res://shaders/street.gdshader" id="25_streetshader"]
+[ext_resource type="Script" path="res://scripts/pizza/game_audio.gd" id="26_audio"]
+[ext_resource type="Resource" path="res://data/sound_bank.tres" id="27_bank"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -61,6 +63,10 @@ levels = Array[ExtResource("4_levelcfg")]([ExtResource("12_lvl1"), ExtResource("
 physics = ExtResource("10_physics")
 projection = ExtResource("11_proj")
 house_scene = ExtResource("6_house")
+
+[node name="Audio" type="Node" parent="."]
+script = ExtResource("26_audio")
+bank = ExtResource("27_bank")
 
 [node name="LevelState" type="Node" parent="."]
 script = ExtResource("2_state")

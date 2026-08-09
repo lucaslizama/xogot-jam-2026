@@ -98,7 +98,9 @@ thing on the list above is enough to replace everything on screen today.
 No user interface art. The buttons and cards are plain and can stay plain for
 now.
 
-No sound. That is a separate conversation.
+Sound is already in, though it is placeholder too: public domain impacts and
+interface beeps standing in until someone makes something better. Anyone who
+wants to replace them can, one at a time, the same way the pictures go in.
 
 ## How it goes in
 

@@ -63,6 +63,7 @@ signal round_ended(won: bool, delivered: int)
 @export_range(4.0, 300.0, 1.0) var pizza_radius: float = 34.0
 
 @onready var _state: LevelState = $LevelState
+@onready var _audio: GameAudio = $Audio
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: Node2D = $Pizza
@@ -92,12 +93,14 @@ var _hour: TimeOfDay
 var _hour_from: TimeOfDay
 var _hour_to: TimeOfDay
 var _hour_blend: float = 1.0
+var _strikes_seen: int = -1
 
 
 func _ready() -> void:
 	_state.bind_strike_capacity(_strikes.slot_count())
 	_state.pizzas_changed.connect(_stack.show_pizzas)
 	_state.strikes_changed.connect(_strikes.show_strikes)
+	_state.strikes_changed.connect(_on_strikes_changed)
 	_state.round_ended.connect(_on_round_ended)
 	_result.again_pressed.connect(_on_again)
 	_debug.win_requested.connect(_win_street_now)
@@ -135,6 +138,7 @@ func start_level() -> void:
 	_clear_flight()
 	_clear_views()
 	_result.hide()
+	_strikes_seen = -1
 	_state.begin(_config)
 
 
@@ -174,6 +178,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_grab_offset = _ready_pizza.position - event.position
 			_returning = false
 			_gesture.begin(event.position, now)
+			_audio.play(&"pick_up")
 		elif event.index == _touch_index and _gesture.is_active():
 			var flick := _gesture.release(event.position, now)
 			var windup := _gesture.windup()
@@ -202,6 +207,7 @@ func _throw(flick: Vector2, windup: float) -> void:
 		/ projection.pixels_per_unit) * drag_aim_gain
 	_flight = PizzaFlight.new(physics, launch)
 	_last_flick = -flick.y
+	_audio.play(&"throw")
 	_state.spend_pizza()
 	_ready_pizza.visible = false
 	_pizza.visible = true
@@ -229,8 +235,10 @@ func _resolve_landing() -> void:
 	if house != null:
 		house.served = true
 		_state.note_delivery()
+		_audio.play(&"delivered")
 	else:
 		_state.note_miss()
+		_audio.play(&"missed")
 	# Only now can the round be won: the last throw still had to land.
 	_state.note_flight_settled()
 
@@ -419,8 +427,17 @@ func _clear_flight() -> void:
 
 # --- the round ---------------------------------------------------------------
 
+func _on_strikes_changed(left: int) -> void:
+	# Only a strike being spent makes a noise; the first count of a fresh round
+	# is not a loss and must stay silent.
+	if _strikes_seen >= 0 and left < _strikes_seen:
+		_audio.play(&"strike")
+	_strikes_seen = left
+
+
 func _on_round_ended(won: bool, delivered: int) -> void:
 	_clear_flight()
+	_audio.play(&"round_won" if won else &"round_lost")
 	_result.show_result(won, delivered, _level_index + 1)
 	round_ended.emit(won, delivered)
 
