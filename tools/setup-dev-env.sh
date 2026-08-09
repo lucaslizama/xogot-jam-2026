@@ -203,7 +203,12 @@ export PATH="$PATH:$ANDROID_HOME/platform-tools"
 #
 # Android hands out a NEW PORT every time wireless debugging is toggled, so a
 # remembered address goes stale. mDNS survives both the IP and the port
-# changing, which is why it is tried first.
+# changing, which is why it is asked first.
+#
+# It also checks the phone actually answers before trying to connect. A phone
+# with its wifi radio asleep keeps being advertised over mDNS long after it
+# stops responding, so "found it" and "can reach it" are different questions,
+# and adb's own message for the second one is a bare "no route to host".
 #
 #   phone              discover and connect
 #   phone 1.2.3.4:5555 connect to a specific address
@@ -218,16 +223,35 @@ phone() {
         adb devices | grep -w "device$"
         return 0
     fi
-    local svc
+
+    local svc host
     svc=$(adb mdns services 2>/dev/null | awk '/_adb-tls-connect/ {print $3; exit}')
-    if [ -n "$svc" ]; then
-        echo "found via mDNS: $svc"
-        adb connect "$svc"
-        return $?
+    if [ -z "$svc" ]; then
+        echo "Nothing advertised. Check the phone is awake, on the same wifi, and that"
+        echo "Wireless debugging is on. If it has never been paired, see docs/dev-setup.md."
+        return 1
     fi
-    echo "Nothing found. Check that the phone is awake, on the same wifi, and that"
-    echo "Wireless debugging is on. If it has never been paired, see docs/dev-setup.md."
-    return 1
+
+    host=${svc%%:*}
+    echo "advertised at $svc"
+
+    local tries=0
+    while ! ping -c 1 -W 1 "$host" >/dev/null 2>&1; do
+        tries=$((tries + 1))
+        if [ "$tries" -ge 8 ]; then
+            echo ""
+            echo "  $host is advertised but does not answer."
+            echo "  That is the wifi radio asleep, not a broken setup: the advertisement"
+            echo "  outlives the connection. WAKE THE PHONE SCREEN and run phone again."
+            return 1
+        fi
+        [ "$tries" = 1 ] && printf "  no answer yet, waiting for the radio to wake"
+        printf "."
+        sleep 1
+    done
+    [ "$tries" -gt 0 ] && echo " awake"
+
+    adb connect "$svc"
 }
 EOF
     ok "added to $(basename "$rc")"
