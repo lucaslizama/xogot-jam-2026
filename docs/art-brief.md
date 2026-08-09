@@ -56,6 +56,17 @@ gives room to spare and costs nothing.
 | Skyline silhouette, middle row | 322 x 429 | 644 x 858 |
 | Skyline silhouette, far row | 302 x 408 | 604 x 816 |
 
+The how-to-play page wants four more, and they are the only pieces in the game
+that may move. Each one shows a thing the player does: the pizza in hand at the
+bottom, the houses along the top, and the throw going up the screen between them.
+
+| Piece | Biggest on screen | Draw at |
+| --- | --- | --- |
+| How to play, the flick | 1042 x 700 | 2084 x 1400 |
+| How to play, the curve | 1042 x 700 | 2084 x 1400 |
+| How to play, landing and missing | 1042 x 700 | 2084 x 1400 |
+| How to play, the stack and the strikes | 1042 x 560 | 2084 x 1120 |
+
 ## Notes on the tricky ones
 
 **The house needs three versions.** One that is waiting for a pizza, one that
@@ -64,10 +75,11 @@ apart in a glance from across the street, and roughly half the houses that go by
 are scenery, so this is the single most important read in the game. A lit window
 does the job at the moment, which is a low bar to clear.
 
-**The drop point lies flat on the road**, in front of the house. Draw it as a
-circle seen face on; the game squashes it to sit on the ground. It is much
-bigger than it sounds, wider than the house is, because it is the target and it
-has to be aimable.
+**The drop point lies flat on the ground at the foot of the house**, not out on
+the road: the house is what is being aimed at, so the target belongs under it.
+Draw it as a circle seen face on; the game squashes it to sit on the ground. It is
+much bigger than it sounds, about as wide as the house, because it is the target
+and it has to be aimable.
 
 **The pizza in hand rotates**, and rotating is how the player sees they are
 loading a curve. A shape that looks the same every quarter turn cannot show
@@ -83,6 +95,14 @@ pizza left, stacked upward, and they vanish from the top as they are thrown.
 They are thin slivers seen edge on, so a side view of a closed box is all that
 is needed.
 
+**The how-to-play pictures can be still or moving.** A still is one PNG and goes
+in like everything else. A loop goes in the same slot: lay the frames out left to
+right in one strip, drop it in, then set `frame_count` on the step to how many
+frames there are and `frames_per_second` to how fast they should run. The engine
+cannot import an animated GIF, so export the strip instead. Until the pictures
+land, each step draws a mock-up of itself out of the game's own placeholder
+pieces, which is a fine thing to draw over.
+
 **The skyline rows** are three bands of buildings behind the street, each
 further back than the last. One silhouette is drawn over and over across the
 row, so it should tile happily beside copies of itself. Detail is wasted here;
@@ -95,8 +115,8 @@ not pedal, the boxes do not open, nobody comes to the door. That will come, and
 knowing it is coming is worth keeping in mind, but a single still image of each
 thing on the list above is enough to replace everything on screen today.
 
-No user interface art. The buttons and cards are plain and can stay plain for
-now.
+No user interface art beyond the menu's pizza box, which is in. The buttons and
+cards are otherwise plain and can stay plain for now.
 
 Sound is already in, though it is placeholder too: public domain impacts and
 interface beeps standing in until someone makes something better. Anyone who

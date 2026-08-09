@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://dywnhe0kaq0mp"]
+[gd_scene load_steps=6 format=3 uid="uid://dywnhe0kaq0mp"]
 
 [ext_resource type="Script" uid="uid://dyb8uy6eaxac4" path="res://scripts/main_menu.gd" id="1_l6cm7"]
 [ext_resource type="PackedScene" uid="uid://dmt65b37wpllc" path="res://scenes/ui/menu_background.tscn" id="2_menubg"]
 [ext_resource type="Script" path="res://scripts/pizza/pizza_box_button.gd" id="3_boxbtn"]
+[ext_resource type="PackedScene" path="res://scenes/ui/how_to_play.tscn" id="4_howto"]
+[ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="5_box"]
 
 [node name="MainMenu" type="Control" unique_id=416969500]
 layout_mode = 3
@@ -49,7 +51,7 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
 [node name="StartButton" type="Button" parent="MenuContainer" unique_id=2008867428]
-custom_minimum_size = Vector2(420, 190)
+custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
@@ -58,9 +60,23 @@ theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.1098039
 theme_override_font_sizes/font_size = 56
 text = "Start"
 script = ExtResource("3_boxbtn")
+art = ExtResource("5_box")
+
+[node name="HowToPlayButton" type="Button" parent="MenuContainer" unique_id=2008867430]
+custom_minimum_size = Vector2(660, 130)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+theme_override_colors/font_pressed_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
+theme_override_font_sizes/font_size = 48
+text = "How to play"
+script = ExtResource("3_boxbtn")
+art = ExtResource("5_box")
+flip_art_h = true
 
 [node name="CreditsButton" type="Button" parent="MenuContainer" unique_id=2008867429]
-custom_minimum_size = Vector2(420, 190)
+custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
@@ -69,6 +85,7 @@ theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.1098039
 theme_override_font_sizes/font_size = 56
 text = "Credits"
 script = ExtResource("3_boxbtn")
+art = ExtResource("5_box")
 
 [node name="CreditsPage" type="Control" parent="." unique_id=555000001]
 visible = false
@@ -159,7 +176,7 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 
 [node name="BackButton" type="Button" parent="CreditsPage/CreditsContainer" unique_id=555000013]
-custom_minimum_size = Vector2(420, 190)
+custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.29411766, 0.19607843, 0.10980392, 1)
@@ -168,3 +185,7 @@ theme_override_colors/font_hover_color = Color(0.29411766, 0.19607843, 0.1098039
 theme_override_font_sizes/font_size = 56
 text = "Back"
 script = ExtResource("3_boxbtn")
+art = ExtResource("5_box")
+
+[node name="HowToPlayPage" parent="." instance=ExtResource("4_howto")]
+visible = false

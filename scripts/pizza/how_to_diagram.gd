@@ -1,0 +1,351 @@
+@tool
+class_name HowToDiagram
+extends Control
+
+## A mock-up of one how-to-play step, drawn from the game's own placeholder pieces:
+## the street, a house with a lit window, the cyan drop point, the pizza in hand, the
+## stack of boxes left. Its job is to make the page readable and arguable before a
+## frame of the real thing is drawn, and to show an artist the shot each step asks
+## for rather than describing it in a sentence.
+##
+## The colours below are the ones the street, the houses, the strike dots and the
+## pizza already use, so the page looks like the game it explains. Assign the
+## step's art and the whole diagram is hidden, which is [HowToStep]'s doing.
+##
+## Everything is laid out in unit coordinates and multiplied up by the node's
+## size, so one drawing fits whatever height a step is given.
+
+## Which step this draws. Named DiagramKind rather than Kind because a bare name
+## risks colliding with a built-in global enum, which fails to compile in a way
+## nothing surfaces until the script is loaded.
+enum DiagramKind {
+	NONE, ## Nothing drawn, leaving the plain placeholder box and its note.
+	FLICK, ## Drag and release: the gesture and where the pizza goes.
+	CURVE, ## Twisting before the throw, and the bent flight it buys.
+	LAND, ## One in the ring, one into the wall.
+	STACK, ## The boxes left on the bike and the strike dots up top.
+}
+
+@export var kind: DiagramKind = DiagramKind.FLICK:
+	set(value):
+		kind = value
+		queue_redraw()
+
+@export_group("Our art, where it exists")
+## One box in the stack of pizzas left. Boxes are drawn as bars without it.
+@export var box_art: Texture2D:
+	set(value):
+		box_art = value
+		queue_redraw()
+## The splat where a missed pizza ends up. Drawn as a smear without it.
+@export var dropped_art: Texture2D:
+	set(value):
+		dropped_art = value
+		queue_redraw()
+
+@export_group("Colours")
+## The night the game is played in, and the road under it.
+@export var sky: Color = Color(0.14, 0.1, 0.2)
+## The ground either side of the paving. Without it anything standing off the road
+## has nothing under it and floats in the sky, which is exactly how it looked.
+@export var ground: Color = Color(0.16, 0.14, 0.16)
+@export var road: Color = Color(0.24, 0.22, 0.26)
+@export var road_edge: Color = Color(0.86, 0.82, 0.7, 0.5)
+## The paint on the road. Fainter and thinner than the kerbs, or the marks read as
+## slabs lying across the street rather than as markings on it.
+@export var lane_mark: Color = Color(0.86, 0.82, 0.7, 0.3)
+@export var horizon_glow: Color = Color(0.32, 0.22, 0.36)
+## Taken from the house placeholder, so a house here is the house there.
+@export var wall: Color = Color(0.62, 0.44, 0.36)
+@export var roof: Color = Color(0.36, 0.22, 0.24)
+@export var window_lit: Color = Color(1.0, 0.85, 0.45)
+## The drop point's cyan, the colour a waiting house is aimed at.
+@export var ring: Color = Color(0.24, 0.71, 0.9, 0.55)
+@export var pizza: Color = Color(0.96, 0.78, 0.36)
+@export var pizza_rim: Color = Color(0.78, 0.55, 0.32)
+## The strike dots: clean, and crossed off.
+@export var clean: Color = Color(1.0, 0.98, 0.9)
+@export var spent: Color = Color(0.85, 0.27, 0.33)
+## The gesture drawn over the scene, and the good and bad outcomes.
+@export var gesture: Color = Color(1.0, 1.0, 1.0, 0.85)
+@export var good: Color = Color(0.16, 0.68, 0.34)
+@export var bad: Color = Color(0.83, 0.16, 0.14)
+
+## The camera the game actually uses. The pizza sits in your hand at the bottom of
+## the screen, the houses are along the top, and you flick up the screen at them,
+## the way a ball is thrown in Pokemon Go. Up the screen is further away, so there
+## is no road running off into the distance: the street is a band across the middle
+## that scrolls right to left, and a throw that falls short lands lower, not nearer
+## the middle.
+##
+## The sky ends here, and the pavement the houses stand on begins.
+const HORIZON: float = 0.26
+## Where the pavement ends and the road begins.
+const FAR_KERB: float = 0.40
+## The pizza in hand, big at the bottom centre, which is what you drag.
+const IN_HAND: Vector2 = Vector2(0.5, 0.86)
+const IN_HAND_RADIUS: float = 0.08
+## The waiting house, and its drop point on the ground at the foot of it. The house
+## is what you are aiming at, so the target belongs under the house and not out on
+## the road, where it would read as a spot in the middle of the street.
+const HOUSE_FOOT: Vector2 = Vector2(0.62, 0.36)
+const DROP: Vector2 = Vector2(0.62, 0.40)
+## The stack of boxes left, counted off in the corner out of the throw's way.
+const STACK_CORNER: Vector2 = Vector2(0.03, 0.97)
+
+
+func _draw() -> void:
+	if kind == DiagramKind.NONE:
+		return
+	_draw_street()
+	match kind:
+		DiagramKind.FLICK:
+			_draw_flick()
+		DiagramKind.CURVE:
+			_draw_curve()
+		DiagramKind.LAND:
+			_draw_land()
+		DiagramKind.STACK:
+			_draw_stack()
+
+
+## The scene every step shares: a night sky with a skyline behind it, the houses
+## along the top with the pavement under them, and the road across the middle.
+## Nothing converges, because you are not looking down the street but across it.
+func _draw_street() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), sky)
+	_draw_skyline()
+	# Pavement behind, road in front of it, and a kerb line where they meet.
+	draw_rect(Rect2(_at(0.0, HORIZON), Vector2(size.x, size.y * (1.0 - HORIZON))), ground)
+	draw_rect(Rect2(_at(0.0, FAR_KERB), Vector2(size.x, size.y * (1.0 - FAR_KERB))), road)
+	draw_line(_at(0.0, FAR_KERB), _at(1.0, FAR_KERB), road_edge, 2.0)
+	# Lane paint runs along the street, left to right, which is the way the whole
+	# world moves. Nothing about it tapers: no part of the road is nearer than another.
+	_draw_lane(0.48, 0.035, 0.006)
+	_draw_lane(0.68, 0.05, 0.010)
+	# A row of them across the top, most of it scenery, one lit and waiting. Telling
+	# those apart at a glance is the read the game asks for most often.
+	_draw_house(Vector2(0.16, HORIZON + 0.08), false, 0.75)
+	_draw_house(Vector2(0.92, HORIZON + 0.06), false, 0.7)
+	if kind != DiagramKind.STACK:
+		_draw_house(HOUSE_FOOT, true, 1.0)
+
+
+## Two dim rows of blocks along the skyline, the near row a little taller than the
+## far one. They are what tells the eye the street is being seen from the side.
+func _draw_skyline() -> void:
+	for row in 2:
+		var shade := sky.lightened(0.10 - row * 0.04)
+		var tall := 0.16 - row * 0.05
+		var step := 0.13 + row * 0.02
+		var x := -0.04 + row * 0.05
+		while x < 1.0:
+			var top := HORIZON - tall * (0.6 + fmod(x * 7.0, 0.8))
+			draw_rect(Rect2(_at(x, top), Vector2(size.x * step * 0.8, size.y * (HORIZON - top))), shade)
+			x += step
+
+
+## One row of lane paint across the road, at depth [param y]. Dashes of a fixed
+## size, because at this camera nothing on the road is nearer than anything else.
+func _draw_lane(y: float, dash: float, thick: float) -> void:
+	var x := 0.02
+	while x < 1.0:
+		draw_rect(Rect2(_at(x, y), Vector2(size.x * dash, size.y * thick)), lane_mark)
+		x += dash * 2.4
+
+
+## A house standing along the far pavement, positioned by the point where it meets
+## the ground, as the street positions them. A waiting one is lit and has a drop
+## point on the road in front of it; scenery is dark and has none. [param scale]
+## sets how far back it is: the street sends them past at different distances.
+func _draw_house(foot: Vector2, waiting: bool, scale: float) -> void:
+	var base := _at(foot.x, foot.y)
+	var px := size.x * 0.18 * scale
+	var wall_h := size.y * 0.24 * scale
+	var wall_rect := Rect2(base - Vector2(px * 0.5, wall_h), Vector2(px, wall_h))
+	if waiting:
+		_draw_ring(DROP)
+	draw_rect(wall_rect, wall if waiting else wall.darkened(0.5))
+	var apex := Vector2(base.x, wall_rect.position.y - size.y * 0.09 * scale)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(wall_rect.position.x, wall_rect.position.y),
+		Vector2(wall_rect.end.x, wall_rect.position.y), apex,
+	]), roof if waiting else roof.darkened(0.5))
+	if waiting:
+		var win := Rect2(wall_rect.position + wall_rect.size * Vector2(0.3, 0.18), wall_rect.size * Vector2(0.4, 0.3))
+		draw_rect(win, window_lit)
+
+
+## The landing ring, lying flat on the road, so squashed into an ellipse.
+func _draw_ring(centre: Vector2) -> void:
+	var c := _at(centre.x, centre.y)
+	var points := PackedVector2Array()
+	for i in 33:
+		var a := TAU * i / 32.0
+		points.append(c + Vector2(cos(a) * size.x * 0.10, sin(a) * size.y * 0.035))
+	draw_colored_polygon(points, ring)
+	draw_polyline(points, Color(ring.r, ring.g, ring.b, 0.95), 3.0, true)
+
+
+## The boxes still on the bike, counted off up the corner of the screen where they
+## are out of the throw's way. This is the only pizza counter the game has.
+## [param scale] draws them bigger, which the stack step wants: there they are the
+## subject rather than the corner of the picture.
+func _draw_counter(left: int, thrown: int = 0, scale: float = 1.0) -> void:
+	for i in left:
+		_draw_box(_box_slot(i, scale), 1.0)
+	# The ones already thrown, ghosted in the slots they came out of, so the counter
+	# reads as something going down rather than a fixed pile of boxes.
+	for i in thrown:
+		_draw_box(_box_slot(left + i, scale), 0.22)
+
+
+## Where the [param i]th box up the stack sits, counting from the bottom.
+func _box_slot(i: int, scale: float) -> Rect2:
+	var bar := Vector2(size.x * 0.13 * scale, maxf(4.0, size.y * 0.026 * scale))
+	var corner := _at(STACK_CORNER.x, STACK_CORNER.y)
+	return Rect2(Vector2(corner.x, corner.y - bar.y * (i + 1) * 1.5), bar)
+
+
+## One box in the stack, the sprite if it is in, a bar in its colour if it is not.
+func _draw_box(where: Rect2, alpha: float) -> void:
+	if box_art != null:
+		draw_texture_rect(box_art, where, false, Color(1.0, 1.0, 1.0, alpha))
+	else:
+		draw_rect(where, Color(pizza_rim.r, pizza_rim.g, pizza_rim.b, alpha))
+
+
+## Drag the pizza and let go. The finger comes up the screen off the pizza, which is
+## the throw: aim and power are one gesture, so the drawing has to be one arrow.
+func _draw_flick() -> void:
+	_draw_counter(4)
+	_draw_pizza(IN_HAND, IN_HAND_RADIUS)
+	# The finger, off to the side of the pizza and flicking up the screen. Drawn
+	# beside it rather than across it, so the swipe and the flight stay two things.
+	var from_px := _at(IN_HAND.x - 0.20, IN_HAND.y + 0.06)
+	var to_px := _at(IN_HAND.x - 0.16, IN_HAND.y - 0.14)
+	_dashed(from_px, to_px, gesture, 4.0)
+	_arrow(to_px, (to_px - from_px).normalized(), gesture)
+	draw_circle(from_px, size.x * 0.022, gesture)
+	_arc(IN_HAND, Vector2(0.62, 0.22), DROP, gesture)
+
+
+## Twist first and the flight bends, which is how a house off to one side is reached
+## at all. The straight throw is drawn faint beside it, falling short.
+func _draw_curve() -> void:
+	_draw_counter(4)
+	_draw_pizza(IN_HAND, IN_HAND_RADIUS)
+	_spin_arrow(IN_HAND, IN_HAND_RADIUS + 0.03)
+	# The bent throw comes round to the drop point. The straight one dies out on the
+	# road, and short here means low, because up the screen is further away.
+	_arc(IN_HAND, Vector2(0.24, 0.30), DROP, gesture)
+	_arc(IN_HAND, Vector2(0.56, 0.70), Vector2(0.66, 0.78), Color(gesture.r, gesture.g, gesture.b, 0.28))
+
+
+## The two things that can happen, side by side: into the ring, or into the wall.
+func _draw_land() -> void:
+	_draw_counter(4)
+	_draw_pizza(IN_HAND, IN_HAND_RADIUS)
+	_arc(IN_HAND, Vector2(0.62, 0.22), DROP, good)
+	_tick(Vector2(0.44, 0.44), good)
+	# The miss ends on the wall itself, with the splat at its foot, so neither mark
+	# lands on the drop point: a cross there would blame the ring.
+	_arc(IN_HAND, Vector2(0.42, 0.12), Vector2(0.66, 0.24), bad)
+	_cross(Vector2(0.66, 0.22), bad)
+	var splat := _at(0.74, 0.50)
+	var splat_size := Vector2(size.x * 0.09, size.y * 0.07)
+	if dropped_art != null:
+		draw_texture_rect(dropped_art, Rect2(splat - splat_size * 0.5, splat_size), false)
+	else:
+		draw_rect(Rect2(splat - splat_size * 0.5, splat_size), pizza_rim)
+
+
+## What is left: the boxes on the bike, and the strike dots along the top. The stack
+## is the only pizza counter the game has, so it is worth a step of its own, and here
+## it is drawn big rather than tucked in the corner.
+func _draw_stack() -> void:
+	_draw_dots(3, 1)
+	_draw_counter(5, 2, 1.9)
+	_draw_pizza(IN_HAND, IN_HAND_RADIUS)
+
+
+## The strike dots as the game shows them: clean, and crossed off once spent.
+func _draw_dots(total: int, crossed: int) -> void:
+	var r := size.y * 0.05
+	for i in total:
+		var c := _at(0.5 + (i - (total - 1) * 0.5) * 0.12, 0.12)
+		if i < crossed:
+			draw_line(c - Vector2(r, r), c + Vector2(r, r), spent, 5.0, true)
+			draw_line(c - Vector2(r, -r), c + Vector2(r, -r), spent, 5.0, true)
+		else:
+			draw_circle(c, r, clean)
+
+
+func _draw_pizza(at: Vector2, radius: float = IN_HAND_RADIUS) -> void:
+	var c := _at(at.x, at.y)
+	var r := size.x * radius
+	draw_circle(c, r, pizza)
+	draw_arc(c, r, 0.0, TAU, 24, pizza_rim, maxf(3.0, r * 0.22), true)
+
+
+## The wind-up: an arrow curling round the pizza, because a still picture has to
+## say "turn this" somehow.
+func _spin_arrow(at: Vector2, radius: float) -> void:
+	var c := _at(at.x, at.y)
+	var r := size.x * radius
+	draw_arc(c, r, PI * 0.15, PI * 1.5, 24, gesture, 4.0, true)
+	var end := c + Vector2(cos(PI * 1.5), sin(PI * 1.5)) * r
+	_arrow(end, Vector2(cos(PI * 1.5 + PI * 0.5), sin(PI * 1.5 + PI * 0.5)), gesture)
+
+
+## A flight path: a dashed curve from the hand, bending through [param control],
+## ending in an arrowhead so it reads as a direction and not a wire.
+func _arc(from: Vector2, control: Vector2, to: Vector2, colour: Color) -> void:
+	var points := PackedVector2Array()
+	for i in 25:
+		var t := i / 24.0
+		var p := _at(from.x, from.y).lerp(_at(control.x, control.y), t).lerp(
+				_at(control.x, control.y).lerp(_at(to.x, to.y), t), t)
+		points.append(p)
+	# Every other segment, which is a dashed line without a dash pattern to set.
+	for i in range(0, points.size() - 1, 2):
+		draw_line(points[i], points[i + 1], colour, 4.0, true)
+	var last := points[points.size() - 1]
+	_arrow(last, (last - points[points.size() - 3]).normalized(), colour)
+
+
+func _tick(at: Vector2, colour: Color) -> void:
+	var c := _at(at.x, at.y)
+	var r := size.y * 0.045
+	draw_line(c + Vector2(-r, 0.0), c + Vector2(-r * 0.2, r * 0.7), colour, 6.0, true)
+	draw_line(c + Vector2(-r * 0.2, r * 0.7), c + Vector2(r, -r * 0.8), colour, 6.0, true)
+
+
+func _cross(at: Vector2, colour: Color) -> void:
+	var c := _at(at.x, at.y)
+	var r := size.y * 0.04
+	draw_line(c - Vector2(r, r), c + Vector2(r, r), colour, 6.0, true)
+	draw_line(c - Vector2(r, -r), c + Vector2(r, -r), colour, 6.0, true)
+
+
+func _arrow(at: Vector2, dir: Vector2, colour: Color) -> void:
+	if dir.length() < 0.001:
+		return
+	var d := dir.normalized()
+	var side := Vector2(-d.y, d.x)
+	var l := size.y * 0.035
+	draw_colored_polygon(PackedVector2Array([
+		at + d * l, at - d * l * 0.4 + side * l * 0.5, at - d * l * 0.4 - side * l * 0.5,
+	]), colour)
+
+
+func _dashed(from: Vector2, to: Vector2, colour: Color, width: float) -> void:
+	var steps := 12
+	for i in range(0, steps, 2):
+		var a := from.lerp(to, i / float(steps))
+		var b := from.lerp(to, (i + 1) / float(steps))
+		draw_line(a, b, colour, width, true)
+
+
+func _at(x: float, y: float) -> Vector2:
+	return Vector2(x * size.x, y * size.y)

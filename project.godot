@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Pizza Flicker"
-config/version="0.11.0"
+config/version="0.10.0"
 run/main_scene="res://scenes/pizza_game.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
@@ -21,8 +21,9 @@ config/icon="res://icon.svg"
 window/size/viewport_width=1170
 window/size/viewport_height=2532
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
+window/stretch/aspect="expand"
 window/handheld/orientation=1
+window/stretch/aspect.web="keep"
 
 [input_devices]
 
@@ -41,14 +42,14 @@ project/editorState=[{
 "path": "res://scripts/pizza/pizza_physics.gd",
 "type": "file"
 }, {
-"column": 16,
-"current": true,
-"line": 150,
+"column": 0,
+"line": 0,
 "path": "res://scenes/ui/result_card.tscn",
 "type": "file"
 }, {
-"column": 46,
-"line": 13,
+"column": 0,
+"current": true,
+"line": 0,
 "path": "res://scripts/pizza/result_card.gd",
 "type": "file"
 }]

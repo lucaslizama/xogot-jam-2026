@@ -37,6 +37,13 @@ extends Button
 @export var art: Texture2D
 @export var art_hover: Texture2D
 @export var art_pressed: Texture2D
+## Mirrors the picture left to right. The menu alternates this down its column so
+## a row of boxes reads as a stack of them and not as one sticker repeated. Only
+## the picture turns; the words on it stay the right way round.
+@export var flip_art_h: bool = false:
+	set(value):
+		flip_art_h = value
+		queue_redraw()
 
 var _hover: bool = false
 
@@ -73,16 +80,22 @@ func _draw() -> void:
 	elif _hover:
 		offset.y = -hover_lift
 
-	draw_set_transform(size * 0.5 + offset, deg_to_rad(tilt), Vector2.ONE)
+	var centre := size * 0.5 + offset
+	var angle := deg_to_rad(tilt)
 	var half := size * 0.5
 	# Everything below is drawn about the centre, so the transform tilts it whole.
+	# The flip rides in that same transform, which is why the picture is drawn
+	# under one and the words under another: a mirrored label reads backwards.
 	if art != null:
+		draw_set_transform(centre, angle, Vector2(-1.0, 1.0) if flip_art_h else Vector2.ONE)
 		_draw_art(half)
 	else:
+		draw_set_transform(centre, angle, Vector2.ONE)
 		_draw_box(half)
 	# The label has to be drawn here, on top of the box: a script's _draw paints
 	# over the Button's own text, so left to the theme the words vanish under the
 	# lid. Drawn last, they sit on the box and tilt and lift with it.
+	draw_set_transform(centre, angle, Vector2.ONE)
 	_draw_label(offset)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -98,8 +111,11 @@ func _draw_label(offset: Vector2) -> void:
 	elif _hover:
 		colour = get_theme_color("font_hover_color")
 	var measured := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-	# Centred on the box, nudged up so it rides the lid rather than the seam.
-	var baseline := Vector2(-measured.x * 0.5, font.get_ascent(font_size) - measured.y * 0.5 - size.y * base_fraction * 0.5)
+	# Centred on the box. The drawn placeholder is nudged up so the words ride the
+	# lid rather than the seam; a real box is its own picture, and where its lid
+	# falls is nobody's business here, so the words simply sit in the middle.
+	var lift: float = 0.0 if art != null else size.y * base_fraction * 0.5
+	var baseline := Vector2(-measured.x * 0.5, font.get_ascent(font_size) - measured.y * 0.5 - lift)
 	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size, colour)
 
 
@@ -137,10 +153,17 @@ func _slab(rect: Rect2, fill: Color) -> void:
 	draw_rect(rect, edge, false, outline)
 
 
+## The art keeps its own shape and is centred in the button, so a box drawn to
+## any proportions goes in without being stretched to the button's.
 func _draw_art(half: Vector2) -> void:
 	var tex := art
 	if button_pressed and art_pressed != null:
 		tex = art_pressed
 	elif _hover and art_hover != null:
 		tex = art_hover
-	draw_texture_rect(tex, Rect2(-half.x, -half.y, half.x * 2.0, half.y * 2.0), false)
+	var art_size := tex.get_size()
+	if art_size.x <= 0.0 or art_size.y <= 0.0:
+		return
+	var fit := minf(size.x / art_size.x, size.y / art_size.y)
+	var drawn := art_size * fit
+	draw_texture_rect(tex, Rect2(-drawn * 0.5, drawn), false)
