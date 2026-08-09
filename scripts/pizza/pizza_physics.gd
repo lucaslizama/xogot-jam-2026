@@ -44,6 +44,11 @@ extends Resource
 ## Radians of accumulated wind-up that count as a full-strength spin. One full
 ## circle of the finger is about 6.28.
 @export_range(0.5, 25.0, 0.1) var full_spin_windup: float = 4.2
+## Wind-up below this counts as none at all. Carrying the pizza around the
+## screen racks up small turns that were never an attempt to curve anything;
+## without a deadzone the pizza twitches left and right in your hand and picks
+## up curve nobody asked for.
+@export_range(0.0, 4.0, 0.05) var spin_deadzone: float = 1.3
 ## Sideways push a full spin gives, scaled by how fast the pizza is still
 ## travelling forward. Sets how far a fully wound throw can bend.
 @export_range(0.0, 400.0, 1.0) var spin_curve: float = 82.0
@@ -72,5 +77,14 @@ func launch_from(flick: Vector2, windup: float) -> Dictionary:
 		"forward_speed": max_forward_speed * power,
 		"lift_speed": max_lift_speed * power,
 		"aim_speed": max_aim_speed * lean,
-		"spin": clampf(windup / full_spin_windup, -1.0, 1.0),
+		"spin": spin_from(windup),
 	}
+
+
+## How much spin a gesture's total turning is worth, from -1 to 1. Past the
+## deadzone it climbs to full strength at [member full_spin_windup]. The pizza
+## in your hand is turned by this same number, so what you see is what it does.
+func spin_from(windup: float) -> float:
+	var past_deadzone: float = maxf(0.0, absf(windup) - spin_deadzone)
+	var span: float = maxf(0.01, full_spin_windup - spin_deadzone)
+	return signf(windup) * clampf(past_deadzone / span, 0.0, 1.0)

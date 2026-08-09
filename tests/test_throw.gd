@@ -18,6 +18,7 @@ func _ready() -> void:
 	_test_straight_drag_has_no_windup()
 	_test_hooked_flick_has_windup()
 	_test_circling_beats_hooking()
+	_test_idle_wobble_loads_no_spin()
 	_test_preview_matches_the_real_flight()
 	_test_preview_is_bounded()
 	_test_projection_shrinks_with_distance()
@@ -138,6 +139,22 @@ func _test_circling_beats_hooking() -> void:
 		absf(circle.windup()) > absf(hook.windup()) * 2.0)
 	_check("two circles land near two full turns (got %.2f rad)" % circle.windup(),
 		absf(absf(circle.windup()) - 2.0 * TAU) < 1.0)
+
+
+## Carrying the pizza around racks up small turns that were never an attempt to
+## curve anything. Below the deadzone they must count for nothing.
+func _test_idle_wobble_loads_no_spin() -> void:
+	var t := PizzaPhysics.new()
+	for wobble in [0.2, 0.6, 1.0, -0.9]:
+		_check("a wobble of %.1f rad loads no spin (got %.3f)" % [wobble, t.spin_from(wobble)],
+			is_zero_approx(t.spin_from(wobble)))
+	_check("deliberate winding still reaches full spin (got %.2f)" % t.spin_from(t.full_spin_windup),
+		is_equal_approx(t.spin_from(t.full_spin_windup), 1.0))
+	_check("and the other way round (got %.2f)" % t.spin_from(-t.full_spin_windup),
+		is_equal_approx(t.spin_from(-t.full_spin_windup), -1.0))
+	var half := t.spin_deadzone + (t.full_spin_windup - t.spin_deadzone) * 0.5
+	_check("halfway past the deadzone is half spin (got %.2f)" % t.spin_from(half),
+		absf(t.spin_from(half) - 0.5) < 0.01)
 
 
 # --- the aim preview --------------------------------------------------------

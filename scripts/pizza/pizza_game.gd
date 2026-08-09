@@ -33,10 +33,13 @@ signal round_ended(won: bool, delivered: int)
 ## How much the pizza's sideways position at release shifts where the throw
 ## starts from. 1.0 means the throw leaves from exactly where you let go.
 @export_range(0.0, 3.0, 0.05) var drag_aim_gain: float = 1.0
-## How much the waiting pizza turns per radian of wind-up. This is the only
-## feedback the player gets that a curve is being loaded, so it is deliberately
-## more than one-to-one: a quarter circle of the finger should read clearly.
-@export_range(0.0, 6.0, 0.05) var windup_spin_gain: float = 2.4
+## How far the pizza has turned in your hand at full wind-up. It is driven by
+## the spin the throw will actually get, not by raw finger movement, so what you
+## see is what the pizza will do.
+@export_range(0.0, 12.0, 0.1) var spin_visual_turn: float = 3.8
+## How much of the previous turn survives each sixtieth of a second. Higher is
+## heavier and calmer; 0 snaps straight to the target.
+@export_range(0.0, 0.95, 0.05) var windup_smoothing: float = 0.35
 ## How much bigger the pizza gets at full wind-up. Spin is capped, and without a
 ## cue for the cap the player keeps circling for nothing.
 @export_range(1.0, 1.6, 0.01) var charged_scale: float = 1.14
@@ -70,6 +73,7 @@ var _ready_home: Vector2
 var _drag_from: Vector2
 var _grab_offset: Vector2
 var _returning: bool = false
+var _spin_now: float = 0.0
 
 
 func _ready() -> void:
@@ -120,7 +124,7 @@ func _process(delta: float) -> void:
 	_backdrop.set_travelled(_travelled)
 	_sync_views()
 	_advance_flight(delta)
-	_update_ready_pizza()
+	_update_ready_pizza(delta)
 
 
 # --- throwing ---------------------------------------------------------------
@@ -223,28 +227,32 @@ func _place_pizza() -> void:
 ## The pizza waiting in your hand, at the bottom of the screen. It is the thing
 ## you drag, so it has to be there before the throw rather than appearing only
 ## once one is in the air.
-func _update_ready_pizza() -> void:
+func _update_ready_pizza(delta: float) -> void:
 	_ready_pizza.visible = _flight == null and not _state.is_over() and _state.can_throw()
-	if not _gesture.is_active() and not _returning:
+	if _returning:
+		return
+	if not _gesture.is_active():
+		_spin_now = 0.0
 		_ready_pizza.position = _ready_home
-		_ready_pizza.rotation = 0.0
-		_ready_pizza.scale = Vector2.ONE
-		_ready_pizza.modulate = Color.WHITE
+
+	# The turn, swell and tint are eased towards their targets rather than set
+	# outright. Set outright, every wobble of the hand showed up as a flick of
+	# the wrist on screen.
+	var blend: float = 1.0 - pow(windup_smoothing, delta * 60.0) if windup_smoothing > 0.0 else 1.0
+	blend = clampf(blend, 0.0, 1.0)
+	var charge: float = absf(_spin_now)
+	_ready_pizza.rotation = lerpf(_ready_pizza.rotation, _spin_now * spin_visual_turn, blend)
+	_ready_pizza.scale = _ready_pizza.scale.lerp(Vector2.ONE * lerpf(1.0, charged_scale, charge), blend)
+	_ready_pizza.modulate = _ready_pizza.modulate.lerp(Color.WHITE.lerp(charged_tint, charge), blend)
 
 
-## Put the wind-up on screen: the box turns with it, and swells and warms as it
-## approaches the cap, so the player can see both that a curve is loading and
-## when more circling stops helping.
+## Carry the pizza with the finger, and note how much spin the throw would get.
+## The turn shown is the spin itself, already past its deadzone, so idly moving
+## the pizza about neither turns it nor loads a curve.
 func _show_windup(touch: Vector2) -> void:
-	var windup := _gesture.windup()
-	# The pizza goes where your finger goes, one to one, kept on screen.
 	var screen := get_viewport_rect().size
 	_ready_pizza.position = (touch + _grab_offset).clamp(Vector2(120.0, 260.0), screen - Vector2(120.0, -120.0))
-	_ready_pizza.rotation = windup * windup_spin_gain
-
-	var charge: float = clampf(absf(windup) / maxf(0.01, physics.full_spin_windup), 0.0, 1.0)
-	_ready_pizza.scale = Vector2.ONE * lerpf(1.0, charged_scale, charge)
-	_ready_pizza.modulate = Color.WHITE.lerp(charged_tint, charge)
+	_spin_now = physics.spin_from(_gesture.windup())
 
 
 ## Drop the pizza back into your hand after a release too slow to be a throw.
