@@ -7,11 +7,8 @@ extends Control
 ## The dots are authored in the scene, not spawned here, so their art, size and
 ## spacing belong to whoever is looking at the screen. That also makes the scene
 ## the authority on how many strikes a level can ask for.
-
-@export var clean_glyph: String = "●"
-@export var spent_glyph: String = "✕"
-@export var clean_colour: Color = Color(1.0, 0.98, 0.9)
-@export var spent_colour: Color = Color(0.85, 0.27, 0.33)
+##
+## Each dot draws itself; see StrikeDot for why they are shapes and not glyphs.
 
 @onready var _dots: Control = %Dots
 
@@ -24,10 +21,8 @@ func slot_count() -> int:
 func show_strikes(left: int) -> void:
 	var slots := _dots.get_children()
 	for i in slots.size():
-		var dot := slots[i] as Label
+		var dot := slots[i] as StrikeDot
 		if dot == null:
 			continue
-		# Dots are spent from the right, so the ones you have left sit together.
-		var clean := i < left
-		dot.text = clean_glyph if clean else spent_glyph
-		dot.add_theme_color_override("font_color", clean_colour if clean else spent_colour)
+		# Spent from the right, so the ones you have left sit together.
+		dot.show_spent(i >= left)
