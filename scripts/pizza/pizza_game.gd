@@ -30,8 +30,14 @@ signal round_ended(won: bool, delivered: int)
 ## rather than like flicking at a fixed picture.
 @export_range(0.0, 1.0, 0.05) var ready_pizza_follow: float = 0.35
 ## How much the waiting pizza turns per radian of wind-up. This is the only
-## feedback the player gets that a curve is being loaded.
-@export_range(0.0, 3.0, 0.05) var windup_spin_gain: float = 1.0
+## feedback the player gets that a curve is being loaded, so it is deliberately
+## more than one-to-one: a quarter circle of the finger should read clearly.
+@export_range(0.0, 6.0, 0.05) var windup_spin_gain: float = 2.4
+## How much bigger the pizza gets at full wind-up. Spin is capped, and without a
+## cue for the cap the player keeps circling for nothing.
+@export_range(1.0, 1.6, 0.01) var charged_scale: float = 1.14
+## Tint multiplied in as the wind-up fills. Reaching it means fully wound.
+@export var charged_tint: Color = Color(1.35, 1.12, 0.75)
 ## How fast the pizza tumbles in the air, before spin is added on top.
 @export_range(0.0, 30.0, 0.1) var pizza_tumble_rate: float = 4.5
 ## Radius of the pizza on screen at the rider's own distance, in pixels.
@@ -134,8 +140,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventScreenDrag and event.index == _touch_index:
 		_gesture.update(event.position, now)
 		_aim.show_for(_gesture.current_flick(), _gesture.windup())
-		_ready_pizza.position = _ready_home + (event.position - _drag_from) * ready_pizza_follow
-		_ready_pizza.rotation = _gesture.windup() * windup_spin_gain
+		_show_windup(event.position)
 
 
 func _throw(flick: Vector2, windup: float) -> void:
@@ -203,6 +208,21 @@ func _update_ready_pizza() -> void:
 	if not _gesture.is_active():
 		_ready_pizza.position = _ready_home
 		_ready_pizza.rotation = 0.0
+		_ready_pizza.scale = Vector2.ONE
+		_ready_pizza.modulate = Color.WHITE
+
+
+## Put the wind-up on screen: the box turns with it, and swells and warms as it
+## approaches the cap, so the player can see both that a curve is loading and
+## when more circling stops helping.
+func _show_windup(touch: Vector2) -> void:
+	var windup := _gesture.windup()
+	_ready_pizza.position = _ready_home + (touch - _drag_from) * ready_pizza_follow
+	_ready_pizza.rotation = windup * windup_spin_gain
+
+	var charge: float = clampf(absf(windup) / maxf(0.01, physics.full_spin_windup), 0.0, 1.0)
+	_ready_pizza.scale = Vector2.ONE * lerpf(1.0, charged_scale, charge)
+	_ready_pizza.modulate = Color.WHITE.lerp(charged_tint, charge)
 
 
 # --- houses -----------------------------------------------------------------
