@@ -21,16 +21,16 @@ extends Resource
 ## Finger speed, in screen pixels per second, that maps to a full-power throw.
 @export_range(200.0, 12000.0, 50.0) var full_power_flick: float = 4200.0
 ## Forward speed of a full-power throw, in world units per second.
-@export_range(1.0, 200.0, 0.5) var max_forward_speed: float = 114.0
+@export_range(1.0, 200.0, 0.5) var max_forward_speed: float = 100.0
 ## Shapes how flick speed becomes power. Distance grows with the SQUARE of
 ## power, because power buys both forward speed and hang time, so a straight
 ## mapping wastes most of the flick range on throws that sail past everything.
 ## Around 0.5 undoes that and makes distance roughly linear in flick speed.
-@export_range(0.2, 2.0, 0.05) var power_curve: float = 0.55
+@export_range(0.2, 2.0, 0.05) var power_curve: float = 0.72
 ## Upward speed of a full-power throw. Without this the pizza is dropped rather
 ## than lobbed: it would be on the ground in about a third of a second, too
 ## quick to watch and too quick for spin to do anything.
-@export_range(0.0, 120.0, 0.5) var max_lift_speed: float = 66.0
+@export_range(0.0, 120.0, 0.5) var max_lift_speed: float = 60.0
 ## A release slower than this is a fumble, not a throw: the pizza stays on the
 ## bike and no box is spent. Without it every stray tap costs a pizza.
 @export_range(0.0, 3000.0, 10.0) var min_throw_flick: float = 260.0

@@ -109,7 +109,8 @@ mouse_filter = 2
 color = Color(0.5137255, 0.2784314, 0.6784314, 1)
 
 [node name="Rider" type="Node2D" parent="."]
-position = Vector2(585, 2100)
+position = Vector2(585, 1680)
+scale = Vector2(0.667, 0.667)
 z_index = 4000
 
 [node name="Wheel" type="ColorRect" parent="Rider"]
