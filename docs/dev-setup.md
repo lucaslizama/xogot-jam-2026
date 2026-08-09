@@ -81,6 +81,11 @@ Phones aggressively power down their wifi radio. A sleeping phone does not
 answer, and `adb` reports `no route to host` as though the network were broken.
 Wake the screen and try again; that is almost always all it is.
 
+The confusing part is that mDNS keeps advertising the phone long after it stops
+responding, so a tool can report finding it and then fail to reach it in the same
+breath. Being advertised and being reachable are different questions. The `phone`
+command asks the second one before connecting and says plainly which failed.
+
 Expect a ping of 40 to 300 milliseconds to a phone on the same wifi. That is
 normal for a radio in power saving and does not affect the game once it is
 running, only how long installing takes.
