@@ -19,14 +19,14 @@ extends Resource
 
 @export_group("Throw mapping")
 ## Finger speed, in screen pixels per second, that maps to a full-power throw.
-@export_range(200.0, 12000.0, 50.0) var full_power_flick: float = 4200.0
+@export_range(200.0, 20000.0, 50.0) var full_power_flick: float = 9000.0
 ## Forward speed of a full-power throw, in world units per second.
-@export_range(1.0, 200.0, 0.5) var max_forward_speed: float = 100.0
+@export_range(1.0, 200.0, 0.5) var max_forward_speed: float = 112.0
 ## Shapes how flick speed becomes power. Distance grows with the SQUARE of
 ## power, because power buys both forward speed and hang time, so a straight
 ## mapping wastes most of the flick range on throws that sail past everything.
 ## Around 0.5 undoes that and makes distance roughly linear in flick speed.
-@export_range(0.2, 2.0, 0.05) var power_curve: float = 0.72
+@export_range(0.2, 2.0, 0.05) var power_curve: float = 0.85
 ## Upward speed of a full-power throw. Without this the pizza is dropped rather
 ## than lobbed: it would be on the ground in about a third of a second, too
 ## quick to watch and too quick for spin to do anything.
@@ -36,7 +36,7 @@ extends Resource
 @export_range(0.0, 3000.0, 10.0) var min_throw_flick: float = 260.0
 ## A throw can never be feebler than this fraction of full power, so a nervous
 ## flick still leaves the bike.
-@export_range(0.0, 1.0, 0.01) var min_power: float = 0.18
+@export_range(0.0, 1.0, 0.01) var min_power: float = 0.12
 ## How far sideways the aim swings at the extremes of a flick's direction.
 @export_range(0.0, 60.0, 0.5) var max_aim_speed: float = 44.0
 
@@ -51,14 +51,14 @@ extends Resource
 @export_range(0.0, 4.0, 0.05) var spin_deadzone: float = 1.3
 ## Sideways push a full spin gives, scaled by how fast the pizza is still
 ## travelling forward. Sets how far a fully wound throw can bend.
-@export_range(0.0, 400.0, 1.0) var spin_curve: float = 82.0
+@export_range(0.0, 400.0, 1.0) var spin_curve: float = 280.0
 ## How fast wind-up drains while the pizza is held, in radians a second. Without
 ## it the pizza spins forever off one flick of the wrist; with it the player has
 ## to keep circling to keep the curve loaded, and letting go of the motion winds
 ## the spin down.
 @export_range(0.0, 20.0, 0.1) var windup_bleed: float = 3.5
 ## Spin bleeds away at this fraction per second, so late flight straightens out.
-@export_range(0.0, 4.0, 0.05) var spin_decay: float = 0.85
+@export_range(0.0, 4.0, 0.05) var spin_decay: float = 1.4
 
 
 ## Turn a released flick into launch values. `flick` is the finger's velocity at
