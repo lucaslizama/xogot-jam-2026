@@ -18,6 +18,7 @@ func _ready() -> void:
 	_test_straight_drag_has_no_windup()
 	_test_hooked_flick_has_windup()
 	_test_circling_beats_hooking()
+	_test_windup_survives_a_fast_sampling_device()
 	_test_idle_wobble_loads_no_spin()
 	_test_preview_matches_the_real_flight()
 	_test_preview_is_bounded()
@@ -139,6 +140,33 @@ func _test_circling_beats_hooking() -> void:
 		absf(circle.windup()) > absf(hook.windup()) * 2.0)
 	_check("two circles land near two full turns (got %.2f rad)" % circle.windup(),
 		absf(absf(circle.windup()) - 2.0 * TAU) < 1.0)
+
+
+## A 120 Hz phone reports touch in steps of a couple of pixels. Reading the
+## direction between consecutive samples made those steps pure noise, and
+## discarding them as noise threw away the whole gesture: circling the pizza on
+## a real device produced no wind-up at all while a coarse test passed happily.
+## The reading must not depend on how often the device reports.
+func _test_windup_survives_a_fast_sampling_device() -> void:
+	var readings: Array[float] = []
+	for samples_per_turn in [24, 60, 240, 480]:
+		var g := ThrowGesture.new()
+		var centre := Vector2(600.0, 1200.0)
+		g.begin(centre + Vector2(130.0, 0.0), 0.0)
+		var time := 0.0
+		for i in range(1, samples_per_turn + 1):
+			var a: float = TAU * float(i) / float(samples_per_turn)
+			time += 1.0 / 120.0
+			g.update(centre + Vector2(cos(a), sin(a)) * 130.0, time)
+		readings.append(g.windup())
+
+	for i in readings.size():
+		_check("one circle reads as a full turn at %d samples (got %.2f rad)"
+				% [[24, 60, 240, 480][i], readings[i]],
+			absf(absf(readings[i]) - TAU) < 0.5)
+	var spread: float = readings.max() - readings.min()
+	_check("and reads the same however fast the device samples (spread %.2f rad)" % spread,
+		spread < 0.4)
 
 
 ## Carrying the pizza around racks up small turns that were never an attempt to

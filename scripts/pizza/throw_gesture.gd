@@ -15,13 +15,21 @@ extends RefCounted
 ## Samples older than this are dropped, so the flick reflects the last instant
 ## of the drag rather than its whole history.
 const FLICK_WINDOW: float = 0.09
-## Movements shorter than this are noise and are not counted as turning.
-const MIN_SEGMENT: float = 4.0
+## How far the finger must travel before another direction reading is taken.
+##
+## Readings are taken per distance travelled rather than per touch sample, and
+## that distinction is the whole ballgame. A phone reporting at 120 Hz sends
+## steps of a couple of pixels; comparing those directly is all noise, and
+## discarding them instead threw away the entire gesture. Aggregating to a fixed
+## arc gives the same answer whatever rate the device samples at.
+const MIN_ARC: float = 8.0
 
 var _points: Array[Vector2] = []
 var _times: Array[float] = []
 var _windup: float = 0.0
 var _last_direction: Vector2 = Vector2.ZERO
+## Where the last direction reading was taken from.
+var _anchor: Vector2 = Vector2.ZERO
 var _active: bool = false
 
 
@@ -30,6 +38,7 @@ func begin(position: Vector2, time: float) -> void:
 	_times = [time]
 	_windup = 0.0
 	_last_direction = Vector2.ZERO
+	_anchor = position
 	_active = true
 
 
@@ -37,16 +46,15 @@ func update(position: Vector2, time: float) -> void:
 	if not _active:
 		return
 
-	var previous: Vector2 = _points[_points.size() - 1]
-	var segment := position - previous
-	if segment.length() >= MIN_SEGMENT:
-		var direction := segment.normalized()
+	if position.distance_to(_anchor) >= MIN_ARC:
+		var direction := (position - _anchor).normalized()
 		if _last_direction != Vector2.ZERO:
-			# Signed angle between one step and the next. Summed over the whole
-			# gesture this is its total turning: zero for a straight drag, one
-			# full turn per circle of the finger.
+			# Signed angle between one reading and the next. Summed over the
+			# whole gesture this is its total turning: zero for a straight drag,
+			# one full turn per circle of the finger.
 			_windup += _last_direction.angle_to(direction)
 		_last_direction = direction
+		_anchor = position
 
 	_points.append(position)
 	_times.append(time)
