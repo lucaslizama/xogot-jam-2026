@@ -12,8 +12,11 @@ extends Node2D
 
 @export var projection: StreetProjection
 @export var physics: PizzaPhysics
-## Turn off for a harder, more Pokémon-GO-ish game once players know the throw.
-@export var enabled: bool = true
+## Off by default. The arc is rebuilt each drag event from the flick velocity of
+## the last instant, which is genuinely noisy, so it darts about and reads as
+## unreliable rather than helpful. Pokémon GO shows no arc either. Turn it on if
+## a calmer version is ever wanted.
+@export var enabled: bool = false
 
 @export_group("Look")
 @export var arc_colour: Color = Color(1.0, 1.0, 1.0, 0.32)

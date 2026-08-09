@@ -14,6 +14,8 @@ func _ready() -> void:
 	await _test_a_fumble_spends_nothing()
 	await _test_one_pizza_in_the_air_at_a_time()
 	await _test_the_waiting_pizza_is_there_to_grab()
+	await _test_a_touch_away_from_the_pizza_does_nothing()
+	await _test_a_fumble_puts_the_pizza_back()
 	await _test_a_round_ends_on_its_own()
 
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
@@ -121,6 +123,42 @@ func _test_the_waiting_pizza_is_there_to_grab() -> void:
 	await get_tree().process_frame
 
 
+## A touch nowhere near the pizza must not start a throw, or the game would
+## fling one every time a thumb brushed the screen.
+func _test_a_touch_away_from_the_pizza_does_nothing() -> void:
+	var game := await _spawn()
+	var before: int = game._state.pizzas_left
+	var far := Vector2(200.0, 700.0)
+	_touch(true, far)
+	await get_tree().process_frame
+	_move(far + Vector2(0.0, -600.0))
+	await get_tree().process_frame
+	_touch(false, far + Vector2(0.0, -600.0))
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_check("a flick far from the pizza throws nothing (%d -> %d)" % [before, game._state.pizzas_left],
+		game._state.pizzas_left == before and game._flight == null)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## Releasing too slowly should drop the pizza back into your hand rather than
+## leaving it stranded wherever the finger stopped.
+func _test_a_fumble_puts_the_pizza_back() -> void:
+	var game := await _spawn()
+	var ready_pizza: Node2D = game.get_node("ReadyPizza")
+	var home: Vector2 = ready_pizza.position
+	await _drag(game, 300.0, 0.3)
+	_check("a fumble leaves the pizza away from home at first",
+		ready_pizza.position.distance_to(home) > 1.0 or game._returning)
+	await get_tree().create_timer(game.return_duration + 0.2).timeout
+	_check("and it has returned home (%.0f px away)" % ready_pizza.position.distance_to(home),
+		ready_pizza.position.distance_to(home) < 1.0)
+	_check("still holding every pizza (%d)" % game._state.pizzas_left, game._state.pizzas_left == 10)
+	game.queue_free()
+	await get_tree().process_frame
+
+
 # --- helpers ----------------------------------------------------------------
 
 func _spawn() -> Node:
@@ -141,7 +179,9 @@ func _flick(game: Node, travel: float) -> void:
 ## the moves, not before them: the gesture only measures the last instant of the
 ## drag, so a pause followed by two instant moves still reads as a fast flick.
 func _drag(game: Node, travel: float, step_delay: float) -> void:
-	var start := Vector2(585.0, 1900.0)
+	# The drag has to begin on the pizza itself now: a touch further away than
+	# grab_radius is ignored, so a stray tap cannot fling one.
+	var start: Vector2 = (game.get_node("ReadyPizza") as Node2D).position
 	_touch(true, start)
 	await get_tree().process_frame
 	for i in range(1, 3):

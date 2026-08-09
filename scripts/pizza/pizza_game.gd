@@ -25,10 +25,14 @@ signal round_ended(won: bool, delivered: int)
 @export var street_seed: int = 20260807
 
 @export_group("Feel")
-## How far the waiting pizza slides with your finger, as a fraction of the drag.
-## Pokemon GO nudges the ball with the drag; it makes the throw feel connected
-## rather than like flicking at a fixed picture.
-@export_range(0.0, 1.0, 0.05) var ready_pizza_follow: float = 0.35
+## How close to the waiting pizza a touch has to land to pick it up. Touches
+## further away are ignored, so a stray tap cannot fling a pizza.
+@export_range(50.0, 800.0, 10.0) var grab_radius: float = 340.0
+## How long the pizza takes to drop back into your hand after a fumble.
+@export_range(0.0, 1.0, 0.01) var return_duration: float = 0.18
+## How much the pizza's sideways position at release shifts where the throw
+## starts from. 1.0 means the throw leaves from exactly where you let go.
+@export_range(0.0, 3.0, 0.05) var drag_aim_gain: float = 1.0
 ## How much the waiting pizza turns per radian of wind-up. This is the only
 ## feedback the player gets that a curve is being loaded, so it is deliberately
 ## more than one-to-one: a quarter circle of the finger should read clearly.
@@ -64,6 +68,8 @@ var _level_index: int = 0
 var _touch_index: int = -1
 var _ready_home: Vector2
 var _drag_from: Vector2
+var _grab_offset: Vector2
+var _returning: bool = false
 
 
 func _ready() -> void:
@@ -129,14 +135,27 @@ func _unhandled_input(event: InputEvent) -> void:
 			# One pizza in the air at a time, and only if there is one to throw.
 			if _flight != null or not _state.can_throw() or _gesture.is_active():
 				return
+			# You have to actually take hold of the pizza, the way you take hold
+			# of the ball in Pokemon GO. Otherwise a tap anywhere would teleport
+			# it across the screen.
+			if not _ready_pizza.visible or event.position.distance_to(_ready_pizza.position) > grab_radius:
+				return
 			_touch_index = event.index
 			_drag_from = event.position
+			_grab_offset = _ready_pizza.position - event.position
+			_returning = false
 			_gesture.begin(event.position, now)
 		elif event.index == _touch_index and _gesture.is_active():
 			var flick := _gesture.release(event.position, now)
+			var windup := _gesture.windup()
 			_touch_index = -1
 			_aim.clear()
-			_throw(flick, _gesture.windup())
+			# A slow release is a fumble: the pizza drops back into your hand and
+			# costs nothing. Only a real flick leaves the bike.
+			if -flick.y < physics.min_throw_flick:
+				_return_ready_pizza()
+			else:
+				_throw(flick, windup)
 	elif event is InputEventScreenDrag and event.index == _touch_index:
 		_gesture.update(event.position, now)
 		_aim.show_for(_gesture.current_flick(), _gesture.windup())
@@ -146,12 +165,13 @@ func _unhandled_input(event: InputEvent) -> void:
 func _throw(flick: Vector2, windup: float) -> void:
 	if not _state.can_throw():
 		return
-	# A slow release is a fumble, not a throw. Spending a pizza on a stray tap
-	# would be the cruellest possible way to lose a round.
-	if -flick.y < physics.min_throw_flick:
-		return
 
-	_flight = PizzaFlight.new(physics, physics.launch_from(flick, windup))
+	var launch := physics.launch_from(flick, windup)
+	# The throw leaves from wherever the pizza was let go, not from the rider's
+	# line, so dragging it sideways before releasing actually means something.
+	launch["start_side"] = ((_ready_pizza.position.x - projection.centre_x)
+		/ projection.pixels_per_unit) * drag_aim_gain
+	_flight = PizzaFlight.new(physics, launch)
 	_state.spend_pizza()
 	_ready_pizza.visible = false
 	_pizza.visible = true
@@ -205,7 +225,7 @@ func _place_pizza() -> void:
 ## once one is in the air.
 func _update_ready_pizza() -> void:
 	_ready_pizza.visible = _flight == null and not _state.is_over() and _state.can_throw()
-	if not _gesture.is_active():
+	if not _gesture.is_active() and not _returning:
 		_ready_pizza.position = _ready_home
 		_ready_pizza.rotation = 0.0
 		_ready_pizza.scale = Vector2.ONE
@@ -217,12 +237,27 @@ func _update_ready_pizza() -> void:
 ## when more circling stops helping.
 func _show_windup(touch: Vector2) -> void:
 	var windup := _gesture.windup()
-	_ready_pizza.position = _ready_home + (touch - _drag_from) * ready_pizza_follow
+	# The pizza goes where your finger goes, one to one, kept on screen.
+	var screen := get_viewport_rect().size
+	_ready_pizza.position = (touch + _grab_offset).clamp(Vector2(120.0, 260.0), screen - Vector2(120.0, -120.0))
 	_ready_pizza.rotation = windup * windup_spin_gain
 
 	var charge: float = clampf(absf(windup) / maxf(0.01, physics.full_spin_windup), 0.0, 1.0)
 	_ready_pizza.scale = Vector2.ONE * lerpf(1.0, charged_scale, charge)
 	_ready_pizza.modulate = Color.WHITE.lerp(charged_tint, charge)
+
+
+## Drop the pizza back into your hand after a release too slow to be a throw.
+func _return_ready_pizza() -> void:
+	_returning = true
+	var tween := create_tween()
+	tween.tween_property(_ready_pizza, "position", _ready_home, return_duration) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(_ready_pizza, "rotation", 0.0, return_duration)
+	tween.parallel().tween_property(_ready_pizza, "scale", Vector2.ONE, return_duration)
+	tween.parallel().tween_property(_ready_pizza, "modulate", Color.WHITE, return_duration)
+	await tween.finished
+	_returning = false
 
 
 # --- houses -----------------------------------------------------------------

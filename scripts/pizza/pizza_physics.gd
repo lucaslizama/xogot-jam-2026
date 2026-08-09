@@ -43,7 +43,7 @@ extends Resource
 @export_group("Spin")
 ## Radians of accumulated wind-up that count as a full-strength spin. One full
 ## circle of the finger is about 6.28.
-@export_range(0.5, 25.0, 0.1) var full_spin_windup: float = 7.5
+@export_range(0.5, 25.0, 0.1) var full_spin_windup: float = 4.2
 ## Sideways push a full spin gives, scaled by how fast the pizza is still
 ## travelling forward. Sets how far a fully wound throw can bend.
 @export_range(0.0, 400.0, 1.0) var spin_curve: float = 82.0

@@ -27,6 +27,9 @@ var _tuning: PizzaPhysics
 func _init(tuning: PizzaPhysics, launch: Dictionary) -> void:
 	_tuning = tuning
 	height = tuning.release_height
+	# Where along the street the throw begins. Zero is the rider's own line;
+	# dragging the pizza sideways before letting go moves it.
+	side = launch.get("start_side", 0.0)
 	_forward_speed = launch.get("forward_speed", 0.0)
 	_side_speed = launch.get("aim_speed", 0.0)
 	_spin = launch.get("spin", 0.0)
