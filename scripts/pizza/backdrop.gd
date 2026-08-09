@@ -11,9 +11,9 @@ extends Node2D
 ## Rows behind the street, furthest first. Each is a resource you can open.
 @export var layers: Array[BackdropLayer] = []
 
-@export_group("Ground and sky")
-@export var sky_top: Color = Color(0.11, 0.09, 0.19)
-@export var sky_bottom: Color = Color(0.29, 0.18, 0.33)
+@export_group("Ground")
+## The sky above the horizon belongs to the NightSky shader, which paints its
+## gradient and scatters the stars. Drawing it here as well would cover them.
 @export var road: Color = Color(0.15, 0.14, 0.17)
 @export var verge: Color = Color(0.19, 0.21, 0.17)
 ## How far back the road surface reaches, in world units.
@@ -44,10 +44,6 @@ func _draw() -> void:
 	if projection == null:
 		return
 	var view := get_viewport_rect().size
-
-	draw_rect(Rect2(Vector2.ZERO, Vector2(view.x, projection.horizon_y)), sky_top)
-	draw_rect(Rect2(Vector2(0.0, projection.horizon_y * 0.55),
-		Vector2(view.x, projection.horizon_y * 0.45)), sky_bottom)
 
 	for layer in layers:
 		if layer != null:

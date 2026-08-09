@@ -96,6 +96,7 @@ func _ready() -> void:
 	_shadow.visible = false
 	_ready_home = _ready_pizza.position
 	_backdrop.projection = projection
+	($Sky as NightSky).projection = projection
 	_aim.projection = projection
 	_aim.physics = physics
 
