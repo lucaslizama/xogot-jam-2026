@@ -67,6 +67,7 @@ signal round_ended(won: bool, delivered: int)
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
+@onready var _debug: DebugPanel = %DebugPanel
 
 var _config: LevelConfig
 var _street: StreetModel
@@ -81,6 +82,7 @@ var _drag_from: Vector2
 var _grab_offset: Vector2
 var _returning: bool = false
 var _spin_now: float = 0.0
+var _last_flick: float = 0.0
 
 
 func _ready() -> void:
@@ -114,6 +116,7 @@ func start_level() -> void:
 
 	# The landing ring promises exactly the room this street actually gives.
 	_aim.marker_radius = _config.drop_radius
+	_debug.bind_to(physics, _config)
 	_street = StreetModel.new(_config, street_seed + _level_index)
 	_travelled = 0.0
 	_clear_flight()
@@ -183,6 +186,7 @@ func _throw(flick: Vector2, windup: float) -> void:
 	launch["start_side"] = ((_ready_pizza.position.x - projection.centre_x)
 		/ projection.pixels_per_unit) * drag_aim_gain
 	_flight = PizzaFlight.new(physics, launch)
+	_last_flick = -flick.y
 	_state.spend_pizza()
 	_ready_pizza.visible = false
 	_pizza.visible = true
@@ -201,6 +205,7 @@ func _advance_flight(delta: float) -> void:
 
 
 func _resolve_landing() -> void:
+	_debug.show_throw(_last_flick, _flight.distance, _flight.side)
 	var house: House = _street.delivery_at(_flight.side, _flight.distance)
 	_flight = null
 	_pizza.visible = false

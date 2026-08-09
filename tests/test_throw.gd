@@ -14,7 +14,7 @@ func _ready() -> void:
 	_test_power_is_clamped()
 	_test_aim_leans_the_right_way()
 	_test_spin_curves_the_flight()
-	_test_spin_bends_early_not_late()
+	_test_the_arc_holds_its_shape()
 	_test_straight_drag_has_no_windup()
 	_test_hooked_flick_has_windup()
 	_test_circling_beats_hooking()
@@ -72,14 +72,10 @@ func _test_spin_curves_the_flight() -> void:
 	_check("no spin means no drift (got %.3f)" % straight.side, absf(straight.side) < 0.01)
 
 
-## A curve must banana out and then settle into a straight diagonal. If the
-## drift kept accelerating to the end it would be a spiral, and unaimable.
-##
-## Swept across the throws that actually reach the street, taken from the tuning
-## rather than a fixed number. A previous version tested one hardcoded flick, and
-## when the power ceiling moved that flick became a throw that lands short of
-## everything, where the shape genuinely is still opening and nobody cares.
-func _test_spin_bends_early_not_late() -> void:
+## The arc has to hold its shape for the whole flight rather than straightening
+## out near the end, and it has to curve the same way throughout. What would be
+## unusable is a curve that tightens without bound or doubles back.
+func _test_the_arc_holds_its_shape() -> void:
 	var tuning := PizzaPhysics.new()
 	for share in [0.66, 0.8, 1.0]:
 		var flick: float = tuning.full_power_flick * share
@@ -96,13 +92,16 @@ func _test_spin_bends_early_not_late() -> void:
 		var middle: float = trail[third * 2] - trail[third]
 		var last: float = trail[trail.size() - 1] - trail[third * 2]
 
-		_check("at %.0f px/s the curve is still building over the first third (%.2f vs %.2f)"
-				% [flick, first, middle], first < middle)
-		# Not that it is perfectly straight by the end: a curve that keeps opening
-		# a little is dramatic and learnable. One that keeps tightening cannot be
-		# aimed at all.
-		_check("at %.0f px/s it has settled, not spiralling (middle %.2f vs last %.2f)"
-				% [flick, middle, last], last < middle * 1.35)
+		_check("at %.0f px/s the arc keeps opening rather than straightening (%.2f, %.2f, %.2f)"
+				% [flick, first, middle, last], first < middle and middle < last)
+		_check("at %.0f px/s it opens at a steady rate, not tightening away (last %.2f vs middle %.2f)"
+				% [flick, last, middle], last < middle * 1.8)
+
+		var reversed := false
+		for i in range(1, trail.size()):
+			if trail[i] < trail[i - 1] - 0.0001:
+				reversed = true
+		_check("at %.0f px/s the curve never doubles back" % flick, not reversed)
 
 
 # --- gesture ----------------------------------------------------------------

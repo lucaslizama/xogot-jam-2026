@@ -51,14 +51,16 @@ extends Resource
 @export_range(0.0, 4.0, 0.05) var spin_deadzone: float = 1.3
 ## Sideways push a full spin gives, scaled by how fast the pizza is still
 ## travelling forward. Sets how far a fully wound throw can bend.
-@export_range(0.0, 400.0, 1.0) var spin_curve: float = 280.0
+@export_range(0.0, 400.0, 1.0) var spin_curve: float = 160.0
 ## How fast wind-up drains while the pizza is held, in radians a second. Without
 ## it the pizza spins forever off one flick of the wrist; with it the player has
 ## to keep circling to keep the curve loaded, and letting go of the motion winds
 ## the spin down.
 @export_range(0.0, 20.0, 0.1) var windup_bleed: float = 3.5
-## Spin bleeds away at this fraction per second, so late flight straightens out.
-@export_range(0.0, 4.0, 0.05) var spin_decay: float = 1.4
+## Spin bleeds away at this rate per second. At zero the pizza keeps spinning for
+## the whole flight and the arc holds its shape rather than straightening out
+## near the end, which is what a thrown curve actually looks like.
+@export_range(0.0, 4.0, 0.05) var spin_decay: float = 0.0
 
 
 ## Turn a released flick into launch values. `flick` is the finger's velocity at
