@@ -10,6 +10,12 @@ extends Control
 ## fall back on, so the web build drew the hex code in a box instead. Shapes have
 ## no such dependency and read the same everywhere.
 
+@export_group("Art, when it arrives")
+## Square images, drawn to fill the control. Leave empty for the shapes below.
+@export var art_clean: Texture2D
+@export var art_spent: Texture2D
+
+@export_group("While they are still shapes")
 @export var clean_colour: Color = Color(1.0, 0.98, 0.9)
 @export var spent_colour: Color = Color(0.85, 0.27, 0.33)
 ## Radius of the dot, as a fraction of the smaller side.
@@ -30,6 +36,10 @@ func show_spent(spent: bool) -> void:
 
 
 func _draw() -> void:
+	var art := art_spent if _spent else art_clean
+	if art != null:
+		draw_texture_rect(art, Rect2(Vector2.ZERO, size), false)
+		return
 	var span: float = minf(size.x, size.y)
 	var centre := size * 0.5
 	if not _spent:

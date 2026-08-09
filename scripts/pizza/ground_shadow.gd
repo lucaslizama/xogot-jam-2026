@@ -7,6 +7,9 @@ extends Node2D
 ## it a box high and close looks identical to one low and far away, and the
 ## player has no way to tell how the throw is going until it lands.
 
+## A square image drawn flat on the road. Leave empty for the plain ellipse.
+@export var art: Texture2D
+
 @export var colour: Color = Color(0.0, 0.0, 0.0, 0.35)
 ## Radius at the rider's own distance, in pixels. Scale comes from the game.
 @export_range(2.0, 200.0, 1.0) var radius: float = 30.0
@@ -16,5 +19,8 @@ extends Node2D
 
 func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, squash))
-	draw_circle(Vector2.ZERO, radius, colour)
+	if art != null:
+		draw_texture_rect(art, Rect2(-radius, -radius, radius * 2.0, radius * 2.0), false)
+	else:
+		draw_circle(Vector2.ZERO, radius, colour)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

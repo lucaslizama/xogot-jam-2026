@@ -5,9 +5,9 @@ extends Node2D
 ## drawn from exported sizes so the shape can be nudged in the editor before any
 ## real art exists.
 ##
-## When sprites arrive this should become Sprite2D children instead, and the
-## drawing below should go. The exported values are already the right ones to
-## hand to an artist as the sizes to draw to.
+## Assign the art slots below and the drawing stops: a house becomes its picture,
+## with nothing to delete first. The exported sizes are the ones to hand an
+## artist, because they are the space each image will occupy.
 ##
 ## The node's origin is the point where the house meets the ground, because that
 ## is the point the street projects. Scale comes from the parent, which knows
@@ -20,6 +20,15 @@ extends Node2D
 ## Pixels per world unit at the rider's distance. Must match the projection
 ## resource, or houses will not sit at the size the street expects.
 @export_range(1.0, 400.0, 1.0) var pixels_per_unit: float = 46.0
+
+@export_group("Art, when it arrives")
+## Drawn bottom-centred on the ground point, filling width by wall plus roof.
+## Leave empty and the placeholder shapes are drawn instead.
+@export var art_waiting: Texture2D
+@export var art_served: Texture2D
+@export var art_scenery: Texture2D
+## Lies flat on the ground, a square image the width of twice the drop radius.
+@export var art_drop_marker: Texture2D
 
 @export_group("Colours")
 @export var wall_waiting: Color = Color(0.62, 0.44, 0.36)
@@ -47,19 +56,26 @@ func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 
 
 func _draw() -> void:
+	_draw_drop_point()
+	_draw_body()
+
+
+func _draw_body() -> void:
+	var art := art_scenery
+	if _waiting:
+		art = art_served if _served else art_waiting
+	if art != null:
+		var w := width * pixels_per_unit
+		var h := (wall_height + roof_height) * pixels_per_unit
+		draw_texture_rect(art, Rect2(-w * 0.5, -h, w, h), false)
+		return
+	_draw_placeholder_body()
+
+
+func _draw_placeholder_body() -> void:
 	var half := width * 0.5 * pixels_per_unit
 	var wall := wall_height * pixels_per_unit
 	var peak := roof_height * pixels_per_unit
-
-	# The drop point sits on the ground, so it is drawn first and squashed
-	# vertically to read as lying flat rather than facing the camera.
-	var radius := _drop_radius * pixels_per_unit
-	if _waiting:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
-		draw_circle(Vector2.ZERO, radius, drop_served if _served else drop_open)
-		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(1, 1, 1, 0.5), 4.0)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
 	var body := wall_scenery
 	if _waiting:
 		body = wall_served if _served else wall_waiting
@@ -72,3 +88,20 @@ func _draw() -> void:
 	if _waiting and not _served:
 		var w := half * 0.42
 		draw_rect(Rect2(-w * 0.5, -wall * 0.72, w, wall * 0.34), window_lit)
+
+
+## The drop point lies on the ground, so it is squashed vertically to read as
+## flat rather than as a disc facing the camera.
+func _draw_drop_point() -> void:
+	if not _waiting:
+		return
+	var radius := _drop_radius * pixels_per_unit
+	if art_drop_marker != null:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
+		draw_texture_rect(art_drop_marker, Rect2(-radius, -radius, radius * 2.0, radius * 2.0), false)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
+	draw_circle(Vector2.ZERO, radius, drop_served if _served else drop_open)
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(1, 1, 1, 0.5), 4.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

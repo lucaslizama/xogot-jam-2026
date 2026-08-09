@@ -15,3 +15,6 @@ extends Resource
 ## How much the heights vary from one silhouette to the next, 0 for a flat row.
 @export_range(0.0, 1.0, 0.05) var height_variation: float = 0.35
 @export var colour: Color = Color(0.16, 0.14, 0.24)
+## One silhouette, drawn bottom-centred at the width and height above. Leave
+## empty and a plain rectangle stands in.
+@export var art: Texture2D

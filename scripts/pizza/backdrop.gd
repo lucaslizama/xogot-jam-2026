@@ -65,7 +65,11 @@ func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
 		var base := projection.project(world_side, 0.0, layer.distance)
 		var top := projection.project(world_side, height, layer.distance)
 		var half: float = layer.width * 0.5 * projection.pixels_per_unit * scale
-		draw_rect(Rect2(base.x - half, top.y, half * 2.0, base.y - top.y), layer.colour)
+		var box := Rect2(base.x - half, top.y, half * 2.0, base.y - top.y)
+		if layer.art != null:
+			draw_texture_rect(layer.art, box, false)
+		else:
+			draw_rect(box, layer.colour)
 
 
 func _draw_ground(view: Vector2) -> void:
