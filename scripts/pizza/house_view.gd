@@ -27,6 +27,9 @@ extends Node2D
 ## faster than a still one, and unlike anything drawn it keeps working whatever
 ## art turns up.
 @export_range(0.0, 4.0, 0.05) var pulse_rate: float = 1.0
+## Whether the landing ring is drawn at all. The game wants it; a decorative
+## street with nothing to aim at, like the menu behind the title, does not.
+@export var show_drop_points: bool = true
 ## How much it swells and brightens. Too much and the street starts throbbing.
 @export_range(0.0, 0.6, 0.01) var pulse_depth: float = 0.16
 
@@ -66,7 +69,7 @@ func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 	_waiting = waiting
 	_served = served
 	_drop_radius = drop_radius
-	set_process(pulse_depth > 0.0 and _waiting and not _served)
+	set_process(show_drop_points and pulse_depth > 0.0 and _waiting and not _served)
 	queue_redraw()
 
 
@@ -112,7 +115,7 @@ func _draw_placeholder_body() -> void:
 ## The drop point lies on the ground, so it is squashed vertically to read as
 ## flat rather than as a disc facing the camera.
 func _draw_drop_point() -> void:
-	if not _waiting:
+	if not show_drop_points or not _waiting:
 		return
 	# One clock for every house, so the street breathes together rather than
 	# each one flickering on its own beat.

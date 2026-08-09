@@ -1,33 +1,89 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/result_card.gd" id="1_result"]
+[ext_resource type="Script" path="res://scripts/pizza/pizza_icon.gd" id="2_pizza"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-content_margin_left = 72.0
-content_margin_top = 64.0
-content_margin_right = 72.0
-content_margin_bottom = 64.0
-bg_color = Color(0.14901961, 0.101960786, 0.20392157, 1)
-corner_radius_top_left = 48
-corner_radius_top_right = 48
-corner_radius_bottom_right = 48
-corner_radius_bottom_left = 48
-border_width_left = 6
-border_width_top = 6
-border_width_right = 6
-border_width_bottom = 6
-border_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_box"]
+content_margin_left = 64.0
+content_margin_top = 56.0
+content_margin_right = 64.0
+content_margin_bottom = 56.0
+bg_color = Color(0.72156864, 0.5411765, 0.34509805, 1)
+border_width_left = 14
+border_width_top = 14
+border_width_right = 14
+border_width_bottom = 14
+border_color = Color(0.49803922, 0.36078432, 0.21176471, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 36
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamp"]
+content_margin_left = 40.0
+content_margin_top = 12.0
+content_margin_right = 40.0
+content_margin_bottom = 12.0
+bg_color = Color(0.6156863, 0.44705883, 0.26666668, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.23529412, 0.7058824, 0.8980392, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
 content_margin_left = 48.0
 content_margin_top = 24.0
 content_margin_right = 48.0
 content_margin_bottom = 24.0
-bg_color = Color(0.5137255, 0.2784314, 0.6784314, 1)
-corner_radius_top_left = 60
-corner_radius_top_right = 60
-corner_radius_bottom_right = 60
-corner_radius_bottom_left = 60
+bg_color = Color(0.23529412, 0.7058824, 0.8980392, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 48.0
+content_margin_top = 24.0
+content_margin_right = 48.0
+content_margin_bottom = 24.0
+bg_color = Color(0.18823529, 0.5647059, 0.71843137, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 48.0
+content_margin_top = 24.0
+content_margin_right = 48.0
+content_margin_bottom = 24.0
+bg_color = Color(0.29803922, 0.77647059, 0.96862745, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
 
 [node name="ResultCard" type="Control"]
 layout_mode = 3
@@ -54,51 +110,66 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -470.0
-offset_top = -360.0
-offset_right = 470.0
-offset_bottom = 360.0
+offset_left = -480.0
+offset_top = -520.0
+offset_right = 480.0
+offset_bottom = 520.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_box")
 
 [node name="Rows" type="VBoxContainer" parent="Panel"]
 layout_mode = 2
-theme_override_constants/separation = 32
+theme_override_constants/separation = 28
 alignment = 1
 
-[node name="LevelLabel" type="Label" parent="Panel/Rows"]
+[node name="Stamp" type="CenterContainer" parent="Panel/Rows"]
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="Panel/Rows/Stamp"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.23529412, 0.7058824, 0.8980392, 1)
-theme_override_font_sizes/font_size = 48
-text = "Street 1"
+theme_override_font_sizes/font_size = 44
+theme_override_styles/normal = SubResource("StyleBoxFlat_stamp")
+text = "STREET 1"
 horizontal_alignment = 1
+
+[node name="Pizza" type="Control" parent="Panel/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 360)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("2_pizza")
+radius = 150.0
 
 [node name="Heading" type="Label" parent="Panel/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 96
-text = "ROUND DONE"
+theme_override_font_sizes/font_size = 88
+text = "GOOD JOB!"
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Body" type="Label" parent="Panel/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7137255, 0.6509804, 0.827451, 1)
-theme_override_font_sizes/font_size = 44
+theme_override_colors/font_color = Color(0.9411765, 0.89411765, 0.827451, 1)
+theme_override_font_sizes/font_size = 40
 text = "7 delivered."
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="AgainButton" type="Button" parent="Panel/Rows"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 52
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 text = "Next street"

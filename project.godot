@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Pizza Flicker"
-run/main_scene="res://scenes/pizza_game.tscn"
 config/version="0.10.0"
+run/main_scene="res://scenes/pizza_game.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
@@ -22,13 +22,8 @@ window/size/viewport_width=1170
 window/size/viewport_height=2532
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-; On a phone the game should fill whatever shape the screen is, so it expands.
-; In a browser it is handed an arbitrary frame that is usually landscape, and
-; expanding into that shows a wide, shallow slice of the game. Keeping the
-; aspect letterboxes instead, so the portrait game stays portrait whatever
-; itch.io or anyone else embeds it in.
-window/stretch/aspect.web="keep"
 window/handheld/orientation=1
+window/stretch/aspect.web="keep"
 
 [input_devices]
 
@@ -45,6 +40,17 @@ project/editorState=[{
 "column": 0,
 "line": 0,
 "path": "res://scripts/pizza/pizza_physics.gd",
+"type": "file"
+}, {
+"column": 16,
+"current": true,
+"line": 150,
+"path": "res://scenes/ui/result_card.tscn",
+"type": "file"
+}, {
+"column": 46,
+"line": 13,
+"path": "res://scripts/pizza/result_card.gd",
 "type": "file"
 }]
 project/shaderEditorState=[]
