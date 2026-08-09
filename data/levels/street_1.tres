@@ -5,9 +5,8 @@
 [resource]
 script = ExtResource("1_1thwv")
 strikes = 4
-street_speed = 11.0
-gap_min = 12.0
-gap_max = 20.0
-distance_max = 26.0
-drop_radius = 4.4
+street_speed = 28.0
+gap_min = 31.0
+gap_max = 52.0
+drop_radius = 13.5
 waiting_chance = 0.66

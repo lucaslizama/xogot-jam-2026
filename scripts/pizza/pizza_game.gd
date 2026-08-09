@@ -25,6 +25,13 @@ signal round_ended(won: bool, delivered: int)
 @export var street_seed: int = 20260807
 
 @export_group("Feel")
+## How far the waiting pizza slides with your finger, as a fraction of the drag.
+## Pokemon GO nudges the ball with the drag; it makes the throw feel connected
+## rather than like flicking at a fixed picture.
+@export_range(0.0, 1.0, 0.05) var ready_pizza_follow: float = 0.35
+## How much the waiting pizza turns per radian of wind-up. This is the only
+## feedback the player gets that a curve is being loaded.
+@export_range(0.0, 3.0, 0.05) var windup_spin_gain: float = 1.0
 ## How fast the pizza tumbles in the air, before spin is added on top.
 @export_range(0.0, 30.0, 0.1) var pizza_tumble_rate: float = 4.5
 ## Radius of the pizza on screen at the rider's own distance, in pixels.
@@ -35,6 +42,7 @@ signal round_ended(won: bool, delivered: int)
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: Node2D = $Pizza
 @onready var _shadow: GroundShadow = $Shadow
+@onready var _ready_pizza: Node2D = $ReadyPizza
 @onready var _aim: AimPreview = $AimPreview
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _stack: PizzaStack = %PizzaStack
@@ -48,6 +56,8 @@ var _views: Dictionary = {}
 var _travelled: float = 0.0
 var _level_index: int = 0
 var _touch_index: int = -1
+var _ready_home: Vector2
+var _drag_from: Vector2
 
 
 func _ready() -> void:
@@ -59,6 +69,7 @@ func _ready() -> void:
 	_result.hide()
 	_pizza.visible = false
 	_shadow.visible = false
+	_ready_home = _ready_pizza.position
 	_backdrop.projection = projection
 	_aim.projection = projection
 	_aim.physics = physics
@@ -97,6 +108,7 @@ func _process(delta: float) -> void:
 	_backdrop.set_travelled(_travelled)
 	_sync_views()
 	_advance_flight(delta)
+	_update_ready_pizza()
 
 
 # --- throwing ---------------------------------------------------------------
@@ -112,6 +124,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _flight != null or not _state.can_throw() or _gesture.is_active():
 				return
 			_touch_index = event.index
+			_drag_from = event.position
 			_gesture.begin(event.position, now)
 		elif event.index == _touch_index and _gesture.is_active():
 			var flick := _gesture.release(event.position, now)
@@ -121,6 +134,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventScreenDrag and event.index == _touch_index:
 		_gesture.update(event.position, now)
 		_aim.show_for(_gesture.current_flick(), _gesture.windup())
+		_ready_pizza.position = _ready_home + (event.position - _drag_from) * ready_pizza_follow
+		_ready_pizza.rotation = _gesture.windup() * windup_spin_gain
 
 
 func _throw(flick: Vector2, windup: float) -> void:
@@ -133,6 +148,7 @@ func _throw(flick: Vector2, windup: float) -> void:
 
 	_flight = PizzaFlight.new(physics, physics.launch_from(flick, windup))
 	_state.spend_pizza()
+	_ready_pizza.visible = false
 	_pizza.visible = true
 	_pizza.rotation = 0.0
 	_place_pizza()
@@ -177,6 +193,16 @@ func _place_pizza() -> void:
 	# Draw order is by depth, so a pizza passing behind a near house is hidden
 	# by it. Negative because nearer means a smaller distance.
 	_pizza.z_index = clampi(int(-_flight.distance), -4000, 4000)
+
+
+## The pizza waiting in your hand, at the bottom of the screen. It is the thing
+## you drag, so it has to be there before the throw rather than appearing only
+## once one is in the air.
+func _update_ready_pizza() -> void:
+	_ready_pizza.visible = _flight == null and not _state.is_over() and _state.can_throw()
+	if not _gesture.is_active():
+		_ready_pizza.position = _ready_home
+		_ready_pizza.rotation = 0.0
 
 
 # --- houses -----------------------------------------------------------------

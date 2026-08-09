@@ -4,8 +4,9 @@
 
 [resource]
 script = ExtResource("1_73pq0")
-distance = 78.0
-width = 18.0
-gap = 7.0
+distance = 110.0
+height = 48.0
+width = 39.0
+gap = 15.0
 height_variation = 0.3
 colour = Color(0.21, 0.17, 0.3, 1)

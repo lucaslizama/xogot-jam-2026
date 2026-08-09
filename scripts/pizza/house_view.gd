@@ -14,9 +14,9 @@ extends Node2D
 ## how far away this house is.
 
 @export_group("Shape, in world units")
-@export_range(1.0, 30.0, 0.1) var width: float = 8.0
-@export_range(1.0, 30.0, 0.1) var wall_height: float = 5.0
-@export_range(0.0, 15.0, 0.1) var roof_height: float = 2.6
+@export_range(1.0, 30.0, 0.1) var width: float = 20.5
+@export_range(1.0, 30.0, 0.1) var wall_height: float = 12.8
+@export_range(0.0, 15.0, 0.1) var roof_height: float = 6.7
 ## Pixels per world unit at the rider's distance. Must match the projection
 ## resource, or houses will not sit at the size the street expects.
 @export_range(1.0, 400.0, 1.0) var pixels_per_unit: float = 46.0

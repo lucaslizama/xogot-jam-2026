@@ -64,6 +64,34 @@ offset_bottom = 24.0
 mouse_filter = 2
 color = Color(0.7137255, 0.5647059, 0.32156864, 1)
 
+[node name="ReadyPizza" type="Node2D" parent="."]
+position = Vector2(585, 2470)
+z_index = 4050
+
+[node name="Box" type="ColorRect" parent="ReadyPizza"]
+offset_left = -210.0
+offset_top = -210.0
+offset_right = 210.0
+offset_bottom = 210.0
+mouse_filter = 2
+color = Color(0.88235295, 0.7411765, 0.4862745, 1)
+
+[node name="Lid" type="ColorRect" parent="ReadyPizza"]
+offset_left = -150.0
+offset_top = -150.0
+offset_right = 150.0
+offset_bottom = 150.0
+mouse_filter = 2
+color = Color(0.7137255, 0.5647059, 0.32156864, 1)
+
+[node name="Crease" type="ColorRect" parent="ReadyPizza"]
+offset_left = -210.0
+offset_top = -14.0
+offset_right = 210.0
+offset_bottom = 14.0
+mouse_filter = 2
+color = Color(0.6039216, 0.4627451, 0.24705882, 1)
+
 [node name="Rider" type="Node2D" parent="."]
 position = Vector2(585, 2290)
 z_index = 4000

@@ -5,8 +5,10 @@
 [resource]
 script = ExtResource("1_m32sf")
 pizzas_in_stack = 12
-street_speed = 14.0
-gap_min = 10.0
-gap_max = 17.0
-distance_min = 18.0
+street_speed = 36.0
+gap_min = 26.0
+gap_max = 44.0
+distance_min = 62.0
+distance_max = 95.0
+drop_radius = 12.0
 waiting_chance = 0.6

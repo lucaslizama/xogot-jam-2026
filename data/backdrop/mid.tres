@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_pbya6")
-distance = 150.0
-height = 32.0
-width = 24.0
-gap = 9.0
+distance = 200.0
+height = 76.0
+width = 57.0
+gap = 21.0
 height_variation = 0.38
 colour = Color(0.17, 0.14, 0.26, 1)

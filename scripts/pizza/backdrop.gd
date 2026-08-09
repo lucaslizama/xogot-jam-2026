@@ -17,7 +17,7 @@ extends Node2D
 @export var road: Color = Color(0.15, 0.14, 0.17)
 @export var verge: Color = Color(0.19, 0.21, 0.17)
 ## How far back the road surface reaches, in world units.
-@export_range(5.0, 400.0, 1.0) var road_depth: float = 14.0
+@export_range(5.0, 400.0, 1.0) var road_depth: float = 18.0
 
 var _travelled: float = 0.0
 

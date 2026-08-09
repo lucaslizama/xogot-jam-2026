@@ -13,6 +13,7 @@ func _ready() -> void:
 	await _test_a_flick_spends_a_pizza()
 	await _test_a_fumble_spends_nothing()
 	await _test_one_pizza_in_the_air_at_a_time()
+	await _test_the_waiting_pizza_is_there_to_grab()
 	await _test_a_round_ends_on_its_own()
 
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
@@ -96,6 +97,26 @@ func _test_a_round_ends_on_its_own() -> void:
 		_check("pizzas or strikes ran out, not both silently (pizzas %d, strikes %d)"
 				% [game._state.pizzas_left, game._state.strikes_left],
 			game._state.pizzas_left == 0 or game._state.strikes_left == 0)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The pizza you drag has to be on screen before the throw, not conjured once
+## one is already in the air.
+func _test_the_waiting_pizza_is_there_to_grab() -> void:
+	var game := await _spawn()
+	var ready_pizza: Node2D = game.get_node("ReadyPizza")
+	_check("a pizza is waiting in hand at the start", ready_pizza.visible)
+
+	await _flick(game, 600.0)
+	_check("it is gone while one is in the air", not ready_pizza.visible)
+
+	# Empty the stack, then let the last throw settle.
+	while game._state.pizzas_left > 0:
+		game._state.spend_pizza()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_check("and it is gone once the stack is empty", not ready_pizza.visible)
 	game.queue_free()
 	await get_tree().process_frame
 

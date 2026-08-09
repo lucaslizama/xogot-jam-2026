@@ -15,7 +15,7 @@ extends Resource
 ## Screen column the rider's line runs down.
 @export_range(0.0, 3000.0, 1.0) var centre_x: float = 585.0
 ## Larger values flatten the perspective; smaller ones exaggerate it.
-@export_range(1.0, 400.0, 1.0) var focal_length: float = 62.0
+@export_range(1.0, 400.0, 1.0) var focal_length: float = 28.0
 ## Pixels per world unit at the rider's own distance.
 @export_range(1.0, 400.0, 1.0) var pixels_per_unit: float = 46.0
 
