@@ -4,3 +4,11 @@
 
 # Export output
 build/
+
+# Files the operating system and editors leave behind. macOS writes .DS_Store
+# into every folder Finder opens, so this recurs unless it is ignored.
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
