@@ -100,6 +100,7 @@ func _ready() -> void:
 	_state.strikes_changed.connect(_strikes.show_strikes)
 	_state.round_ended.connect(_on_round_ended)
 	_result.again_pressed.connect(_on_again)
+	_debug.win_requested.connect(_win_street_now)
 	_result.hide()
 	_pizza.visible = false
 	_shadow.visible = false
@@ -248,6 +249,19 @@ func _place_pizza() -> void:
 	# Draw order is by depth, so a pizza passing behind a near house is hidden
 	# by it. Negative because nearer means a smaller distance.
 	_pizza.z_index = clampi(int(-_flight.distance), -4000, 4000)
+
+
+## Clear the street outright. Only the debug panel asks for this, and it does it
+## through the same moves a real win is made of, throwing the rest of the stack
+## away and letting the round settle, rather than reaching past the rules. A
+## street with no strikes left is already lost and stays lost.
+func _win_street_now() -> void:
+	if _state.is_over():
+		return
+	_clear_flight()
+	while _state.can_throw():
+		_state.spend_pizza()
+	_state.note_flight_settled()
 
 
 ## Start crossing to a street's hour. The first street simply is its hour; every

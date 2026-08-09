@@ -10,6 +10,10 @@ extends Control
 ## Nothing here writes to disk. Read the number off the screen, decide, and put
 ## it in the resource.
 
+## Asked for by the button that clears a street outright, so the hours of the
+## day can be looked at without playing three rounds to reach the third.
+signal win_requested
+
 ## Which throw physics to drive. Set by the game at startup.
 var physics: PizzaPhysics
 ## Used to report the finger speed each part of the street asks for.
@@ -20,6 +24,7 @@ var level: LevelConfig
 @onready var _reach: Label = %Reach
 @onready var _panel: Control = %Panel
 @onready var _toggle: Button = %ToggleButton
+@onready var _win: Button = %WinButton
 
 ## Slider unique name -> the property it drives, and how to print it.
 const BINDINGS := {
@@ -33,6 +38,7 @@ const BINDINGS := {
 
 func _ready() -> void:
 	_toggle.pressed.connect(func() -> void: _panel.visible = not _panel.visible)
+	_win.pressed.connect(func() -> void: win_requested.emit())
 	_panel.visible = false
 
 
