@@ -3,12 +3,13 @@
 [ext_resource type="Script" path="res://scripts/pizza/pizza_stack.gd" id="1_stack"]
 
 [node name="PizzaStack" type="Control"]
+; Anchors left at the top-left corner on purpose. This lives in the world under
+; a Node2D rather than under a CanvasLayer, so nothing hands it the screen and
+; the script claims it instead. Full-rect anchors here would fight that.
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+anchors_preset = 0
+offset_right = 1170.0
+offset_bottom = 2532.0
 mouse_filter = 2
 script = ExtResource("1_stack")
 

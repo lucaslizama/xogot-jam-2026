@@ -11,6 +11,20 @@ extends Control
 @onready var _boxes: Control = %Boxes
 
 
+func _ready() -> void:
+	_fit_to_screen()
+	get_viewport().size_changed.connect(_fit_to_screen)
+
+
+## A Control under a CanvasLayer is handed the viewport's rectangle. One under a
+## Node2D is not: it comes out zero sized, and anything anchored inside it lands
+## off screen with nothing to say so. The stack lives in the world, at the
+## rider's own depth, so it has to claim that rectangle itself.
+func _fit_to_screen() -> void:
+	position = Vector2.ZERO
+	size = get_viewport_rect().size
+
+
 ## How many boxes the scene can draw. A level carrying more than this would look
 ## like it had fewer, so it is worth knowing.
 func slot_count() -> int:
