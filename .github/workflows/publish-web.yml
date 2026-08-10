@@ -108,7 +108,9 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/godot-bin:$PATH"
           mkdir -p build/web
-          godot --headless --export-debug "Web" build/web/index.html
+          # Release, not debug: the tuning panel shows itself in any debug build,
+          # so a debug export would put the sliders in front of players.
+          godot --headless --export-release "Web" build/web/index.html
           test -s build/web/index.wasm
           test -s build/web/index.pck
 

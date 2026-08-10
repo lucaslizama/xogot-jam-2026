@@ -14,6 +14,18 @@ extends Control
 ## day can be looked at without playing three rounds to reach the third.
 signal win_requested
 
+## Show the tools even in a build that ships. Off, they appear only when the game
+## is running as a debug build, which covers the editor and a debug APK, so
+## tuning on a phone needs nothing turned on here. Turn it on to get the sliders
+## in a release build, and remember to turn it back off.
+@export var force_visible: bool = false
+
+## Whether this build is one a developer is running. Seeded from the engine, but
+## left writable so a test can say "pretend this is what players get": the suite
+## itself runs as a debug build, and there is no way to export a release build and
+## drive it headless.
+var development_build: bool = OS.is_debug_build()
+
 ## Which throw physics to drive. Set by the game at startup.
 var physics: PizzaPhysics
 ## Used to report the finger speed each part of the street asks for.
@@ -36,7 +48,21 @@ const BINDINGS := {
 }
 
 
+## True when the tuning tools should be reachable at all. A player who found the
+## button that clears a street would have the game finish itself for no reason, so
+## in a shipped build the whole panel is gone rather than merely collapsed.
+func is_available() -> bool:
+	return force_visible or development_build
+
+
 func _ready() -> void:
+	if not is_available():
+		# Hidden is not enough on its own: a hidden Control still answers to a
+		# stray touch in some layouts, and the game goes on calling show_throw.
+		# Leaving nothing behind is cheaper than defending every call site.
+		hide()
+		set_process_mode(Node.PROCESS_MODE_DISABLED)
+		return
 	_toggle.pressed.connect(func() -> void: _panel.visible = not _panel.visible)
 	_win.pressed.connect(func() -> void: win_requested.emit())
 	_panel.visible = false
@@ -44,6 +70,10 @@ func _ready() -> void:
 
 ## Called by the game once the physics resource is known.
 func bind_to(p_physics: PizzaPhysics, p_level: LevelConfig) -> void:
+	if not is_available():
+		# Not just tidiness: the reach readout bisects three whole simulated
+		# flights, which is work a shipped build should never do.
+		return
 	physics = p_physics
 	level = p_level
 	for unique in BINDINGS:
@@ -61,6 +91,8 @@ func bind_to(p_physics: PizzaPhysics, p_level: LevelConfig) -> void:
 ## Report what the last throw actually did, which is the number that matters
 ## when the question is "why did that go so far".
 func show_throw(flick: float, landed: float, curve: float) -> void:
+	if not is_available():
+		return
 	_readout.text = "last throw: %.0f px/s  ->  %.1f away, %.1f across" % [flick, landed, curve]
 
 

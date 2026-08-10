@@ -17,6 +17,7 @@ func _ready() -> void:
 	await _test_a_touch_away_from_the_pizza_does_nothing()
 	await _test_a_fumble_puts_the_pizza_back()
 	await _test_a_round_ends_on_its_own()
+	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
 	for f in _failures:
@@ -159,10 +160,37 @@ func _test_a_fumble_puts_the_pizza_back() -> void:
 	await get_tree().process_frame
 
 
+## The tuning sliders and the button that clears a street are for us, not for
+## players. The suite runs as a debug build, so the panel has to be told to
+## pretend otherwise before it wakes up.
+func _test_the_tuning_tools_are_absent_from_a_shipped_build() -> void:
+	var shipped := await _spawn(false)
+	var panel: DebugPanel = shipped.find_child("DebugPanel", true, false)
+	_check("the panel is in the scene to be hidden in the first place", panel != null)
+	if panel == null:
+		return
+	_check("a shipped build does not offer the tuning tools", not panel.is_available())
+	_check("and nothing of it is on screen", not panel.visible)
+	# The game goes on reporting throws whether anyone is listening or not.
+	await _flick(shipped, 400.0)
+	_check("throwing with the panel gone does not fault", shipped._flight != null)
+	shipped.queue_free()
+
+	var ours := await _spawn()
+	var dev_panel: DebugPanel = ours.find_child("DebugPanel", true, false)
+	_check("a build we are running still offers them", dev_panel.is_available())
+	_check("and its button is on screen", dev_panel.visible)
+	ours.queue_free()
+
+
 # --- helpers ----------------------------------------------------------------
 
-func _spawn() -> Node:
+func _spawn(development_build: bool = true) -> Node:
 	var game: Node = (load("res://scenes/pizza_game.tscn") as PackedScene).instantiate()
+	# Set before the tree wakes the panel: it decides once, in _ready.
+	var panel: DebugPanel = game.find_child("DebugPanel", true, false)
+	if panel != null:
+		panel.development_build = development_build
 	add_child(game)
 	# start_level is deferred in _ready, so give it a frame to land.
 	await get_tree().process_frame

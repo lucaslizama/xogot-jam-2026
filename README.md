@@ -39,7 +39,8 @@ Playable, tuned on a real phone, and published to itch on every version tag.
   per pixel so its grain and markings scroll at the rate their depth deserves.
 - **Sound** — public domain foley for throwing, landing, missing and losing a strike.
 - **Tuning panel** — an on-device "tune" button with sliders for the throw and a readout of
-  what your last drag actually measured. Also a button that clears a street outright.
+  what your last drag actually measured. Also a button that clears a street outright. It
+  appears only in a build we are running ourselves, never in the one on itch.
 
 Still to build: art, and whatever sits between one street and the next.
 
