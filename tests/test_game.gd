@@ -19,6 +19,7 @@ func _ready() -> void:
 	await _test_a_round_ends_on_its_own()
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
+	await _test_a_delivery_pays_and_says_so()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -212,6 +213,35 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		Vector3(open_house.side, expected.y * 0.5, open_house.distance + 5.0))
 	_check("a pizza through the front of a real house is a delivery", through_it == open_house)
 	game.queue_free()
+
+
+## The rules can be perfect and pay nobody if the scene forgot to hand them over,
+## and the tips can be counted and never shown. Both are wiring, so both are here.
+func _test_a_delivery_pays_and_says_so() -> void:
+	var game := await _spawn()
+	var rules: ScoreRules = game._state.scoring
+	_check("the scene gave the state its scoring rules", rules != null)
+	if rules == null:
+		game.queue_free()
+		return
+
+	var total: Label = game.get_node("Ui/Tips")
+	var popup: TipPopup = game.get_node("Ui/TipPopup")
+	_check("the running total starts at nothing", total.text == rules.label_total % 0)
+	_check("and nothing is floating over the street yet", not popup.visible)
+
+	var paid: int = game._state.note_delivery(ScoreRules.ThrowTier.BULLSEYE)
+	_check("a bullseye paid something (got %d)" % paid, paid > 0)
+	await get_tree().process_frame
+	_check("and the total on screen followed it (shows %s)" % total.text,
+		total.text == rules.label_total % paid)
+
+	# The popup is the game's own reaction, not the state's, so it is driven the
+	# way the game drives it.
+	game._show_tip(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, paid, 1)
+	_check("the tip is said where the pizza landed", popup.visible)
+	game.queue_free()
+	await get_tree().process_frame
 
 
 ## The tuning sliders and the button that clears a street are for us, not for

@@ -14,6 +14,9 @@ signal again_pressed
 ## %d is the number of deliveries that landed.
 @export var won_body: String = "%d delivered."
 @export var lost_body: String = "%d delivered before they stopped answering."
+## What the street paid. The first %d is the tips, the second the longest run of
+## deliveries without a miss.
+@export var tips_line: String = "%d in tips, best run of %d"
 @export var won_button: String = "Next street"
 @export var lost_button: String = "Try again"
 ## The street badge, %d being the street's number. Two lines, because the badge is
@@ -41,6 +44,7 @@ signal again_pressed
 @onready var _panel: PanelContainer = $Panel
 @onready var _heading: Label = %Heading
 @onready var _body: Label = %Body
+@onready var _tips: Label = %Tips
 @onready var _level: Label = %LevelLabel
 @onready var _pizza: PizzaIcon = %Pizza
 @onready var _again: Button = %AgainButton
@@ -52,10 +56,15 @@ func _ready() -> void:
 	_again.pressed.connect(func() -> void: again_pressed.emit())
 
 
-func show_result(won: bool, delivered: int, level_number: int) -> void:
+func show_result(won: bool, delivered: int, level_number: int, tips: int = 0,
+		best_streak: int = 0) -> void:
 	_won = won
 	_heading.text = won_heading if won else lost_heading
 	_body.text = (won_body if won else lost_body) % delivered
+	# A street where nothing was scored has nothing to say about tips, and an
+	# empty line on the card reads as something missing rather than as nothing.
+	_tips.visible = tips > 0
+	_tips.text = tips_line % [tips, best_streak]
 	_level.text = level_stamp % level_number
 	_again.text = won_button if won else lost_button
 	_pizza.set_dropped(not won)

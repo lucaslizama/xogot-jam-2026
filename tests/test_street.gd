@@ -26,6 +26,10 @@ func _ready() -> void:
 	_test_a_street_with_no_bodies_behaves_as_before()
 	_test_the_nearest_wall_stops_the_pizza()
 	_test_every_house_the_street_makes_is_solid()
+	_test_a_tier_is_earned_by_how_close_it_landed()
+	_test_a_streak_pays_more_and_is_capped()
+	_test_a_miss_breaks_the_streak_but_keeps_the_tips()
+	_test_a_street_with_no_rules_still_plays()
 	_test_round_is_lost_on_the_last_strike()
 	_test_round_is_won_when_the_stack_empties()
 	_test_round_is_not_won_before_the_last_pizza_lands()
@@ -251,6 +255,87 @@ func _test_every_house_the_street_makes_is_solid() -> void:
 	_check("the houses the street stocked itself with all have bodies (%d of %d)"
 		% [bodied, street.houses().size()],
 		bodied == street.houses().size() and bodied > 0)
+
+
+# --- what a delivery is worth -------------------------------------------------
+
+func _test_a_tier_is_earned_by_how_close_it_landed() -> void:
+	var rules := ScoreRules.new()
+	rules.bullseye_fraction = 0.35
+	var radius := 10.0
+	_check("dead centre is a bullseye",
+		rules.tier_for(0.0, radius, false) == ScoreRules.ThrowTier.BULLSEYE)
+	_check("just inside the sweet spot is still a bullseye",
+		rules.tier_for(3.4, radius, false) == ScoreRules.ThrowTier.BULLSEYE)
+	_check("just outside it is merely nice",
+		rules.tier_for(3.6, radius, false) == ScoreRules.ThrowTier.NICE)
+	_check("out at the rim is nice",
+		rules.tier_for(9.9, radius, false) == ScoreRules.ThrowTier.NICE)
+	_check("and a pizza that went into the wall scraped in, however close it was",
+		rules.tier_for(0.0, radius, true) == ScoreRules.ThrowTier.SCRAPED)
+	_check("a bullseye pays more than a scrape",
+		rules.tip_for(ScoreRules.ThrowTier.BULLSEYE) > rules.tip_for(ScoreRules.ThrowTier.SCRAPED))
+
+
+func _test_a_streak_pays_more_and_is_capped() -> void:
+	var rules := ScoreRules.new()
+	rules.streak_starts_at = 2
+	rules.streak_step = 0.15
+	rules.streak_cap = 2.5
+	_check("one delivery is not yet a streak", is_equal_approx(rules.multiplier_for(1), 1.0))
+	_check("the second pays a step more", rules.multiplier_for(2) > 1.0)
+	_check("and the third more than the second",
+		rules.multiplier_for(3) > rules.multiplier_for(2))
+	_check("a very long run is held at the cap (got %.2f)" % rules.multiplier_for(200),
+		is_equal_approx(rules.multiplier_for(200), rules.streak_cap))
+	_check("the same throw is worth more inside a run (%d then %d)"
+			% [rules.award_for(ScoreRules.ThrowTier.NICE, 1),
+				rules.award_for(ScoreRules.ThrowTier.NICE, 6)],
+		rules.award_for(ScoreRules.ThrowTier.NICE, 6)
+			> rules.award_for(ScoreRules.ThrowTier.NICE, 1))
+
+
+func _test_a_miss_breaks_the_streak_but_keeps_the_tips() -> void:
+	var config := _config_with(10, 4)
+	var state := _state(config)
+	state.scoring = ScoreRules.new()
+	state.begin(config)
+
+	var lost: Array = []
+	state.streak_lost.connect(func(had: int) -> void: lost.append(had))
+
+	for i in 4:
+		state.note_delivery(ScoreRules.ThrowTier.NICE)
+	var banked: int = state.tips
+	_check("four deliveries make a run of four (got %d)" % state.streak, state.streak == 4)
+	_check("and they paid something (got %d)" % banked, banked > 0)
+
+	state.note_miss()
+	_check("a miss ends the run", state.streak == 0)
+	_check("the run that ended was reported, and its length (%s)" % [lost],
+		lost.size() == 1 and lost[0] == 4)
+	_check("but the tips already earned are not taken away (%d)" % state.tips,
+		state.tips == banked)
+	_check("and the best run is remembered (%d)" % state.best_streak, state.best_streak == 4)
+
+	state.note_delivery(ScoreRules.ThrowTier.NICE)
+	_check("the next delivery starts a new run", state.streak == 1)
+	_check("and the best run still stands", state.best_streak == 4)
+
+
+## The scoring is an extra on top of the game, not the game. A street with no
+## rules assigned has to keep working, because the menu's decorative one has none.
+func _test_a_street_with_no_rules_still_plays() -> void:
+	var config := _config_with(3, 2)
+	var state := _state(config)
+	state.scoring = null
+	state.begin(config)
+	state.note_delivery(ScoreRules.ThrowTier.BULLSEYE)
+	_check("a delivery still counts with no rules", state.delivered == 1)
+	_check("and still builds a run", state.streak == 1)
+	_check("but pays nothing", state.tips == 0)
+	state.note_miss()
+	_check("and a miss still costs a strike", state.strikes_left == 1)
 
 
 # --- the round --------------------------------------------------------------

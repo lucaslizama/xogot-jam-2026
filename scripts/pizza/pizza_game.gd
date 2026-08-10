@@ -77,6 +77,8 @@ signal round_ended(won: bool, delivered: int)
 @onready var _ready_pizza: Node2D = $ReadyPizza
 @onready var _aim: AimPreview = $AimPreview
 @onready var _strikes: StrikeDots = %StrikeDots
+@onready var _tips: Label = %Tips
+@onready var _tip_popup: TipPopup = %TipPopup
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
 @onready var _debug: DebugPanel = %DebugPanel
@@ -102,6 +104,9 @@ var _hour_blend: float = 1.0
 var _strikes_seen: int = -1
 ## Cached by _house_body_size.
 var _house_body: Vector2 = Vector2.ZERO
+## Where the last pizza came down, so a lost streak can be said at the spot that
+## lost it. Set before the state is told, because the state answers immediately.
+var _last_landing: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -109,6 +114,8 @@ func _ready() -> void:
 	_state.pizzas_changed.connect(_stack.show_pizzas)
 	_state.strikes_changed.connect(_strikes.show_strikes)
 	_state.strikes_changed.connect(_on_strikes_changed)
+	_state.tips_changed.connect(_show_total)
+	_state.streak_lost.connect(_on_streak_lost)
 	_state.round_ended.connect(_on_round_ended)
 	_result.again_pressed.connect(_on_again)
 	_debug.win_requested.connect(_win_street_now)
@@ -251,19 +258,68 @@ func _resolve_landing(struck: House = null) -> void:
 	var house: House = struck
 	if house == null:
 		house = _street.delivery_at(_flight.side, _flight.distance)
+	# Where it ended, kept before the flight is dropped, so the tip can be shown
+	# at the spot the player was looking at rather than somewhere generic.
+	var landed_at := projection.project(_flight.side, 0.0, _flight.distance)
+	_last_landing = landed_at
+	var miss := 0.0
+	if house != null:
+		miss = house.miss_by(_flight.side, _flight.distance)
 	_flight = null
 	_pizza.visible = false
 	_shadow.visible = false
 
 	if house != null:
 		house.served = true
-		_state.note_delivery()
+		var tier := ScoreRules.ThrowTier.NICE
+		if _state.scoring != null:
+			# A pizza that went into the wall has no distance from the ring worth
+			# reading, so it is told outright that it scraped in.
+			tier = _state.scoring.tier_for(miss, house.drop_radius, struck != null)
+		var award := _state.note_delivery(tier)
+		_show_tip(landed_at, tier, award, _state.streak)
 		_audio.play(&"delivered")
 	else:
 		_state.note_miss()
 		_audio.play(&"missed")
 	# Only now can the round be won: the last throw still had to land.
 	_state.note_flight_settled()
+
+
+# --- tips --------------------------------------------------------------------
+
+## Say what the throw earned, where it landed. A tip nobody sees is only a number
+## going up in the corner, and the corner is not where anyone is looking.
+func _show_tip(at: Vector2, tier: ScoreRules.ThrowTier, award: int, streak: int) -> void:
+	var rules: ScoreRules = _state.scoring
+	if rules == null:
+		return
+	var run := ""
+	if rules.streak_is_paying(streak):
+		run = rules.label_streak % streak
+	_tip_popup.show_tip(at, rules.label_for(tier), rules.label_tip % award, run,
+		_tip_popup.colour_for(tier))
+
+
+## A run ending is worth saying only when it was long enough to have been worth
+## keeping. The popup goes where the miss happened, so it reads as the consequence
+## of that throw rather than as an announcement.
+func _on_streak_lost(had: int) -> void:
+	var rules: ScoreRules = _state.scoring
+	if rules == null:
+		return
+	# The wording may or may not want the number in it, so both spellings work
+	# and neither crashes the round over a format string.
+	var said := rules.label_streak_lost
+	if said.contains("%d"):
+		said = said % had
+	_tip_popup.show_message(_last_landing, said, _tip_popup.colour_streak_lost)
+
+
+func _show_total(total: int) -> void:
+	if _state.scoring == null:
+		return
+	_tips.text = _state.scoring.label_total % total
 
 
 func _place_pizza() -> void:
@@ -482,7 +538,7 @@ func _on_strikes_changed(left: int) -> void:
 func _on_round_ended(won: bool, delivered: int) -> void:
 	_clear_flight()
 	_audio.play(&"round_won" if won else &"round_lost")
-	_result.show_result(won, delivered, _level_index + 1)
+	_result.show_result(won, delivered, _level_index + 1, _state.tips, _state.best_streak)
 	round_ended.emit(won, delivered)
 
 

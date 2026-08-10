@@ -105,6 +105,14 @@ text = "7 delivered."
 horizontal_alignment = 1
 autowrap_mode = 3
 
+[node name="Tips" type="Label" parent="Panel/Rows"]
+theme_type_variation = &"Caption"
+unique_name_in_owner = true
+layout_mode = 2
+text = "310 in tips, best run 5"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="AgainButton" type="Button" parent="Panel/Rows"]
 theme_type_variation = &"GoButton"
 unique_name_in_owner = true
