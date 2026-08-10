@@ -88,8 +88,16 @@ which prints the real reason.
 **A running editor overwrites `project.godot` too.** A hand-added key is written
 back out from the editor's own in-memory settings and silently disappears, with
 no error and nothing in the diff. `gui/theme/custom` was lost this way twice in a
-row. Set project settings in the GUI with the editor open, or close it first; for
-anything a scene can carry itself, prefer putting it in the scene.
+row, the version was rolled back a release, and the main scene stayed pointed at
+the game long after there was a menu in front of it. Set project settings in the
+GUI with the editor open, or close it first; for anything a scene can carry
+itself, prefer putting it in the scene.
+
+Because it cannot be prevented, it is caught instead. `tools/check-project-settings.sh`
+holds the settings that matter with a note on what each one breaks, and it runs as
+a pre-commit hook and again in the release workflow. Restart your editor after
+pulling. When a value is meant to change, change it in that script in the same
+commit; the hook can be stepped past once with `git commit --no-verify`.
 
 **A running Godot editor overwrites `editor_settings-4.6.tres` when it saves**,
 including blanking the Android Java SDK path. Close it before editing that file,

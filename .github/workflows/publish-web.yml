@@ -61,6 +61,13 @@ jobs:
           rm -rf "$target"
           mv /tmp/tpl/templates "$target"
 
+      # A stale editor reverts settings in this file silently, so the settings the
+      # game needs are checked somewhere that cannot be skipped with --no-verify.
+      # The version is left out: the next step overwrites it with the tag anyway,
+      # and this checkout is shallow and has no tags to compare it against.
+      - name: Check project.godot has not drifted
+        run: bash tools/check-project-settings.sh --skip-version
+
       - name: Work out the version and stamp it into the project
         run: |
           set -euo pipefail

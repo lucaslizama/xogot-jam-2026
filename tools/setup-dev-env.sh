@@ -257,6 +257,22 @@ EOF
     ok "added to $(basename "$rc")"
 done
 
+# --- git hooks --------------------------------------------------------------
+#
+# The hooks live in the repository rather than in .git, so everyone gets them and
+# they can be changed like anything else. That takes one setting per clone, which
+# is what this does. Harmless to run again.
+
+say "Hooks"
+hooks_repo="$(cd "$(dirname "$0")/.." && pwd)"
+if [ -d "$hooks_repo/.git" ] || git -C "$hooks_repo" rev-parse --git-dir >/dev/null 2>&1; then
+    git -C "$hooks_repo" config core.hooksPath tools/git-hooks
+    chmod +x "$hooks_repo"/tools/git-hooks/* 2>/dev/null || true
+    ok "core.hooksPath -> tools/git-hooks (guards project.godot on commit)"
+else
+    warn "not a git checkout, so no hooks were installed"
+fi
+
 # --- done -------------------------------------------------------------------
 
 say "Verifying"

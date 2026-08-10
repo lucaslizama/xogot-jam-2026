@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Refuse a commit that quietly reverts project.godot.
+#
+# Installed by tools/setup-dev-env.sh, which points core.hooksPath at this
+# directory so the hooks are shared through the repository rather than living in
+# one person's .git. Nothing else runs on commit: the test suites are too slow to
+# sit in front of every one, and this is the failure that actually keeps
+# happening.
+#
+# If a drift is deliberate, update the expected value in
+# tools/check-project-settings.sh in the same commit. To get past it once:
+#
+#     git commit --no-verify
+
+set -uo pipefail
+
+# Reverts arrive as a stray line inside an unrelated commit, which is exactly why
+# they go unnoticed. So look at the staged content, not the working tree: the two
+# differ whenever something was staged and then edited again.
+if ! git diff --cached --name-only | grep -qx 'project.godot'; then
+    exit 0
+fi
+
+root="$(git rev-parse --show-toplevel)"
+staged="$(mktemp)"
+trap 'rm -f "$staged"' EXIT
+
+# Being deleted rather than changed is somebody else's problem to explain.
+git show ":project.godot" > "$staged" 2>/dev/null || exit 0
+
+if ! bash "$root/tools/check-project-settings.sh" "$staged"; then
+    echo
+    echo "Commit stopped. Nothing is lost: fix project.godot, stage it, commit again."
+    exit 1
+fi

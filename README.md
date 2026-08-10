@@ -55,7 +55,7 @@ xogot-jam-2026/
 ├── data/                   # Tuning, levels and times of day, editable in the editor
 ├── scripts/pizza/          # Throw, street, round rules and their views
 ├── tests/                  # Headless test scenes
-├── tools/                  # Machine setup and releasing
+├── tools/                  # Machine setup, releasing, and the project.godot guard
 ├── docs/design/            # What is being built and why
 ├── docs/                   # Art brief, machine setup
 ├── sprites/                # Textures and art
@@ -92,6 +92,15 @@ bash tools/setup-dev-env.sh
 ```
 
 See `docs/dev-setup.md`, which also covers the parts that must be done on a phone.
+
+It also points git at `tools/git-hooks`, which stops a commit that quietly reverts
+`project.godot`. A Godot editor left open from before someone else's change writes
+its own older settings back over that file, and it has cost us the theme, the
+version and the main scene. Restart your editor after pulling. To check by hand:
+
+```
+bash tools/check-project-settings.sh
+```
 
 ## Running
 
