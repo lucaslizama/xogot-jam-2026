@@ -8,6 +8,13 @@ extends RefCounted
 ## replayed in a test far faster than real time. The scene that draws it reads
 ## [method houses] each frame and does nothing else.
 
+## How big a house's body is, in world units: x its width, y how tall it stands.
+## A pizza thrown into a house counts as delivered, so this has to be the size the
+## houses are actually drawn at, which is why the game reads it off the house scene
+## rather than anyone typing it twice. Zero leaves houses as thin air, and only
+## their drop points can be hit.
+var house_body: Vector2 = Vector2.ZERO
+
 var _config: LevelConfig
 var _rng := RandomNumberGenerator.new()
 var _houses: Array[House] = []
@@ -15,8 +22,11 @@ var _houses: Array[House] = []
 var _frontier: float = 0.0
 
 
-func _init(config: LevelConfig, seed_value: int = 0) -> void:
+## `body` is passed in rather than set afterwards so that the first houses, which
+## are placed here, are as solid as every one that follows.
+func _init(config: LevelConfig, seed_value: int = 0, body: Vector2 = Vector2.ZERO) -> void:
 	_config = config
+	house_body = body
 	_rng.seed = seed_value
 	# Start the frontier just behind the rider so the first stretch of street is
 	# already populated when the level opens rather than arriving late.
@@ -53,6 +63,24 @@ func delivery_at(landed_side: float, landed_distance: float) -> House:
 	return best
 
 
+## The open house a pizza flew into on this step of its flight, or null if it hit
+## nothing. Both arguments are (side, height, distance).
+##
+## Only houses that still want a pizza are solid. Scenery is left as thin air on
+## purpose: making it block throws would turn near misses into dead stops and take
+## something away, and this change is meant to give something.
+func struck_house(from: Vector3, to: Vector3) -> House:
+	var best: House = null
+	for house in _houses:
+		if not house.is_open() or not house.struck_by(from, to):
+			continue
+		# The nearest wall is the one that stops it; anything further up the street
+		# is standing in its shadow.
+		if best == null or house.distance < best.distance:
+			best = house
+	return best
+
+
 ## How many houses are still waiting, on screen or not. Useful for telling a
 ## fair street from one that never offers a target.
 func open_count() -> int:
@@ -71,6 +99,7 @@ func _restock() -> void:
 			_rng.randf_range(_config.distance_min, _config.distance_max),
 			_config.drop_radius,
 			_rng.randf() < _config.waiting_chance,
+			house_body,
 		))
 
 

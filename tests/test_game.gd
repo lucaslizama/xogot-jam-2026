@@ -18,6 +18,7 @@ func _ready() -> void:
 	await _test_a_fumble_puts_the_pizza_back()
 	await _test_a_round_ends_on_its_own()
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
+	await _test_houses_are_solid_at_the_size_they_are_drawn()
 
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
 	for f in _failures:
@@ -158,6 +159,45 @@ func _test_a_fumble_puts_the_pizza_back() -> void:
 	_check("still holding every pizza (%d)" % game._state.pizzas_left, game._state.pizzas_left == 10)
 	game.queue_free()
 	await get_tree().process_frame
+
+
+## The model can be told any size at all, so the thing worth checking here is that
+## the game hands it the size the houses are really drawn at. A game that forgot to
+## would leave every house thin air and no model test would notice.
+func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
+	var game := await _spawn()
+	var drawn: HouseView = (game.house_scene.instantiate() as HouseView)
+	var expected := Vector2(drawn.width, drawn.wall_height + drawn.roof_height)
+	drawn.free()
+
+	var body: Vector2 = game._street.house_body
+	_check("the street was given a house body (got %s)" % body, body != Vector2.ZERO)
+	_check("and it is the size the house scene draws (%s, want %s)" % [body, expected],
+		body.is_equal_approx(expected))
+
+	var solid := 0
+	for house in game._street.houses():
+		if house.body.is_equal_approx(expected):
+			solid += 1
+	_check("every house on the real street is solid (%d of %d)"
+		% [solid, game._street.houses().size()],
+		solid == game._street.houses().size() and solid > 0)
+
+	# A pizza sent through the middle of an open house should be taken by it.
+	var open_house: House = null
+	for house in game._street.houses():
+		if house.is_open():
+			open_house = house
+			break
+	if open_house == null:
+		_check("the street offered a house to throw at", false)
+		game.queue_free()
+		return
+	var through_it: House = game._street.struck_house(
+		Vector3(open_house.side, expected.y * 0.5, open_house.distance - 5.0),
+		Vector3(open_house.side, expected.y * 0.5, open_house.distance + 5.0))
+	_check("a pizza through the front of a real house is a delivery", through_it == open_house)
+	game.queue_free()
 
 
 ## The tuning sliders and the button that clears a street are for us, not for

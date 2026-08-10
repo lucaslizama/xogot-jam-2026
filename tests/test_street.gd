@@ -19,6 +19,13 @@ func _ready() -> void:
 	_test_a_house_cannot_be_served_twice()
 	_test_scenery_is_never_a_delivery()
 	_test_nearest_drop_point_wins()
+	_test_a_pizza_into_the_house_delivers()
+	_test_a_pizza_past_the_house_hits_nothing()
+	_test_a_fast_pizza_cannot_pass_through_a_wall()
+	_test_only_houses_that_want_a_pizza_are_solid()
+	_test_a_street_with_no_bodies_behaves_as_before()
+	_test_the_nearest_wall_stops_the_pizza()
+	_test_every_house_the_street_makes_is_solid()
 	_test_round_is_lost_on_the_last_strike()
 	_test_round_is_won_when_the_stack_empties()
 	_test_round_is_not_won_before_the_last_pizza_lands()
@@ -167,6 +174,85 @@ func _test_nearest_drop_point_wins() -> void:
 		street.delivery_at(10.5, 20.0) == near)
 
 
+# --- houses as something to hit ---------------------------------------------
+
+func _test_a_pizza_into_the_house_delivers() -> void:
+	var street := _one_solid_house_street(true)
+	var target: House = street.houses()[0]
+	# Straight at the middle of the wall, chest high.
+	_check("a pizza into the front of the house delivers",
+		street.struck_house(Vector3(12.0, 6.0, 18.0), Vector3(12.0, 6.0, 26.0)) == target)
+	_check("one against the top of the wall still delivers",
+		street.struck_house(Vector3(12.0, 11.5, 18.0), Vector3(12.0, 11.5, 26.0)) == target)
+	_check("and one against the near edge of the wall delivers",
+		street.struck_house(Vector3(2.5, 6.0, 18.0), Vector3(2.5, 6.0, 26.0)) == target)
+
+
+func _test_a_pizza_past_the_house_hits_nothing() -> void:
+	var street := _one_solid_house_street(true)
+	_check("one thrown clean over the roof hits nothing",
+		street.struck_house(Vector3(12.0, 20.0, 18.0), Vector3(12.0, 19.0, 26.0)) == null)
+	_check("one that goes wide of the wall hits nothing",
+		street.struck_house(Vector3(40.0, 6.0, 18.0), Vector3(40.0, 6.0, 26.0)) == null)
+	_check("one that falls short of the house hits nothing",
+		street.struck_house(Vector3(12.0, 6.0, 10.0), Vector3(12.0, 2.0, 18.0)) == null)
+	_check("and a step already past the house hits nothing",
+		street.struck_house(Vector3(12.0, 6.0, 24.0), Vector3(12.0, 4.0, 30.0)) == null)
+
+
+## The reason the test takes two points rather than one: at full power a pizza
+## covers more ground in one frame than a house is deep, and a single-point test
+## would let it through the wall.
+func _test_a_fast_pizza_cannot_pass_through_a_wall() -> void:
+	var street := _one_solid_house_street(true)
+	var target: House = street.houses()[0]
+	_check("a step that jumps clean over the house still hits it",
+		street.struck_house(Vector3(12.0, 6.0, 0.0), Vector3(12.0, 5.0, 100.0)) == target)
+
+
+func _test_only_houses_that_want_a_pizza_are_solid() -> void:
+	var scenery := _one_solid_house_street(false)
+	_check("scenery is thin air, as it was before",
+		scenery.struck_house(Vector3(12.0, 6.0, 18.0), Vector3(12.0, 6.0, 26.0)) == null)
+
+	var served := _one_solid_house_street(true)
+	served.houses()[0].served = true
+	_check("a house already served is thin air too",
+		served.struck_house(Vector3(12.0, 6.0, 18.0), Vector3(12.0, 6.0, 26.0)) == null)
+
+
+func _test_a_street_with_no_bodies_behaves_as_before() -> void:
+	var street := _one_house_street(true)
+	_check("houses with no body given cannot be hit",
+		street.struck_house(Vector3(12.0, 6.0, 18.0), Vector3(12.0, 6.0, 26.0)) == null)
+	_check("and their drop point still works",
+		street.delivery_at(12.0, 22.0) == street.houses()[0])
+
+
+func _test_the_nearest_wall_stops_the_pizza() -> void:
+	var body := Vector2(20.0, 12.0)
+	var street := StreetModel.new(_config(), 9, body)
+	var near := House.new(12.0, 22.0, 3.2, true, body)
+	var far := House.new(12.0, 40.0, 3.2, true, body)
+	street.houses().clear()
+	street.houses().append(far)
+	street.houses().append(near)
+	_check("a throw crossing two houses is taken by the nearer one",
+		street.struck_house(Vector3(12.0, 6.0, 0.0), Vector3(12.0, 5.0, 60.0)) == near)
+
+
+func _test_every_house_the_street_makes_is_solid() -> void:
+	var body := Vector2(20.0, 12.0)
+	var street := StreetModel.new(_config(), 11, body)
+	var bodied := 0
+	for house in street.houses():
+		if house.body == body:
+			bodied += 1
+	_check("the houses the street stocked itself with all have bodies (%d of %d)"
+		% [bodied, street.houses().size()],
+		bodied == street.houses().size() and bodied > 0)
+
+
 # --- the round --------------------------------------------------------------
 
 func _test_round_is_lost_on_the_last_strike() -> void:
@@ -247,6 +333,15 @@ func _one_house_street(waiting: bool) -> StreetModel:
 	var street := StreetModel.new(_config(), 9)
 	street.houses().clear()
 	street.houses().append(House.new(12.0, 22.0, 3.2, waiting))
+	return street
+
+
+## A street holding one solid house, 20 wide and 12 tall, at side 12 distance 22.
+func _one_solid_house_street(waiting: bool) -> StreetModel:
+	var body := Vector2(20.0, 12.0)
+	var street := StreetModel.new(_config(), 9, body)
+	street.houses().clear()
+	street.houses().append(House.new(12.0, 22.0, 3.2, waiting, body))
 	return street
 
 

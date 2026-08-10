@@ -12,9 +12,10 @@ You are a pizza delivery rider on an endless street. You sit at the bottom of th
 never move sideways; the houses scroll past you in parallax. On the back of your bike is a
 stack of pizza boxes, and you throw them at the houses that are waiting for one.
 
-Land a box in a drop point and the delivery counts. Miss and it hits the wall, which costs
-you a strike. The strikes are dots along the top of the screen, and when the last one is
-crossed the round is over. Otherwise you keep going until the stack is empty.
+Hit a house that is waiting, or land the box in the ring at its feet, and the delivery
+counts. Miss the house entirely and you take a strike. The strikes are dots along the top of
+the screen, and when the last one is crossed the round is over. Otherwise you keep going
+until the stack is empty.
 
 The throw carries the theme: once the box leaves your hands it is committed, and all you can
 do is watch.

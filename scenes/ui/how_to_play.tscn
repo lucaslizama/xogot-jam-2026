@@ -68,7 +68,7 @@ layout_mode = 2
 picture_height = 700.0
 note = "A pizza dropping into the ring in front of a lit house, and a second one hitting the wall"
 diagram = 3
-caption = "Land it in the ring at the foot of a house that is waiting. Hit the wall and you lose a strike."
+caption = "Hit a house that is waiting, or land in the ring at its feet. Either one counts. Miss both and you lose a strike."
 
 [node name="Stack" parent="Scroll/Steps" instance=ExtResource("2_step")]
 layout_mode = 2

@@ -30,6 +30,12 @@ signal round_ended(won: bool, delivered: int)
 @export_range(0.0, 12.0, 0.1) var daylight_crossfade: float = 2.5
 
 @export_group("Feel")
+## Whether a pizza thrown into a house counts as delivered, as well as one that
+## lands in the drop point at its feet. On, the house is what the player can see,
+## so it is what they aim at; off, only the ring on the ground counts and the
+## house is thin air. Its size is not a value here: it is read from the house
+## scene, so what can be hit is exactly what is drawn.
+@export var houses_are_solid: bool = true
 ## How close to the waiting pizza a touch has to land to pick it up. Touches
 ## further away are ignored, so a stray tap cannot fling a pizza.
 @export_range(50.0, 800.0, 10.0) var grab_radius: float = 340.0
@@ -94,6 +100,8 @@ var _hour_from: TimeOfDay
 var _hour_to: TimeOfDay
 var _hour_blend: float = 1.0
 var _strikes_seen: int = -1
+## Cached by _house_body_size.
+var _house_body: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -133,7 +141,7 @@ func start_level() -> void:
 	_aim.marker_radius = _config.drop_radius
 	_begin_hour(_config.time_of_day)
 	_debug.bind_to(physics, _config)
-	_street = StreetModel.new(_config, street_seed + _level_index)
+	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size())
 	_travelled = 0.0
 	_clear_flight()
 	_clear_views()
@@ -218,16 +226,31 @@ func _throw(flick: Vector2, windup: float) -> void:
 func _advance_flight(delta: float) -> void:
 	if _flight == null:
 		return
-	if _flight.step(delta):
+	# Both ends of the step, because a house is hit somewhere between them: a hard
+	# throw crosses more than a house's width in a single frame.
+	var from := Vector3(_flight.side, _flight.height, _flight.distance)
+	var landed := _flight.step(delta)
+	var struck := _street.struck_house(
+		from, Vector3(_flight.side, _flight.height, _flight.distance))
+	if struck != null:
+		# A pizza in the front door has arrived, whether or not it had got as far
+		# as the ground.
+		_resolve_landing(struck)
+		return
+	if landed:
 		_resolve_landing()
 		return
 	_pizza.rotation += (pizza_tumble_rate + _flight.current_spin() * 8.0) * delta
 	_place_pizza()
 
 
-func _resolve_landing() -> void:
+## `struck` is the house the pizza flew into, when it did. Without one the landing
+## spot on the ground decides, as it always has.
+func _resolve_landing(struck: House = null) -> void:
 	_debug.show_throw(_last_flick, _flight.distance, _flight.side)
-	var house: House = _street.delivery_at(_flight.side, _flight.distance)
+	var house: House = struck
+	if house == null:
+		house = _street.delivery_at(_flight.side, _flight.distance)
 	_flight = null
 	_pizza.visible = false
 	_shadow.visible = false
@@ -375,6 +398,27 @@ func _return_ready_pizza() -> void:
 
 
 # --- houses -----------------------------------------------------------------
+
+## How big a house's body is, in world units, taken from the house scene itself.
+## Nobody types these numbers twice: whatever the scene is drawn at is what a
+## pizza can hit, so moving a wall in the editor moves what the player is aiming
+## at with it.
+##
+## Read once and kept. Instancing a scene to ask it its size is cheap, but there
+## is no reason to do it every level.
+func _house_body_size() -> Vector2:
+	if not houses_are_solid:
+		return Vector2.ZERO
+	if _house_body != Vector2.ZERO:
+		return _house_body
+	var probe := house_scene.instantiate() as HouseView
+	if probe == null:
+		# The error for this is already raised where the views are made.
+		return Vector2.ZERO
+	_house_body = Vector2(probe.width, probe.wall_height + probe.roof_height)
+	probe.free()
+	return _house_body
+
 
 ## Give every house in the model a node, place it, and drop the nodes whose
 ## houses have gone by.
