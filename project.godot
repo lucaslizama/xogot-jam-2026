@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Pizza Flicker"
-config/version="0.10.0"
-run/main_scene="res://scenes/pizza_game.tscn"
+config/version="0.11.0"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
