@@ -55,10 +55,11 @@ enum ThrowTier {
 @export var label_scraped: String = "Scraped it"
 ## Shown under the tier once a streak is paying. %d is how many in a row.
 @export var label_streak: String = "%d in a row"
-## The tip that throw earned. %d is the amount.
-@export var label_tip: String = "+%d"
+## The tip that throw earned. %d is the amount. The currency is written here
+## rather than drawn anywhere, so a street somewhere else spends something else.
+@export var label_tip: String = "+$%d"
 ## The running total. %d is the amount.
-@export var label_total: String = "%d"
+@export var label_total: String = "$%d"
 ## Said when a streak worth having is broken, in place of a tier. Empty says
 ## nothing, which is the kinder option if it starts to feel like nagging.
 @export var label_streak_lost: String = "Streak lost"

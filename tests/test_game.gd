@@ -227,6 +227,20 @@ func _test_a_delivery_pays_and_says_so() -> void:
 
 	var total: Label = game.get_node("Ui/Tips")
 	var popup: TipPopup = game.get_node("Ui/TipPopup")
+
+	# The theme has been lost whole before now, and a variation going missing is
+	# silent: the label simply falls back to the default and nobody notices until
+	# a screenshot. Money is money, so it is checked rather than trusted.
+	var theme: Theme = load("res://data/ui_theme.tres")
+	_check("the theme still has somewhere to say money",
+		theme.has_theme_item(Theme.DATA_TYPE_COLOR, "font_color", "Money"))
+	_check("and the total is dressed in it (%s)" % total.theme_type_variation,
+		total.theme_type_variation == &"Money")
+	_check("money is green, not the default text colour",
+		total.get_theme_color(&"font_color").g > total.get_theme_color(&"font_color").r)
+	_check("and the tip a throw pays is too",
+		rules.label_tip.contains("$") and rules.label_total.contains("$"))
+
 	_check("the running total starts at nothing", total.text == rules.label_total % 0)
 	_check("and nothing is floating over the street yet", not popup.visible)
 

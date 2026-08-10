@@ -31,9 +31,9 @@ horizontal_alignment = 1
 
 [node name="Tip" type="Label" parent="Rows"]
 unique_name_in_owner = true
-theme_type_variation = &"PageSubtitle"
+theme_type_variation = &"Money"
 layout_mode = 2
-text = "+500"
+text = "+$500"
 horizontal_alignment = 1
 
 [node name="Streak" type="Label" parent="Rows"]
