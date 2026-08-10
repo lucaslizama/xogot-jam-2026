@@ -72,6 +72,17 @@ and throws taps tens of thousands of pixels off.
 viewport coordinates arrives about 40x off. Multiply by
 `get_viewport().get_final_transform()` first.
 
+**"N resources still in use at exit" and "ObjectDB instances leaked at exit" in a
+test run are usually the test being impatient, not a leak in the game.** Both were
+chased down in `test_game` and neither was real. Freeing a scene a frame after a
+sound starts leaves the clip referenced, because the audio server has not had a
+moment to let the playback go; a quarter of a second of real time before quitting
+is enough. Freeing a scene mid-tween while it is inside `await tween.finished`
+suspends that coroutine for good, and the `Tween` it holds is then reported as a
+leaked instance; wait the tween out instead. Verify before believing either
+message: `--verbose` names the exact resources and instances, and running the
+suspect test alone tells you which one owns them.
+
 **GDScript lambdas capture locals by value.** Mutating a captured array works;
 rebinding it (`captured = [...]`) never reaches the outer variable. Use
 `.assign()` or `.append()` in signal callbacks.

@@ -20,6 +20,14 @@ func _ready() -> void:
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 
+	# Not idle padding. A test that throws frees its game a frame later, while the
+	# throw is still sounding, and quitting straight after that leaves the clip
+	# still referenced: the engine prints "N resources still in use at exit", which
+	# reads exactly like a leak and is not one. A fifth of a second of real time is
+	# all the audio server needs to let go. Tests that only fumble never trip it,
+	# which is what makes the throw the culprit.
+	await get_tree().create_timer(0.25).timeout
+
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
 	for f in _failures:
 		print("  FAIL  ", f)
@@ -65,6 +73,12 @@ func _test_a_fumble_spends_nothing() -> void:
 	_check("a slow release does not cost a pizza (%d -> %d)" % [before, game._state.pizzas_left],
 		game._state.pizzas_left == before)
 	_check("and nothing is in the air", game._flight == null)
+	# Let the pizza finish dropping back into the rider's hand before taking the
+	# game away. That return is a tween the game awaits, and freeing the game
+	# mid-tween leaves the coroutine suspended for good, still holding the Tween:
+	# the engine then reports a leaked instance at exit, which reads like a bug in
+	# the game and is only this test being impatient.
+	await get_tree().create_timer(game.return_duration + 0.1).timeout
 	game.queue_free()
 	await get_tree().process_frame
 
