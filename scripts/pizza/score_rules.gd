@@ -31,9 +31,13 @@ enum ThrowTier {
 @export_range(0.05, 1.0, 0.01) var bullseye_fraction: float = 0.35
 
 @export_group("What each is worth")
-@export_range(0, 500, 5) var tip_bullseye: int = 50
-@export_range(0, 500, 5) var tip_nice: int = 30
-@export_range(0, 500, 5) var tip_scraped: int = 15
+## Deliberately big numbers. A tip of 30 reads as small change and lands with no
+## weight; the same throw paying 300 reads as a reward, and a long run ending in
+## the thousands is worth telling someone about. Nothing else depends on the
+## scale, so it can be pushed further without anything having to keep up.
+@export_range(0, 5000, 10) var tip_bullseye: int = 500
+@export_range(0, 5000, 10) var tip_nice: int = 300
+@export_range(0, 5000, 10) var tip_scraped: int = 150
 
 @export_group("Streak")
 ## How many deliveries in a row before a streak starts paying. Two, so the bonus
