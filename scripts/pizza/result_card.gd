@@ -13,7 +13,7 @@ signal again_pressed
 @export var lost_heading: String = "YOU'RE FIRED!"
 ## %d is the number of deliveries that landed.
 @export var won_body: String = "%d delivered."
-@export var lost_body: String = "%d delivered before they stopped answering."
+@export var lost_body: String = "%d delivered before it all hit the pavement."
 ## What the street paid. The first %d is the tips, the second the longest run of
 ## deliveries without a miss.
 @export var tips_line: String = "$%d in tips, best run of %d"

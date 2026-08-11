@@ -10,8 +10,10 @@ parallax layers. On the back of his bike is a stack of pizza boxes, and that sta
 whole of his ammunition. Every throw takes one off the top, so the player can always see
 exactly how much of the level is left without a single number on screen.
 
-Houses go by at different distances. Each has a drop point, and the pizza has to land in it.
-Anything else and the box hits the wall and slides down it, which costs a strike.
+Houses go by at different distances. Each has a drop point at its feet, and the pizza has to
+reach the house one way or another: into the ring, or into the house itself, which counts for
+less because it is the easier shot but still counts. The lit window pays best of all. A throw
+that reaches neither ends up on the road, which costs a strike.
 
 Strikes are dots along the top of the screen. A failed throw turns one into a cross. When the
 last dot is crossed the delivery is blown and the level ends there. Otherwise the level runs

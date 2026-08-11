@@ -88,6 +88,14 @@ signal round_ended(won: bool, delivered: int)
 @export_range(0.0, 30.0, 0.1) var pizza_tumble_rate: float = 4.5
 ## Radius of the pizza on screen at the rider's own distance, in pixels.
 @export_range(4.0, 300.0, 1.0) var pizza_radius: float = 34.0
+## How long a missed pizza lies on the road before it starts to fade, and how long
+## the fade takes. A win says what it earned with money and words; a miss said only
+## the sound and a crossed dot, and the pizza itself vanished mid-air, which left
+## nothing on screen to say where the throw actually went. Long enough to read,
+## short enough that the road is clear again before the next house arrives.
+## Both at zero leaves a miss as it was, with nothing lying on the road.
+@export_range(0.0, 3.0, 0.05) var splat_hold: float = 0.45
+@export_range(0.0, 2.0, 0.05) var splat_fade: float = 0.55
 
 @onready var _state: LevelState = $LevelState
 @onready var _audio: GameAudio = $Audio
@@ -96,6 +104,7 @@ signal round_ended(won: bool, delivered: int)
 @onready var _pizza: Node2D = $Pizza
 @onready var _shadow: GroundShadow = $Shadow
 @onready var _ready_pizza: Node2D = $ReadyPizza
+@onready var _splat: Node2D = $Splat
 @onready var _aim: AimPreview = $AimPreview
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _tips: Label = %Tips
@@ -137,6 +146,13 @@ var _pending_delivered: int = 0
 ## Where the last pizza came down, so a lost streak can be said at the spot that
 ## lost it. Set before the state is told, because the state answers immediately.
 var _last_landing: Vector2 = Vector2.ZERO
+## The dropped pizza lying on the road. Held in street coordinates rather than as a
+## screen position, and scrolled the way the houses are, so it stays on the piece of
+## road it landed on instead of sliding along with the camera.
+var _splat_side: float = 0.0
+var _splat_distance: float = 0.0
+## Counts down through the hold and then the fade; zero means nothing is lying there.
+var _splat_left: float = 0.0
 
 
 func _ready() -> void:
@@ -153,6 +169,7 @@ func _ready() -> void:
 	_result.hide()
 	_pizza.visible = false
 	_shadow.visible = false
+	_splat.visible = false
 	_ready_home = _ready_pizza.position
 	_backdrop.projection = projection
 	($Sky as NightSky).projection = projection
@@ -200,6 +217,7 @@ func _process(delta: float) -> void:
 	_advance_hour(delta)
 	_sync_views()
 	_advance_flight(delta)
+	_advance_splat(delta)
 	_update_ready_pizza(delta)
 
 
@@ -315,6 +333,10 @@ func _resolve_landing(struck: House = null,
 	# at the spot the player was looking at rather than somewhere generic.
 	var landed_at := projection.project(_flight.side, 0.0, _flight.distance)
 	_last_landing = landed_at
+	# Kept too, because a dropped pizza has to be scrolled along the street after the
+	# flight that put it there is gone.
+	var landed_side := _flight.side
+	var landed_distance := _flight.distance
 	var miss := 0.0
 	if house != null:
 		miss = house.miss_by(_flight.side, _flight.distance)
@@ -336,6 +358,7 @@ func _resolve_landing(struck: House = null,
 		_show_tip(landed_at, tier, award, _state.streak)
 		_audio.play(&"delivered")
 	else:
+		_drop_splat(landed_side, landed_distance)
 		_state.note_miss()
 		_audio.play(&"missed")
 	# Only now can the round be won: the last throw still had to land.
@@ -380,6 +403,44 @@ func _show_total(total: int) -> void:
 	if _state.scoring == null:
 		return
 	_tips.text = _state.scoring.label_total % total
+
+
+# --- the pizza that did not make it -----------------------------------------
+
+## Leave the dropped pizza on the road where the throw ended. The only thing on
+## screen that says where a miss went: the flying pizza is hidden the instant it
+## lands, so without this a bad throw disappears in mid-air and the player is left
+## to work out what happened from a sound and a crossed-off dot.
+func _drop_splat(side: float, distance: float) -> void:
+	if splat_hold <= 0.0 and splat_fade <= 0.0:
+		return
+	_splat_side = side
+	_splat_distance = distance
+	_splat_left = splat_hold + splat_fade
+	_splat.modulate.a = 1.0
+	_splat.visible = true
+	_advance_splat(0.0)
+
+
+## Scrolled along with the houses and faded out where it lies. Kept in street
+## coordinates and reprojected every frame, so it sits on its piece of road rather
+## than hanging in one spot on screen while the street moves under it.
+func _advance_splat(delta: float) -> void:
+	if _splat_left <= 0.0:
+		return
+	_splat_left -= delta
+	if _splat_left <= 0.0:
+		_splat.visible = false
+		return
+	if not _state.is_over():
+		_splat_side -= _config.street_speed * delta
+	_splat.position = projection.project(_splat_side, 0.0, _splat_distance)
+	var scale := projection.scale_at(_splat_distance)
+	_splat.scale = Vector2(scale, scale)
+	_splat.z_index = clampi(int(-_splat_distance), -4000, 4000)
+	# Full strength through the hold, then down to nothing across the fade, which
+	# falls out of one countdown rather than needing two.
+	_splat.modulate.a = clampf(_splat_left / maxf(splat_fade, 0.001), 0.0, 1.0)
 
 
 func _place_pizza() -> void:
@@ -605,6 +666,9 @@ func _clear_flight() -> void:
 	_touch_index = -1
 	_pizza.visible = false
 	_shadow.visible = false
+	# A pizza dropped on the last street does not belong on the next one.
+	_splat_left = 0.0
+	_splat.visible = false
 	_aim.clear()
 
 

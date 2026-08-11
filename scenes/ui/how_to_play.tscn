@@ -66,7 +66,7 @@ caption = "Twist the pizza before you throw and it curves in the air. That is ho
 [node name="Land" parent="Scroll/Steps" instance=ExtResource("2_step")]
 layout_mode = 2
 picture_height = 700.0
-note = "A pizza dropping into the ring in front of a lit house, and a second one hitting the wall"
+note = "A pizza dropping into the ring in front of a lit house and a second one hitting the wall, both counting, and a third landing short on the empty road"
 diagram = 3
 caption = "Hit a house that is waiting, or land in the ring at its feet. Either one counts. Miss both and you lose a strike. Straight through the lit window pays best of all."
 

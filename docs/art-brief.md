@@ -3,8 +3,9 @@
 A phone game, held upright. You are a delivery rider on a road that never ends,
 and the houses slide past on your left and right. On the back of your bike is a
 stack of pizza boxes. You take one, you throw it at a house that is waiting for
-it, and you watch. If it lands in the right spot the delivery counts. If not, it
-hits the wall.
+it, and you watch. Hit the house, or land in the ring at its feet, and the
+delivery counts; straight through the lit window pays best. Reach neither and the
+pizza is on the road.
 
 The whole game is that one throw, repeated. Everything on screen exists to make
 the throw readable: where the pizza is, how far it has flown, which house wants

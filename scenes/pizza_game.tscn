@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/level_state.gd" id="2_state"]
@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://scripts/pizza/aim_preview.gd" id="19_aim"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="20_debug"]
 [ext_resource type="Script" path="res://scripts/pizza/placeholder_2d.gd" id="21_ph"]
+[ext_resource type="Texture2D" uid="uid://djxcvnvv3gpsg" path="res://sprites/pizza_lose.png" id="35_splat"]
 [ext_resource type="Script" path="res://scripts/pizza/night_sky.gd" id="22_sky"]
 [ext_resource type="Shader" path="res://shaders/night_sky.gdshader" id="23_skyshader"]
 [ext_resource type="Script" path="res://scripts/pizza/street_surface.gd" id="24_street"]
@@ -113,6 +114,13 @@ script = ExtResource("19_aim")
 script = ExtResource("21_ph")
 size = Vector2(74, 74)
 corner_mark = true
+
+[node name="Splat" type="Node2D" parent="."]
+visible = false
+script = ExtResource("21_ph")
+texture = ExtResource("35_splat")
+size = Vector2(96, 122)
+anchor = Vector2(0.5, 1)
 
 [node name="ReadyPizza" type="Node2D" parent="."]
 position = Vector2(585, 2470)

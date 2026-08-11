@@ -242,17 +242,25 @@ func _draw_curve() -> void:
 	_arc(IN_HAND, Vector2(0.56, 0.70), Vector2(0.66, 0.78), Color(gesture.r, gesture.g, gesture.b, 0.28))
 
 
-## The two things that can happen, side by side: into the ring, or into the wall.
+## The three things that can happen: into the ring, into the house, or neither.
+## The first two both count, so both are ticked and only a throw that reaches
+## nothing gets the cross — the rule the game plays, drawn rather than described.
 func _draw_land() -> void:
 	_draw_counter(4)
 	_draw_pizza(IN_HAND, IN_HAND_RADIUS)
 	_arc(IN_HAND, Vector2(0.62, 0.22), DROP, good)
 	_tick(Vector2(0.44, 0.44), good)
-	# The miss ends on the wall itself, with the splat at its foot, so neither mark
-	# lands on the drop point: a cross there would blame the ring.
-	_arc(IN_HAND, Vector2(0.42, 0.12), Vector2(0.66, 0.24), bad)
-	_cross(Vector2(0.66, 0.22), bad)
-	var splat := _at(0.74, 0.50)
+	# Into the facade, ticked out to the side of it where the mark sits clear of the
+	# lit window: the window is a target of its own and a tick on it would read as
+	# the window being the only part that counts.
+	_arc(IN_HAND, Vector2(0.60, 0.16), Vector2(0.56, 0.28), good)
+	_tick(Vector2(0.76, 0.24), good)
+	# The miss falls short onto the empty road, well left of the ring, with the splat
+	# where it stopped. Neither mark may touch the ring or the house: a cross on
+	# either would blame the two things the player is being told to aim at.
+	_arc(IN_HAND, Vector2(0.34, 0.26), Vector2(0.30, 0.52), bad)
+	_cross(Vector2(0.30, 0.62), bad)
+	var splat := _at(0.30, 0.52)
 	var splat_size := Vector2(size.x * 0.09, size.y * 0.07)
 	if dropped_art != null:
 		draw_texture_rect(dropped_art, Rect2(splat - splat_size * 0.5, splat_size), false)

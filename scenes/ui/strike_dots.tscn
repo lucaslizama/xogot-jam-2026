@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/strike_dots.gd" id="1_dots"]
 [ext_resource type="Script" path="res://scripts/pizza/strike_dot.gd" id="2_dot"]
+[ext_resource type="Texture2D" uid="uid://b8wqk3rxvpn2y" path="res://sprites/pizza_win.png" id="3_win"]
 
 [node name="StrikeDots" type="Control"]
 layout_mode = 3
@@ -33,27 +34,32 @@ custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_dot")
+art_clean = ExtResource("3_win")
 
 [node name="Dot2" type="Control" parent="Dots"]
 custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_dot")
+art_clean = ExtResource("3_win")
 
 [node name="Dot3" type="Control" parent="Dots"]
 custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_dot")
+art_clean = ExtResource("3_win")
 
 [node name="Dot4" type="Control" parent="Dots"]
 custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_dot")
+art_clean = ExtResource("3_win")
 
 [node name="Dot5" type="Control" parent="Dots"]
 custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_dot")
+art_clean = ExtResource("3_win")

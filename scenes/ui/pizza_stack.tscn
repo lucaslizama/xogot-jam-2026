@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_stack.gd" id="1_stack"]
+[ext_resource type="Texture2D" uid="uid://donsuvaswcfqs" path="res://sprites/pizza_box.png" id="2_box"]
 
 [node name="PizzaStack" type="Control"]
 ; Anchors left at the top-left corner on purpose. This lives in the world under
@@ -29,110 +30,122 @@ grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="Box1" type="ColorRect" parent="Boxes"]
+[node name="Box1" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 190.0
 offset_bottom = 21.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box2" type="ColorRect" parent="Boxes"]
+[node name="Box2" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -24.0
 offset_right = 190.0
 offset_bottom = -3.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box3" type="ColorRect" parent="Boxes"]
+[node name="Box3" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -48.0
 offset_right = 190.0
 offset_bottom = -27.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box4" type="ColorRect" parent="Boxes"]
+[node name="Box4" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -72.0
 offset_right = 190.0
 offset_bottom = -51.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box5" type="ColorRect" parent="Boxes"]
+[node name="Box5" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -96.0
 offset_right = 190.0
 offset_bottom = -75.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box6" type="ColorRect" parent="Boxes"]
+[node name="Box6" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -120.0
 offset_right = 190.0
 offset_bottom = -99.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box7" type="ColorRect" parent="Boxes"]
+[node name="Box7" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -144.0
 offset_right = 190.0
 offset_bottom = -123.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box8" type="ColorRect" parent="Boxes"]
+[node name="Box8" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -168.0
 offset_right = 190.0
 offset_bottom = -147.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box9" type="ColorRect" parent="Boxes"]
+[node name="Box9" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -192.0
 offset_right = 190.0
 offset_bottom = -171.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box10" type="ColorRect" parent="Boxes"]
+[node name="Box10" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -216.0
 offset_right = 190.0
 offset_bottom = -195.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box11" type="ColorRect" parent="Boxes"]
+[node name="Box11" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -240.0
 offset_right = 190.0
 offset_bottom = -219.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1
 
-[node name="Box12" type="ColorRect" parent="Boxes"]
+[node name="Box12" type="TextureRect" parent="Boxes"]
 layout_mode = 0
 offset_left = 0.0
 offset_top = -264.0
 offset_right = 190.0
 offset_bottom = -243.0
 mouse_filter = 2
-color = Color(0.8784314, 0.7411765, 0.4862745, 1)
+texture = ExtResource("2_box")
+expand_mode = 1

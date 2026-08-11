@@ -1,3 +1,4 @@
+@tool
 class_name StrikeDot
 extends Control
 
@@ -9,6 +10,10 @@ extends Control
 ## supplies a fallback font containing them. A browser has no system fonts to
 ## fall back on, so the web build drew the hex code in a box instead. Shapes have
 ## no such dependency and read the same everywhere.
+##
+## Drawn in the editor as well as in the game, so the row of chances can be judged
+## without running anything. The editor shows the unspent side; the cross only
+## appears once [method show_spent] is called at runtime.
 
 @export_group("Art, when it arrives")
 ## Square images, drawn to fill the control. Leave empty for the shapes below.
