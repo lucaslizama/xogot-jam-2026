@@ -78,6 +78,23 @@ text = "Credits"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
 
+[node name="Version" type="Label" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.5)
+theme_type_variation = &"Caption"
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -110.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+text = "v0.0.0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="CreditsPage" parent="." instance=ExtResource("6_credits")]
 visible = false
 

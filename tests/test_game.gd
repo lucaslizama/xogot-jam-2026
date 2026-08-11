@@ -21,6 +21,7 @@ func _ready() -> void:
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
 	await _test_a_house_shows_the_street_and_not_its_preview()
+	await _test_the_menu_says_which_build_it_is()
 	await _test_a_throw_starts_from_where_the_pizza_was()
 	await _test_a_street_cleared_is_handed_on()
 	await _test_a_street_lost_is_not_handed_on()
@@ -235,6 +236,24 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		Vector3(open_house.side, expected.y * 0.5, open_house.distance + 5.0))
 	_check("a pizza through the front of a real house is a delivery", through_it == open_house)
 	game.queue_free()
+
+
+## The number in the corner exists to be believed. If it can drift from the build
+## it is printed on, it is worse than not being there, because it will be trusted
+## in exactly the moment somebody is trying to work out whether they are looking at
+## an old build.
+func _test_the_menu_says_which_build_it_is() -> void:
+	var menu: Control = (load("res://scenes/main_menu.tscn") as PackedScene).instantiate()
+	add_child(menu)
+	await get_tree().process_frame
+
+	var recorded := str(ProjectSettings.get_setting("application/config/version", ""))
+	var label: Label = menu.get_node("Version")
+	_check("the project records a version at all (%s)" % recorded, not recorded.is_empty())
+	_check("the menu shows it (%s)" % label.text, label.text.contains(recorded))
+	_check("and it is on screen", label.visible)
+	menu.queue_free()
+	await get_tree().process_frame
 
 
 ## The pizza used to drop to the rider's line the instant it was released, however

@@ -3,12 +3,22 @@ extends Control
 ## Scene loaded when the player presses Start.
 @export_file("*.tscn") var game_scene: String = "res://scenes/pizza_game.tscn"
 
+## How the build is named in the corner. %s is the version the project records,
+## which the release workflow stamps with the tag it is building, so what is on
+## screen is the build itself saying which one it is.
+##
+## It earns its place: twice in one evening we chased art that was already
+## published and turned out to be a browser serving yesterday's build. A number on
+## screen settles that in a second instead of an hour.
+@export var version_format: String = "v%s"
+
 @onready var menu_container: VBoxContainer = $MenuContainer
 @onready var credits_page: Credits = $CreditsPage
 @onready var how_to_play_page: HowToPlay = $HowToPlayPage
 @onready var start_button: Button = $MenuContainer/StartButton
 @onready var how_to_play_button: Button = $MenuContainer/HowToPlayButton
 @onready var credits_button: Button = $MenuContainer/CreditsButton
+@onready var version_label: Label = %Version
 
 
 func _ready() -> void:
@@ -18,7 +28,16 @@ func _ready() -> void:
 	credits_page.back_pressed.connect(_show_menu)
 	how_to_play_page.back_pressed.connect(_show_menu)
 	_alternate_box_flips()
+	_show_version()
 	_show_menu()
+
+
+## Say which build this is. Read from the project rather than written down here,
+## so it cannot disagree with the build it is printed on.
+func _show_version() -> void:
+	var version := str(ProjectSettings.get_setting("application/config/version", ""))
+	version_label.visible = not version.is_empty()
+	version_label.text = version_format % version
 
 
 ## Every other box in the column is mirrored left to right, so the three read as a
