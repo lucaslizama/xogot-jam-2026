@@ -21,6 +21,8 @@ func _ready() -> void:
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
 	await _test_a_house_shows_the_street_and_not_its_preview()
+	await _test_a_street_cleared_is_handed_on()
+	await _test_a_street_lost_is_not_handed_on()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -232,6 +234,58 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		Vector3(open_house.side, expected.y * 0.5, open_house.distance + 5.0))
 	_check("a pizza through the front of a real house is a delivery", through_it == open_house)
 	game.queue_free()
+
+
+## Clearing a street hands the bag to the next rider before the card says what it
+## paid. The card must wait for that, or the beat plays behind a card nobody can
+## see past.
+func _test_a_street_cleared_is_handed_on() -> void:
+	var game := await _spawn()
+	var card: ResultCard = game.get_node("Ui/ResultCard")
+	var relay: Handoff = game.get_node("Ui/Handoff")
+	var ended: Array = []
+	game.round_ended.connect(func(won: bool, delivered: int) -> void: ended.assign([won, delivered]))
+
+	_check("nothing is being handed over mid street", not relay.is_playing())
+	_win_the_street(game)
+	await get_tree().process_frame
+	_check("clearing the street starts the handoff", relay.is_playing())
+	_check("and it is on screen", relay.visible)
+	_check("the card waits its turn", not card.visible)
+	_check("and the round has not been called over yet", ended.is_empty())
+
+	# A tap sends it on, because nobody wants the same beat three times in a run.
+	relay.skip()
+	await get_tree().process_frame
+	_check("a tap sends the handoff on", not relay.is_playing())
+	_check("and puts it away", not relay.visible)
+	_check("the card follows it", card.visible)
+	_check("and the round is called, won (%s)" % [ended], ended == [true, 10])
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## Being fired is not an occasion for a triumphant relay.
+func _test_a_street_lost_is_not_handed_on() -> void:
+	var game := await _spawn()
+	var card: ResultCard = game.get_node("Ui/ResultCard")
+	var relay: Handoff = game.get_node("Ui/Handoff")
+
+	while game._state.strikes_left > 0:
+		game._state.note_miss()
+	await get_tree().process_frame
+	_check("a street lost hands nothing over", not relay.is_playing())
+	_check("and the card comes straight up", card.visible)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## Empty the stack and let the last throw settle, which is a street cleared.
+func _win_the_street(game: Node) -> void:
+	while game._state.pizzas_left > 0:
+		game._state.spend_pizza()
+		game._state.note_delivery(ScoreRules.ThrowTier.NICE)
+	game._state.note_flight_settled()
 
 
 ## The house draws itself in the editor now, from preview values it carries. Those

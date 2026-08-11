@@ -1,0 +1,72 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/handoff.gd" id="1_handoff"]
+[ext_resource type="Script" path="res://scripts/pizza/placeholder_2d.gd" id="2_ph"]
+[ext_resource type="Theme" path="res://data/ui_theme.tres" id="3_theme"]
+
+[node name="Handoff" type="Control"]
+theme = ExtResource("3_theme")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_handoff")
+
+[node name="Scrim" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.10196079, 0.07058824, 0.14901961, 0.55)
+mouse_filter = 2
+
+[node name="Caption" type="Label" parent="."]
+unique_name_in_owner = true
+theme_type_variation = &"PageSubtitle"
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 1180.0
+offset_right = 500.0
+offset_bottom = 1270.0
+grow_horizontal = 2
+mouse_filter = 2
+text = "Handing over"
+horizontal_alignment = 1
+
+[node name="RiderOut" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(400, 1700)
+scale = Vector2(0.667, 0.667)
+script = ExtResource("2_ph")
+size = Vector2(240, 350)
+anchor = Vector2(0.5, 1)
+colour = Color(0.5137255, 0.2784314, 0.6784314, 1)
+
+[node name="RiderIn" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(790, 1700)
+scale = Vector2(0.667, 0.667)
+script = ExtResource("2_ph")
+size = Vector2(240, 350)
+anchor = Vector2(0.5, 1)
+colour = Color(0.23529412, 0.7058824, 0.8980392, 1)
+
+[node name="BoxTarget" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(730, 1530)
+
+[node name="Box" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(460, 1530)
+z_index = 10
+script = ExtResource("2_ph")
+size = Vector2(150, 150)
+corner_mark = true

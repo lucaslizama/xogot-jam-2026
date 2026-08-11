@@ -90,6 +90,7 @@ signal round_ended(won: bool, delivered: int)
 @onready var _tips: Label = %Tips
 @onready var _tip_popup: TipPopup = %TipPopup
 @onready var _money: MoneyBurst = %MoneyBurst
+@onready var _handoff: Handoff = %Handoff
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
 @onready var _debug: DebugPanel = %DebugPanel
@@ -118,6 +119,10 @@ var _house_body: Vector2 = Vector2.ZERO
 var _house_window: Vector2 = Vector2.ZERO
 var _house_window_centre_value: float = 0.0
 var _measured: bool = false
+## Held between the round ending and the card appearing, since the handoff sits
+## between the two.
+var _pending_won: bool = false
+var _pending_delivered: int = 0
 ## Where the last pizza came down, so a lost streak can be said at the spot that
 ## lost it. Set before the state is told, because the state answers immediately.
 var _last_landing: Vector2 = Vector2.ZERO
@@ -132,6 +137,7 @@ func _ready() -> void:
 	_state.streak_lost.connect(_on_streak_lost)
 	_state.round_ended.connect(_on_round_ended)
 	_result.again_pressed.connect(_on_again)
+	_handoff.finished.connect(_show_result_card)
 	_debug.win_requested.connect(_win_street_now)
 	_result.hide()
 	_pizza.visible = false
@@ -585,8 +591,25 @@ func _on_strikes_changed(left: int) -> void:
 func _on_round_ended(won: bool, delivered: int) -> void:
 	_clear_flight()
 	_audio.play(&"round_won" if won else &"round_lost")
-	_result.show_result(won, delivered, _level_index + 1, _state.tips, _state.best_streak)
-	round_ended.emit(won, delivered)
+	# A street cleared is passed on to the next rider before the card says what it
+	# paid. A street lost has nothing to hand over, so it goes straight to the
+	# card: making somebody watch a triumphant relay after being fired would be a
+	# joke at their expense.
+	_pending_won = won
+	_pending_delivered = delivered
+	if won and _handoff != null:
+		_handoff.play()
+		return
+	_show_result_card()
+
+
+## Deliberately driven by the handoff's signal rather than by awaiting it here. A
+## round handler left waiting on a beat is a coroutine suspended for good if the
+## scene goes away mid-beat, holding the tween with it.
+func _show_result_card() -> void:
+	_result.show_result(_pending_won, _pending_delivered, _level_index + 1,
+		_state.tips, _state.best_streak)
+	round_ended.emit(_pending_won, _pending_delivered)
 
 
 func _on_again() -> void:

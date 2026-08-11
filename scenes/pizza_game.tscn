@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/level_state.gd" id="2_state"]
@@ -31,6 +31,7 @@
 [ext_resource type="Resource" path="res://data/score_rules.tres" id="29_score"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="30_theme"]
 [ext_resource type="Script" path="res://scripts/pizza/money_burst.gd" id="31_money"]
+[ext_resource type="PackedScene" path="res://scenes/ui/handoff.tscn" id="32_handoff"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -162,6 +163,10 @@ script = ExtResource("31_money")
 
 [node name="TipPopup" parent="Ui" instance=ExtResource("28_tip")]
 unique_name_in_owner = true
+
+[node name="Handoff" parent="Ui" instance=ExtResource("32_handoff")]
+unique_name_in_owner = true
+visible = false
 
 [node name="ResultCard" parent="Ui" instance=ExtResource("9_result")]
 unique_name_in_owner = true
