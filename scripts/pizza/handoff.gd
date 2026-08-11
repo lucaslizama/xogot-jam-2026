@@ -21,11 +21,11 @@ signal finished
 
 @export_group("Timing")
 ## How long the riders take to slide into place.
-@export_range(0.05, 3.0, 0.05) var ride_in: float = 0.45
+@export_range(0.05, 4.0, 0.05) var ride_in: float = 0.9
 ## How long the box takes to cross between them.
-@export_range(0.05, 3.0, 0.05) var pass_across: float = 0.5
+@export_range(0.05, 4.0, 0.05) var pass_across: float = 1.2
 ## How long the two sit together once the box has changed hands, before the card.
-@export_range(0.0, 3.0, 0.05) var hold: float = 0.35
+@export_range(0.0, 4.0, 0.05) var hold: float = 1.2
 
 @export_group("Staging")
 ## How far off screen each rider begins, as a fraction of the screen's width. The
