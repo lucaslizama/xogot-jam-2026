@@ -21,6 +21,7 @@ func _ready() -> void:
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
 	await _test_a_house_shows_the_street_and_not_its_preview()
+	await _test_a_throw_starts_from_where_the_pizza_was()
 	await _test_a_street_cleared_is_handed_on()
 	await _test_a_street_lost_is_not_handed_on()
 
@@ -234,6 +235,41 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		Vector3(open_house.side, expected.y * 0.5, open_house.distance + 5.0))
 	_check("a pizza through the front of a real house is a delivery", through_it == open_house)
 	game.queue_free()
+
+
+## The pizza used to drop to the rider's line the instant it was released, however
+## high it had been held. The height it starts at is now read back off the screen,
+## so the throw carries on from where the eye last saw it.
+func _test_a_throw_starts_from_where_the_pizza_was() -> void:
+	var game := await _spawn()
+	var proj: StreetProjection = game.projection
+	var floor_height: float = game.physics.release_height
+
+	# Held high, the flight should start at exactly the row it was let go on.
+	for held_y in [1400.0, 900.0, 400.0]:
+		var h: float = game._release_height_at(held_y)
+		var back: float = proj.project(0.0, h, 0.0).y
+		_check("let go at %.0f, the throw starts there (%.0f)" % [held_y, back],
+			is_equal_approx(back, held_y))
+
+	# Held low, nothing changes. A pizza in hand is drawn below the street's own
+	# ground line, so an honest reading there is underground.
+	_check("down by the bike it starts where it always did (%.1f)"
+			% game._release_height_at(2470.0),
+		is_equal_approx(game._release_height_at(2470.0), floor_height))
+	_check("and a throw can never begin lower than the rider's own hands",
+		game._release_height_at(9999.0) >= floor_height)
+
+	_check("higher up the screen means a higher start",
+		game._release_height_at(400.0) > game._release_height_at(1400.0))
+
+	# The way back, if it turns out to feel wrong.
+	game.drag_lift_gain = 0.0
+	for held_y in [2470.0, 1400.0, 400.0]:
+		_check("with the gain at zero, %.0f starts at the old height" % held_y,
+			is_equal_approx(game._release_height_at(held_y), floor_height))
+	game.queue_free()
+	await get_tree().process_frame
 
 
 ## Clearing a street hands the bag to the next rider before the card says what it

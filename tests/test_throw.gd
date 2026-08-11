@@ -22,6 +22,7 @@ func _ready() -> void:
 	_test_up_and_down_loads_no_spin()
 	_test_idle_wobble_loads_no_spin()
 	_test_wind_up_runs_down_when_the_finger_stops()
+	_test_a_throw_begins_where_it_was_let_go()
 	_test_preview_matches_the_real_flight()
 	_test_preview_is_bounded()
 	_test_projection_shrinks_with_distance()
@@ -270,6 +271,31 @@ func _test_wind_up_runs_down_when_the_finger_stops() -> void:
 # --- the aim preview --------------------------------------------------------
 
 ## The preview is only honest if it is produced by the same maths that flies.
+## A pizza held up the screen leaves from up there. Without this the flight always
+## began at the rider's own release height, so letting go anywhere but low down
+## made the pizza appear to drop to the bottom of the screen before setting off.
+func _test_a_throw_begins_where_it_was_let_go() -> void:
+	var tuning := PizzaPhysics.new()
+	var from_the_hand := PizzaFlight.new(tuning, tuning.launch_from(_flick(3000.0), 0.0))
+	_check("a throw with nothing said starts at the rider's release height (%.1f)"
+			% from_the_hand.height,
+		is_equal_approx(from_the_hand.height, tuning.release_height))
+
+	var launch: Dictionary = tuning.launch_from(_flick(3000.0), 0.0)
+	launch["start_height"] = 30.0
+	var from_up_high := PizzaFlight.new(tuning, launch)
+	_check("one told where it was starts there (%.1f)" % from_up_high.height,
+		is_equal_approx(from_up_high.height, 30.0))
+
+	var low := _fly(from_the_hand)
+	var high := _fly(from_up_high)
+	_check("and being higher keeps it up longer, so it goes further (%.1f vs %.1f)"
+			% [low.distance, high.distance],
+		high.distance > low.distance)
+	_check("both still come down (%.2f, %.2f)" % [low.height, high.height],
+		low.has_landed() and high.has_landed())
+
+
 func _test_preview_matches_the_real_flight() -> void:
 	var tuning := PizzaPhysics.new()
 	for spin in [0.0, 6.0, -6.0]:
@@ -328,7 +354,11 @@ func _flick(speed: float) -> Vector2:
 
 func _land(flick: Vector2, windup: float) -> PizzaFlight:
 	var tuning := PizzaPhysics.new()
-	var flight := PizzaFlight.new(tuning, tuning.launch_from(flick, windup))
+	return _fly(PizzaFlight.new(tuning, tuning.launch_from(flick, windup)))
+
+
+## Run a flight already built, for when the launch needed something said to it.
+func _fly(flight: PizzaFlight) -> PizzaFlight:
 	var guard := 0
 	while not flight.has_landed() and guard < 100000:
 		flight.step(STEP)

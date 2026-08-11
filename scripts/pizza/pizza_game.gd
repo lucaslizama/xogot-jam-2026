@@ -54,6 +54,17 @@ signal round_ended(won: bool, delivered: int)
 ## How much the pizza's sideways position at release shifts where the throw
 ## starts from. 1.0 means the throw leaves from exactly where you let go.
 @export_range(0.0, 3.0, 0.05) var drag_aim_gain: float = 1.0
+## The same for up and down. At 0 every throw begins at the rider's own release
+## height however high the pizza was held, which is what makes it appear to drop
+## to the bottom of the screen the moment it is let go. At 1 it begins at the
+## height the pizza was actually at, and the throw carries on from where the eye
+## last saw it.
+##
+## It is not free: a pizza that starts higher is in the air longer and so travels
+## further. Held at the top of the screen it goes about two thirds further than
+## the same flick from the hand, so the street's distances are worth a look after
+## changing it. Set it to 0 to have exactly the old behaviour back.
+@export_range(0.0, 1.0, 0.05) var drag_lift_gain: float = 1.0
 ## How fast the pizza spins in your hand at full wind-up, in radians a second.
 ##
 ## It has to be a rate, not an angle. Showing the loaded spin as a fixed angle
@@ -241,6 +252,7 @@ func _throw(flick: Vector2, windup: float) -> void:
 	# line, so dragging it sideways before releasing actually means something.
 	launch["start_side"] = ((_ready_pizza.position.x - projection.centre_x)
 		/ projection.pixels_per_unit) * drag_aim_gain
+	launch["start_height"] = _release_height_at(_ready_pizza.position.y)
 	_flight = PizzaFlight.new(physics, launch)
 	_last_flick = -flick.y
 	_audio.play(&"throw")
@@ -249,6 +261,24 @@ func _throw(flick: Vector2, windup: float) -> void:
 	_pizza.visible = true
 	_pizza.rotation = 0.0
 	_place_pizza()
+
+
+## What height a pizza let go at this point on the screen should start its flight
+## at, so the throw carries on from where it was rather than reappearing lower.
+##
+## Inverting the projection is straightforward at the rider's own distance, where
+## nothing is scaled: a row on screen is the ground line less the height times the
+## pixels a unit is worth.
+##
+## Never below the rider's own release height, for two reasons. A pizza in hand is
+## drawn below the street's ground line, so an honest reading of a low hold is a
+## negative height, which is underground and would land on the frame it was
+## thrown. And it means this can only ever add: a throw from down by the bike goes
+## exactly as far as it always did, so nothing anybody had learned is taken away.
+func _release_height_at(screen_y: float) -> float:
+	var mapped := (projection.near_ground_y - screen_y) / projection.pixels_per_unit
+	return lerpf(physics.release_height, maxf(physics.release_height, mapped),
+		drag_lift_gain)
 
 
 func _advance_flight(delta: float) -> void:

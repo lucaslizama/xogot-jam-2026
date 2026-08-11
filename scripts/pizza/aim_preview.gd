@@ -30,6 +30,13 @@ var _path := PackedVector3Array()
 
 
 ## Show the throw this drag would make. Pass the flick and wind-up as they stand.
+##
+## Traced from the rider's own line at the rider's own release height, which is
+## not where the pizza is once it has been dragged: the real throw starts from
+## where it was let go, sideways and now upwards too. The two therefore disagree,
+## by more the further the pizza has been moved. It does not show today because
+## this is switched off, but anyone turning it on should pass the release point in
+## rather than trust the line.
 func show_for(flick: Vector2, windup: float) -> void:
 	if not enabled or physics == null or projection == null:
 		return

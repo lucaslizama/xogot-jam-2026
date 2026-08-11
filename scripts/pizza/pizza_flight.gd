@@ -26,7 +26,10 @@ var _tuning: PizzaPhysics
 
 func _init(tuning: PizzaPhysics, launch: Dictionary) -> void:
 	_tuning = tuning
-	height = tuning.release_height
+	# How high the pizza was when it left your hands. Normally the rider's own
+	# release height, but a pizza held up the screen leaves from up there, so the
+	# throw begins where the player last saw it rather than snapping back down.
+	height = launch.get("start_height", tuning.release_height)
 	# Where along the street the throw begins. Zero is the rider's own line;
 	# dragging the pizza sideways before letting go moves it.
 	side = launch.get("start_side", 0.0)
