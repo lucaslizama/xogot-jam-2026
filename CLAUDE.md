@@ -96,6 +96,15 @@ and delete the script afterwards.
 project setting the command line will not name. Open the editor's export dialog,
 which prints the real reason.
 
+**Adding an `@export` to a `@tool` script while the editor is open breaks that
+script in the editor until the project is reloaded.** The editor keeps an instance
+built from the old property list, so every new export reads back as `nil`. A
+`Color` arrives at `draw_rect` as nil, which errors with "Cannot convert argument
+2 from nil to Color" and abandons the rest of `_draw`, so the thing simply does
+not appear. Nothing is wrong with the file and nothing stale is on disk: Project ->
+Reload Current Project, with any running game instance closed first. Worth saying
+out loud when handing work to someone whose editor is open.
+
 **A running editor overwrites `project.godot` too.** A hand-added key is written
 back out from the editor's own in-memory settings and silently disappears, with
 no error and nothing in the diff. `gui/theme/custom` was lost this way twice in a
