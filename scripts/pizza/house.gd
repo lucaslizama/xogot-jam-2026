@@ -22,6 +22,11 @@ var body: Vector2 = Vector2.ZERO
 ## accurate enough to reach the drop point has to cross the facade to get there,
 ## so the wall took them all and a dead centre landing was impossible.
 var doorstep: float = 0.0
+## The lit window on the front, in world units: x wide by y tall. Zero means no
+## window, and the whole facade is plain wall.
+var window: Vector2 = Vector2.ZERO
+## How high the middle of that window sits above the ground.
+var window_centre: float = 0.0
 ## False for scenery. Only waiting houses are worth throwing at.
 var waiting: bool = true
 ## Set once a pizza lands in the drop point, so it cannot be served twice.
@@ -29,13 +34,16 @@ var served: bool = false
 
 
 func _init(p_side: float, p_distance: float, p_drop_radius: float, p_waiting: bool,
-		p_body: Vector2 = Vector2.ZERO, p_doorstep: float = 0.0) -> void:
+		p_body: Vector2 = Vector2.ZERO, p_doorstep: float = 0.0,
+		p_window: Vector2 = Vector2.ZERO, p_window_centre: float = 0.0) -> void:
 	side = p_side
 	distance = p_distance
 	drop_radius = p_drop_radius
 	waiting = p_waiting
 	body = p_body
 	doorstep = p_doorstep
+	window = p_window
+	window_centre = p_window_centre
 
 
 ## True when this house still wants a pizza.
@@ -63,15 +71,40 @@ func miss_by(landed_side: float, landed_distance: float) -> float:
 ## Taking both ends of the step rather than one point matters: a hard throw covers
 ## more than a house's width in a single frame and would otherwise pass through it.
 func struck_by(from: Vector3, to: Vector3) -> bool:
+	return hit_by(from, to) != HouseHit.NONE
+
+
+## What a pizza moving from `from` to `to` hit, if anything. Prefixed, because a
+## bare name in a class can collide with a built-in global enum and the class then
+## fails to compile with nothing said about why.
+enum HouseHit {
+	NONE,
+	## The front of the house. It counts, and it is the easiest way to score.
+	WALL,
+	## Clean through the lit window: small, high, and worth the most.
+	WINDOW,
+}
+
+
+func hit_by(from: Vector3, to: Vector3) -> HouseHit:
 	if body.x <= 0.0 or body.y <= 0.0:
-		return false
+		return HouseHit.NONE
 	# Houses are only ever hit from the road, on the way out. A pizza that starts
 	# beyond this one has already passed it.
 	var span := to.z - from.z
 	if span <= 0.0 or from.z > distance or to.z < distance:
-		return false
+		return HouseHit.NONE
 	var t: float = (distance - from.z) / span
-	var at_side: float = lerpf(from.x, to.x, t)
+	var across: float = absf(lerpf(from.x, to.x, t) - side)
 	var at_height: float = lerpf(from.y, to.y, t)
-	return (absf(at_side - side) <= body.x * 0.5
-		and at_height > doorstep and at_height <= body.y)
+
+	# The window is asked about first, since it sits within the wall and a pizza
+	# through it should not merely be a pizza against the house.
+	if window.x > 0.0 and window.y > 0.0:
+		if (across <= window.x * 0.5
+				and absf(at_height - window_centre) <= window.y * 0.5):
+			return HouseHit.WINDOW
+
+	if across <= body.x * 0.5 and at_height > doorstep and at_height <= body.y:
+		return HouseHit.WALL
+	return HouseHit.NONE

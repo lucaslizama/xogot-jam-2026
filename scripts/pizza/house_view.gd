@@ -26,6 +26,17 @@ extends Node2D
 ## resource, or houses will not sit at the size the street expects.
 @export_range(1.0, 400.0, 1.0) var pixels_per_unit: float = 46.0
 
+@export_group("The window, in world units")
+## The lit window is a target in its own right, and the hardest one: smaller than
+## the drop point, higher up, and needing a throw that is both well aimed and a
+## little long. It pays the most because of it.
+##
+## In world units like the body, and used both to draw the window and to decide
+## what went through it, so what a player can hit is exactly what they can see.
+@export var window_size: Vector2 = Vector2(4.3, 4.4)
+## How high the middle of the window sits above the ground.
+@export_range(0.0, 30.0, 0.1) var window_centre: float = 7.0
+
 @export_group("Drop point")
 ## Roughly half the houses that go by are scenery, so the eye has to find the
 ## ones that want a pizza among them. A drop point that breathes is found
@@ -53,6 +64,9 @@ extends Node2D
 @export var wall_served: Color = Color(0.34, 0.47, 0.32)
 @export var roof: Color = Color(0.36, 0.22, 0.24)
 @export var window_lit: Color = Color(1.0, 0.85, 0.45)
+## A frame around the window, so it reads as something to aim at rather than as a
+## patch of light on the wall.
+@export var window_frame: Color = Color(0.25, 0.16, 0.12, 0.8)
 @export var drop_open: Color = Color(0.24, 0.71, 0.9, 0.55)
 @export var drop_served: Color = Color(0.45, 0.85, 0.5, 0.5)
 
@@ -155,10 +169,23 @@ func _draw_placeholder_body() -> void:
 		Vector2(-half, -wall), Vector2(half, -wall), Vector2(0.0, -wall - peak),
 	]), roof)
 
-	# A lit window is how a house says it is still waiting, without a HUD.
+	# A lit window is how a house says it is still waiting, without a HUD. It is
+	# also what a pizza can go through, so it is drawn from the same measurements
+	# the throw is judged against rather than from fractions of the wall that only
+	# happened to look right.
 	if _waiting and not _served:
-		var w := half * 0.42
-		draw_rect(Rect2(-w * 0.5, -wall * 0.72, w, wall * 0.34), window_lit)
+		var pane := window_rect()
+		pane = Rect2(pane.position * pixels_per_unit, pane.size * pixels_per_unit)
+		draw_rect(pane, window_lit)
+		draw_rect(pane, window_frame, false, 4.0)
+
+
+## Where the window sits on the wall, in world units, with the house's feet at the
+## origin and up being negative as it is on screen. Multiply by pixels per unit to
+## draw it; the throw uses the same numbers the other way round.
+func window_rect() -> Rect2:
+	return Rect2(-window_size.x * 0.5, -(window_centre + window_size.y * 0.5),
+		window_size.x, window_size.y)
 
 
 ## The drop point lies on the ground, so it is squashed vertically to read as

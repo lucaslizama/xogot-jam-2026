@@ -113,8 +113,11 @@ var _hour_from: TimeOfDay
 var _hour_to: TimeOfDay
 var _hour_blend: float = 1.0
 var _strikes_seen: int = -1
-## Cached by _house_body_size.
+## Read off the house scene once by _measure_house.
 var _house_body: Vector2 = Vector2.ZERO
+var _house_window: Vector2 = Vector2.ZERO
+var _house_window_centre_value: float = 0.0
+var _measured: bool = false
 ## Where the last pizza came down, so a lost streak can be said at the spot that
 ## lost it. Set before the state is told, because the state answers immediately.
 var _last_landing: Vector2 = Vector2.ZERO
@@ -160,7 +163,7 @@ func start_level() -> void:
 	_begin_hour(_config.time_of_day)
 	_debug.bind_to(physics, _config)
 	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size(),
-		wall_doorstep)
+		wall_doorstep, _house_window_size(), _house_window_centre())
 	_travelled = 0.0
 	_clear_flight()
 	_clear_views()
@@ -249,12 +252,13 @@ func _advance_flight(delta: float) -> void:
 	# throw crosses more than a house's width in a single frame.
 	var from := Vector3(_flight.side, _flight.height, _flight.distance)
 	var landed := _flight.step(delta)
-	var struck := _street.struck_house(
-		from, Vector3(_flight.side, _flight.height, _flight.distance))
+	var to := Vector3(_flight.side, _flight.height, _flight.distance)
+	var struck := _street.struck_house(from, to)
 	if struck != null:
 		# A pizza in the front door has arrived, whether or not it had got as far
-		# as the ground.
-		_resolve_landing(struck)
+		# as the ground. Where in the front matters: the window is worth more than
+		# the wall around it, so the house is asked which it was.
+		_resolve_landing(struck, struck.hit_by(from, to))
 		return
 	if landed:
 		_resolve_landing()
@@ -265,7 +269,8 @@ func _advance_flight(delta: float) -> void:
 
 ## `struck` is the house the pizza flew into, when it did. Without one the landing
 ## spot on the ground decides, as it always has.
-func _resolve_landing(struck: House = null) -> void:
+func _resolve_landing(struck: House = null,
+		hit: House.HouseHit = House.HouseHit.NONE) -> void:
 	_debug.show_throw(_last_flick, _flight.distance, _flight.side)
 	var house: House = struck
 	if house == null:
@@ -285,9 +290,12 @@ func _resolve_landing(struck: House = null) -> void:
 		house.served = true
 		var tier := ScoreRules.ThrowTier.NICE
 		if _state.scoring != null:
-			# A pizza that went into the wall has no distance from the ring worth
-			# reading, so it is told outright that it scraped in.
-			tier = _state.scoring.tier_for(miss, house.drop_radius, struck != null)
+			if hit == House.HouseHit.WINDOW:
+				tier = ScoreRules.ThrowTier.WINDOW
+			else:
+				# A pizza that went into the wall has no distance from the ring
+				# worth reading, so it is told outright that it scraped in.
+				tier = _state.scoring.tier_for(miss, house.drop_radius, struck != null)
 		var award := _state.note_delivery(tier)
 		_show_tip(landed_at, tier, award, _state.streak)
 		_audio.play(&"delivered")
@@ -481,15 +489,38 @@ func _return_ready_pizza() -> void:
 func _house_body_size() -> Vector2:
 	if not houses_are_solid:
 		return Vector2.ZERO
-	if _house_body != Vector2.ZERO:
-		return _house_body
+	_measure_house()
+	return _house_body
+
+
+## The window a pizza can go through, read off the same scene that draws it. Zero
+## while the houses are not solid, since a window in thin air is not a target.
+func _house_window_size() -> Vector2:
+	if not houses_are_solid:
+		return Vector2.ZERO
+	_measure_house()
+	return _house_window
+
+
+func _house_window_centre() -> float:
+	_measure_house()
+	return _house_window_centre_value
+
+
+## Ask the house scene its measurements, once. Instancing a scene to ask it its
+## size is cheap, but there is no reason to do it every level.
+func _measure_house() -> void:
+	if _measured:
+		return
 	var probe := house_scene.instantiate() as HouseView
 	if probe == null:
 		# The error for this is already raised where the views are made.
-		return Vector2.ZERO
+		return
+	_measured = true
 	_house_body = Vector2(probe.width, probe.wall_height + probe.roof_height)
+	_house_window = probe.window_size
+	_house_window_centre_value = probe.window_centre
 	probe.free()
-	return _house_body
 
 
 ## Give every house in the model a node, place it, and drop the nodes whose

@@ -182,8 +182,14 @@ func _test_a_fumble_puts_the_pizza_back() -> void:
 ## would leave every house thin air and no model test would notice.
 func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 	var game := await _spawn()
+	# Everything is read off the scene before it is let go, since what follows is
+	# about numbers rather than about the node they came from.
 	var drawn: HouseView = (game.house_scene.instantiate() as HouseView)
 	var expected := Vector2(drawn.width, drawn.wall_height + drawn.roof_height)
+	var drawn_window: Vector2 = drawn.window_size
+	var drawn_window_centre: float = drawn.window_centre
+	var drawn_wall: float = drawn.wall_height
+	var drawn_width: float = drawn.width
 	drawn.free()
 
 	var body: Vector2 = game._street.house_body
@@ -198,6 +204,18 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 	_check("every house on the real street is solid (%d of %d)"
 		% [solid, game._street.houses().size()],
 		solid == game._street.houses().size() and solid > 0)
+
+	# The window has to be the one that is drawn, or a player would be aiming at a
+	# lit rectangle with the target somewhere else on the wall.
+	_check("the street was told about the window (%s, want %s)"
+			% [game._street.house_window, drawn_window],
+		game._street.house_window.is_equal_approx(drawn_window))
+	_check("at the height it is drawn at (%.1f, want %.1f)"
+			% [game._street.house_window_centre, drawn_window_centre],
+		is_equal_approx(game._street.house_window_centre, drawn_window_centre))
+	_check("and the window sits inside the wall it is cut into",
+		drawn_window_centre + drawn_window.y * 0.5 < drawn_wall
+			and drawn_window.x < drawn_width)
 
 	# A pizza sent through the middle of an open house should be taken by it.
 	var open_house: House = null

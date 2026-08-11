@@ -25,6 +25,9 @@ extends Control
 @export_group("Colours")
 ## One per tier, best first. A bullseye should be the colour the drop point was,
 ## so the reward closes on the thing you aimed at.
+## Through the window is the best throw in the game, so it gets the warm light of
+## the window itself rather than the drop point's cool blue.
+@export var colour_window: Color = Color(1.0, 0.82, 0.35)
 @export var colour_bullseye: Color = Color(0.24, 0.71, 0.9)
 @export var colour_nice: Color = Color(1.0, 0.85, 0.45)
 @export var colour_scraped: Color = Color(0.86, 0.86, 0.9)
@@ -91,6 +94,8 @@ func _play(at: Vector2) -> void:
 ## The colour that goes with a tier, so the caller does not have to know the map.
 func colour_for(tier: ScoreRules.ThrowTier) -> Color:
 	match tier:
+		ScoreRules.ThrowTier.WINDOW:
+			return colour_window
 		ScoreRules.ThrowTier.BULLSEYE:
 			return colour_bullseye
 		ScoreRules.ThrowTier.NICE:

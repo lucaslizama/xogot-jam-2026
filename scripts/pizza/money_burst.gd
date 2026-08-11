@@ -15,6 +15,8 @@ extends Node2D
 ## pizza's landing point was worked out in.
 
 @export_group("How much")
+## Through the window is the best throw available, so it gets the biggest party.
+@export_range(0, 60) var bills_window: int = 36
 ## A bullseye is meant to be worth showing off about.
 @export_range(0, 60) var bills_bullseye: int = 24
 @export_range(0, 60) var bills_nice: int = 12
@@ -127,6 +129,8 @@ func _draw_one(fade: float) -> void:
 ## How many bills a tier is worth, so the caller does not have to know the map.
 func bills_for(tier: ScoreRules.ThrowTier) -> int:
 	match tier:
+		ScoreRules.ThrowTier.WINDOW:
+			return bills_window
 		ScoreRules.ThrowTier.BULLSEYE:
 			return bills_bullseye
 		ScoreRules.ThrowTier.NICE:

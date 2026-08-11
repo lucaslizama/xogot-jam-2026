@@ -17,6 +17,10 @@ var house_body: Vector2 = Vector2.ZERO
 ## How high off the ground a house's wall starts counting. See [member
 ## House.doorstep]: at zero the wall stands in its own drop point's doorway.
 var house_doorstep: float = 0.0
+## The lit window on a house's front, and how high its middle sits. Zero leaves
+## the facade plain, which is what a street with nothing to aim at wants.
+var house_window: Vector2 = Vector2.ZERO
+var house_window_centre: float = 0.0
 
 var _config: LevelConfig
 var _rng := RandomNumberGenerator.new()
@@ -28,10 +32,13 @@ var _frontier: float = 0.0
 ## `body` is passed in rather than set afterwards so that the first houses, which
 ## are placed here, are as solid as every one that follows.
 func _init(config: LevelConfig, seed_value: int = 0, body: Vector2 = Vector2.ZERO,
-		doorstep: float = 0.0) -> void:
+		doorstep: float = 0.0, window: Vector2 = Vector2.ZERO,
+		window_centre: float = 0.0) -> void:
 	_config = config
 	house_body = body
 	house_doorstep = doorstep
+	house_window = window
+	house_window_centre = window_centre
 	_rng.seed = seed_value
 	# Start the frontier just behind the rider so the first stretch of street is
 	# already populated when the level opens rather than arriving late.
@@ -106,6 +113,8 @@ func _restock() -> void:
 			_rng.randf() < _config.waiting_chance,
 			house_body,
 			house_doorstep,
+			house_window,
+			house_window_centre,
 		))
 
 

@@ -17,6 +17,12 @@ counts. Miss the house entirely and you take a strike. The strikes are dots alon
 the screen, and when the last one is crossed the round is over. Otherwise you keep going
 until the stack is empty.
 
+How well you threw decides what you are paid. The middle of the ring is a bullseye, the rest
+of it is merely nice, and the wall pays least because it is the easiest thing to hit. Put one
+straight through the lit window and it pays best of all: it asks for a throw long enough to
+reach the wall and tight enough to find a target a fifth of its width. Deliveries in a row
+build a streak that multiplies the tip, and a miss ends it.
+
 The throw carries the theme: once the box leaves your hands it is committed, and all you can
 do is watch.
 

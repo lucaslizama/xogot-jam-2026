@@ -28,6 +28,7 @@ func _ready() -> void:
 	_test_every_house_the_street_makes_is_solid()
 	_test_the_wall_does_not_stand_in_its_own_doorway()
 	_test_the_street_gives_every_house_the_same_doorstep()
+	_test_the_window_is_its_own_target()
 	_test_a_tier_is_earned_by_how_close_it_landed()
 	_test_every_tier_has_something_to_say()
 	_test_a_streak_pays_more_and_is_capped()
@@ -287,6 +288,50 @@ func _test_the_wall_does_not_stand_in_its_own_doorway() -> void:
 		street_without.struck_house(Vector3(12.0, 1.0, 18.0), Vector3(12.0, 0.5, 26.0)) != null)
 
 
+## The window sits inside the wall, so it has to be asked about first, and it has
+## to be genuinely harder: a pizza anywhere on the front is a scrape, and only one
+## through a target a fifth of the house's width is the good throw.
+func _test_the_window_is_its_own_target() -> void:
+	var body := Vector2(20.0, 14.0)
+	var window := Vector2(4.0, 4.0)
+	var centre := 7.0
+	var street := StreetModel.new(_config(), 9, body, 4.0, window, centre)
+	street.houses().clear()
+	street.houses().append(House.new(12.0, 22.0, 3.2, true, body, 4.0, window, centre))
+	var house: House = street.houses()[0]
+
+	var through := func(side: float, height: float) -> int:
+		return house.hit_by(Vector3(side, height, 18.0), Vector3(side, height, 26.0))
+
+	_check("dead through the middle of the window",
+		through.call(12.0, centre) == House.HouseHit.WINDOW)
+	_check("just inside its edge is still through it",
+		through.call(12.0 + window.x * 0.45, centre) == House.HouseHit.WINDOW)
+	_check("a hand's width wide of it is only the wall",
+		through.call(12.0 + window.x, centre) == House.HouseHit.WALL)
+	_check("above it is only the wall",
+		through.call(12.0, centre + window.y) == House.HouseHit.WALL)
+	# Just under the sill, but still above the doorstep, is wall. Lower than the
+	# doorstep is neither: that is the doormat, and the ring decides it.
+	_check("just under the sill is only the wall",
+		through.call(12.0, centre - window.y * 0.5 - 0.5) == House.HouseHit.WALL)
+	_check("and under the doorstep is not the house at all",
+		through.call(12.0, 1.0) == House.HouseHit.NONE)
+	_check("a house with no window has nothing but wall to hit",
+		House.new(12.0, 22.0, 3.2, true, body, 4.0).hit_by(
+			Vector3(12.0, centre, 18.0), Vector3(12.0, centre, 26.0)) == House.HouseHit.WALL)
+
+	_check("a pizza through the window is still a delivery",
+		street.struck_house(Vector3(12.0, centre, 18.0), Vector3(12.0, centre, 26.0)) == house)
+
+	var rules := ScoreRules.new()
+	_check("and it pays better than a bullseye, which pays better than a scrape",
+		rules.tip_for(ScoreRules.ThrowTier.WINDOW)
+			> rules.tip_for(ScoreRules.ThrowTier.BULLSEYE)
+		and rules.tip_for(ScoreRules.ThrowTier.BULLSEYE)
+			> rules.tip_for(ScoreRules.ThrowTier.SCRAPED))
+
+
 func _test_the_street_gives_every_house_the_same_doorstep() -> void:
 	var street := StreetModel.new(_config(), 12, Vector2(20.0, 12.0), 4.0)
 	var right := 0
@@ -320,8 +365,8 @@ func _test_a_tier_is_earned_by_how_close_it_landed() -> void:
 ## a blank box over the street.
 func _test_every_tier_has_something_to_say() -> void:
 	var rules := ScoreRules.new()
-	for tier in [ScoreRules.ThrowTier.BULLSEYE, ScoreRules.ThrowTier.NICE,
-			ScoreRules.ThrowTier.SCRAPED]:
+	for tier in [ScoreRules.ThrowTier.WINDOW, ScoreRules.ThrowTier.BULLSEYE,
+			ScoreRules.ThrowTier.NICE, ScoreRules.ThrowTier.SCRAPED]:
 		var said := {}
 		for i in 60:
 			said[rules.label_for(tier)] = true

@@ -22,6 +22,10 @@ enum ThrowTier {
 	## Into the house itself. It counts, and it is the easiest way to score, so it
 	## is worth the least.
 	SCRAPED,
+	## Clean through the lit window. Added last rather than in its proper place in
+	## the order, so the numbers behind the other three do not shift under any
+	## saved resource that recorded one.
+	WINDOW,
 }
 
 @export_group("What counts as dead centre")
@@ -35,6 +39,10 @@ enum ThrowTier {
 ## weight; the same throw paying 300 reads as a reward, and a long run ending in
 ## the thousands is worth telling someone about. Nothing else depends on the
 ## scale, so it can be pushed further without anything having to keep up.
+## Through the window pays most. It asks for a throw that is both long enough to
+## reach the wall and tight enough to find a target a fifth of its width, which is
+## two kinds of accuracy at once where the drop point asks for one.
+@export_range(0, 5000, 10) var tip_window: int = 800
 @export_range(0, 5000, 10) var tip_bullseye: int = 500
 @export_range(0, 5000, 10) var tip_nice: int = 300
 @export_range(0, 5000, 10) var tip_scraped: int = 150
@@ -53,6 +61,9 @@ enum ThrowTier {
 ## One of these is picked at random each time, so the same throw twice running
 ## does not say the same thing twice and the street keeps a bit of a voice. Add a
 ## line and it joins the rotation; leave one entry and it never varies.
+@export var labels_window: PackedStringArray = [
+	"Through the window!", "Straight in!", "Room service!", "Right on the table!",
+]
 @export var labels_bullseye: PackedStringArray = [
 	"Bullseye!", "Right on the mat!", "Perfect drop!", "Nailed it!",
 ]
@@ -87,6 +98,8 @@ func tier_for(miss: float, drop_radius: float, scraped: bool) -> ThrowTier:
 
 func tip_for(tier: ThrowTier) -> int:
 	match tier:
+		ThrowTier.WINDOW:
+			return tip_window
 		ThrowTier.BULLSEYE:
 			return tip_bullseye
 		ThrowTier.NICE:
@@ -100,6 +113,8 @@ func tip_for(tier: ThrowTier) -> int:
 func label_for(tier: ThrowTier) -> String:
 	var choices: PackedStringArray = labels_scraped
 	match tier:
+		ThrowTier.WINDOW:
+			choices = labels_window
 		ThrowTier.BULLSEYE:
 			choices = labels_bullseye
 		ThrowTier.NICE:
