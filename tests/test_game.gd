@@ -250,10 +250,17 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 	_check("a house that wants a pizza is animating its drop point",
 		waiting_view.is_processing())
 
-	# And a house told exactly what its preview already said still wakes up.
+	# A house nobody has spoken to shows its preview, which is the whole point of
+	# the exercise: that is what the editor canvas draws.
 	var fresh: HouseView = (game.house_scene.instantiate() as HouseView)
 	add_child(fresh)
 	await get_tree().process_frame
+	_check("an undriven house shows its preview ring (%.1f, want %.1f)"
+			% [fresh._drop_radius, fresh.preview_drop_radius],
+		is_equal_approx(fresh._drop_radius, fresh.preview_drop_radius))
+	_check("and its preview state", fresh._waiting == fresh.preview_waiting)
+
+	# And a house told exactly what its preview already said still wakes up.
 	fresh.show_state(fresh.preview_waiting, fresh.preview_served, fresh.preview_drop_radius)
 	_check("even one told exactly what it was already showing",
 		fresh.is_processing())
