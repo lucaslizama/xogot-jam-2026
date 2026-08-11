@@ -168,8 +168,13 @@ func _draw_drop_point() -> void:
 		return
 	# One clock for every house, so the street breathes together rather than
 	# each one flickering on its own beat.
+	#
+	# Never on the editor canvas. Nothing redraws it there, so the pulse would only
+	# be sampled when something else forced a redraw: zoom in and the ring jumps to
+	# whatever size the clock happened to be at, which makes the one measurement the
+	# preview exists to give a number you cannot trust. Still means true size.
 	var beat := 1.0
-	if pulse_depth > 0.0 and not _served:
+	if pulse_depth > 0.0 and not _served and not Engine.is_editor_hint():
 		beat += sin(float(Time.get_ticks_msec()) / 1000.0 * TAU * pulse_rate) * pulse_depth
 	var radius := _drop_radius * pixels_per_unit * beat
 	if art_drop_marker != null:
