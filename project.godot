@@ -39,7 +39,7 @@ textures/vram_compression/import_etc2_astc=true
 project/editorState=[{
 "column": 0,
 "line": 0,
-"path": "res://scripts/pizza/pizza_physics.gd",
+"path": "res://scripts/pizza/rules/pizza_physics.gd",
 "type": "file"
 }, {
 "column": 0,
@@ -50,7 +50,7 @@ project/editorState=[{
 "column": 0,
 "current": true,
 "line": 0,
-"path": "res://scripts/pizza/result_card.gd",
+"path": "res://scripts/pizza/ui/result_card.gd",
 "type": "file"
 }]
 project/shaderEditorState=[]

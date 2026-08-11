@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="BackdropLayer" format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/backdrop_layer.gd" id="1_pbya6"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/backdrop_layer.gd" id="1_pbya6"]
 
 [resource]
 script = ExtResource("1_pbya6")

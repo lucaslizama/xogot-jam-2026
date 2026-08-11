@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/credits.gd" id="1_credits"]
-[ext_resource type="Script" path="res://scripts/pizza/pizza_box_button.gd" id="2_boxbtn"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/credits.gd" id="1_credits"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/pizza_box_button.gd" id="2_boxbtn"]
 [ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="3_box"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="4_theme"]
 [ext_resource type="PackedScene" uid="uid://dmt65b37wpllc" path="res://scenes/ui/menu_background.tscn" id="5_menubg"]

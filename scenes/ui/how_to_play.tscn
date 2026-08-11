@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/how_to_play.gd" id="1_howto"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/how_to_play.gd" id="1_howto"]
 [ext_resource type="PackedScene" path="res://scenes/ui/how_to_step.tscn" id="2_step"]
-[ext_resource type="Script" path="res://scripts/pizza/pizza_box_button.gd" id="3_boxbtn"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/pizza_box_button.gd" id="3_boxbtn"]
 [ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="4_box"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="5_theme"]
 

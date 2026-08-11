@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/debug_panel.gd" id="1_dbg"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/debug_panel.gd" id="1_dbg"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 content_margin_left = 28.0

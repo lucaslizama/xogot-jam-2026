@@ -1,11 +1,11 @@
 [gd_scene load_steps=17 format=3 uid="uid://dmt65b37wpllc"]
 
-[ext_resource type="Script" path="res://scripts/pizza/menu_background.gd" id="1_menubg"]
-[ext_resource type="Script" path="res://scripts/pizza/backdrop.gd" id="2_backdrop"]
-[ext_resource type="Script" path="res://scripts/pizza/backdrop_layer.gd" id="3_layercfg"]
-[ext_resource type="Script" path="res://scripts/pizza/night_sky.gd" id="4_sky"]
+[ext_resource type="Script" path="res://scripts/pizza/view/menu_background.gd" id="1_menubg"]
+[ext_resource type="Script" path="res://scripts/pizza/view/backdrop.gd" id="2_backdrop"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/backdrop_layer.gd" id="3_layercfg"]
+[ext_resource type="Script" path="res://scripts/pizza/view/night_sky.gd" id="4_sky"]
 [ext_resource type="Shader" path="res://shaders/night_sky.gdshader" id="5_skyshader"]
-[ext_resource type="Script" path="res://scripts/pizza/street_surface.gd" id="6_street"]
+[ext_resource type="Script" path="res://scripts/pizza/view/street_surface.gd" id="6_street"]
 [ext_resource type="Shader" path="res://shaders/street.gdshader" id="7_streetshader"]
 [ext_resource type="PackedScene" path="res://scenes/house.tscn" id="8_house"]
 [ext_resource type="Resource" path="res://data/street_projection.tres" id="9_proj"]
@@ -15,7 +15,7 @@
 [ext_resource type="Resource" path="res://data/backdrop/far.tres" id="13_far"]
 [ext_resource type="Resource" path="res://data/backdrop/mid.tres" id="14_mid"]
 [ext_resource type="Resource" path="res://data/backdrop/near.tres" id="15_near"]
-[ext_resource type="Script" path="res://scripts/pizza/level_config.gd" id="16_levelcfg"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/level_config.gd" id="16_levelcfg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("5_skyshader")

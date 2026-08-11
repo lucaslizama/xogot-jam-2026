@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/pizza_stack.gd" id="1_stack"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/pizza_stack.gd" id="1_stack"]
 [ext_resource type="Texture2D" uid="uid://donsuvaswcfqs" path="res://sprites/pizza_box.png" id="2_box"]
 
 [node name="PizzaStack" type="Control"]

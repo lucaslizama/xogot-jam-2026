@@ -1,11 +1,11 @@
 [gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/result_card.gd" id="1_result"]
-[ext_resource type="Script" path="res://scripts/pizza/pizza_icon.gd" id="2_pizza"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/result_card.gd" id="1_result"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/pizza_icon.gd" id="2_pizza"]
 [ext_resource type="Texture2D" uid="uid://djxcvnvv3gpsg" path="res://sprites/pizza_lose.png" id="3_lose"]
 [ext_resource type="Texture2D" uid="uid://b8wqk3rxvpn2y" path="res://sprites/pizza_win.png" id="8_win"]
-[ext_resource type="Script" path="res://scripts/pizza/checkered_button.gd" id="4_checkbtn"]
-[ext_resource type="Script" path="res://scripts/pizza/circle_badge.gd" id="5_badge"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/checkered_button.gd" id="4_checkbtn"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/circle_badge.gd" id="5_badge"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="7_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_box"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="TimeOfDay" format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/time_of_day.gd" id="1_mbgw8"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/time_of_day.gd" id="1_mbgw8"]
 
 [resource]
 script = ExtResource("1_mbgw8")

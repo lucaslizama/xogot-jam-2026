@@ -60,7 +60,11 @@ xogot-jam-2026/
 ├── scenes/                 # Scene files (.tscn): layout, values, arrangement
 ├── shaders/                # Night sky, road surface
 ├── data/                   # Tuning, levels and times of day, editable in the editor
-├── scripts/pizza/          # Throw, street, round rules and their views
+├── scripts/pizza/          # The glue: PizzaGame and GameAudio
+│   ├── rules/              #   Resources: tuning and data, no behaviour
+│   ├── sim/                #   The rules themselves, tested with no screen
+│   ├── view/               #   Draws the street and what is on it
+│   └── ui/                 #   Screens, cards, HUD and buttons
 ├── tests/                  # Headless test scenes
 ├── tools/                  # Machine setup, releasing, and the project.godot guard
 ├── docs/design/            # What is being built and why

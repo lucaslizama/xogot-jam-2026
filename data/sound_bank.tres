@@ -9,7 +9,7 @@
 [ext_resource type="AudioStream" path="res://sounds/pick_up.ogg" id="7_tk0oh"]
 [ext_resource type="AudioStream" path="res://sounds/round_lost.ogg" id="8_f0cvw"]
 [ext_resource type="AudioStream" path="res://sounds/round_won.ogg" id="9_dbem6"]
-[ext_resource type="Script" path="res://scripts/pizza/sound_bank.gd" id="10_vhxtv"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/sound_bank.gd" id="10_vhxtv"]
 [ext_resource type="AudioStream" path="res://sounds/strike.ogg" id="11_tul6p"]
 [ext_resource type="AudioStream" path="res://sounds/throw.ogg" id="12_qh76x"]
 

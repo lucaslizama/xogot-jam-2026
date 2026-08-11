@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ScoreRules" format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/score_rules.gd" id="1_jik2m"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/score_rules.gd" id="1_jik2m"]
 
 [resource]
 script = ExtResource("1_jik2m")

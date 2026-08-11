@@ -134,6 +134,29 @@ commit; the hook can be stepped past once with `git commit --no-verify`.
 including blanking the Android Java SDK path. Close it before editing that file,
 and prefer setting such values in the GUI.
 
+## Where a new script goes
+
+`scripts/pizza/` holds only the glue, `pizza_game.gd` and `game_audio.gd`.
+Everything else sits in one of four folders, and which one is not a matter of
+taste:
+
+- `rules/` — a `Resource`. Tuning and data a designer edits; no behaviour beyond
+  helpers that read its own fields.
+- `sim/` — a rule with no screen. Anything here must be testable headless, and
+  anything that draws does not belong.
+- `view/` — draws the street and what stands on it. `Node2D` and friends.
+- `ui/` — screens, cards, HUD, buttons. `Control` and friends.
+
+The line between `sim/` and the other two is the one that matters: it is the
+promise `pizza_game.gd` opens by making, that everything with a rule in it is
+tested without a screen. A file in the wrong folder makes that promise a lie.
+
+**GDScript has no namespaces.** `class_name` registers in one flat scope for the
+whole project, so these folders scope nothing and cannot resolve a name clash —
+two `Handoff` classes collide wherever the files sit. Folders are for people
+reading the tree. Names still have to be unique project-wide, which is why
+`ScreenOrientation` is spelled the way it is.
+
 ## House style
 
 Anything a designer might reasonably want to change belongs in the editor, not

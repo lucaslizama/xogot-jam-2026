@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="LevelConfig" format=3]
 
-[ext_resource type="Script" path="res://scripts/pizza/level_config.gd" id="1_1thwv"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/level_config.gd" id="1_1thwv"]
 [ext_resource type="Resource" path="res://data/daylight/night.tres" id="2_8u1d1"]
 
 [resource]
