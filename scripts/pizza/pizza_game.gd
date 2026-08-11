@@ -134,6 +134,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _tips: Label = %Tips
 @onready var _tip_popup: TipPopup = %TipPopup
 @onready var _money: MoneyBurst = %MoneyBurst
+@onready var _splatter: SplatBurst = %SplatBurst
 @onready var _handoff: Handoff = %Handoff
 @onready var _ticket: OrderTicket = %OrderTicket
 @onready var _stack: PizzaStack = %PizzaStack
@@ -477,6 +478,12 @@ func _resolve_landing(struck: House = null,
 		_orders.note_delivery(_flight_flavour)
 	else:
 		_drop_splat(landed_side, landed_distance)
+		# The pizza comes apart before it is lying there. Sized and sorted by how far
+		# up the street it happened, so a loss at the far end is a small spray behind
+		# the houses rather than the same shower as one at the rider's feet.
+		_splatter.z_index = clampi(int(-landed_distance), -4000, 4000)
+		_splatter.burst(landed_at, _splatter.pieces,
+			projection.scale_at(landed_distance), _flight_flavour)
 		_state.note_miss()
 		_audio.play(&"missed")
 	# Only now can the round be won: the last throw still had to land.

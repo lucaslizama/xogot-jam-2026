@@ -32,6 +32,7 @@ func _ready() -> void:
 	await _test_the_first_street_asks_for_no_orders()
 	await _test_a_ticket_shows_what_is_wanted_and_pays_when_filled()
 	await _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw()
+	await _test_a_lost_pizza_comes_apart_where_it_landed()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -583,6 +584,54 @@ func _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw() -> void:
 	modest.kinds_max = 1
 	_check("a rules file within its means is used as it is",
 		game._orders_for_rules(modest) == modest)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## A miss has to say something at the moment it happens. The pizza left lying on the
+## road says where the throw went, but only after; the burst is what a player can
+## read without looking away from the street.
+func _test_a_lost_pizza_comes_apart_where_it_landed() -> void:
+	var game := await _spawn()
+	var splatter: SplatBurst = game.get_node("SplatBurst")
+	_check("nothing is in the air to begin with", splatter.in_flight() == 0)
+
+	# Driven through the game's own landing, with no house anywhere near, so this is
+	# the real miss path rather than the burst being poked directly.
+	game._flight = PizzaFlight.new(game.physics, game.physics.launch_from(
+		Vector2(0.0, -2000.0), 0.0))
+	game._flight_flavour = game.current_flavour()
+	var strikes_before: int = game._state.strikes_left
+	game._resolve_landing()
+	_check("a miss took a strike (%d -> %d)" % [strikes_before, game._state.strikes_left],
+		game._state.strikes_left == strikes_before - 1)
+	_check("and the pizza came apart (%d pieces)" % splatter.in_flight(),
+		splatter.in_flight() > 0)
+
+	# A landing further up the street is smaller on screen, so its debris has to be
+	# too, or a loss at the far end would fling cheese across the whole viewport.
+	var near_scale: float = game.projection.scale_at(10.0)
+	var far_scale: float = game.projection.scale_at(90.0)
+	_check("the street makes a far landing smaller (%.2f against %.2f)"
+			% [far_scale, near_scale],
+		far_scale < near_scale)
+
+	# However hard a street throws misses at it, the screen must not fill up.
+	for i in 40:
+		splatter.burst(Vector2(500.0, 1800.0), 40, 1.0, game.current_flavour())
+	_check("the burst is capped however hard it is asked (%d, ceiling %d)"
+			% [splatter.in_flight(), splatter.max_pieces],
+		splatter.in_flight() <= splatter.max_pieces)
+
+	# And it clears on its own. On the clock, not on frames: headless runs
+	# unthrottled, so thirty frames can be almost no simulated time at all.
+	await get_tree().create_timer(splatter.life + 0.3).timeout
+	_check("the pieces clear on their own (%d left)" % splatter.in_flight(),
+		splatter.in_flight() == 0)
+
+	# A delivery is not a splat: the money goes up instead, and nothing comes apart.
+	game._show_tip(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, 500, 1)
+	_check("a delivery throws no debris", splatter.in_flight() == 0)
 	game.queue_free()
 	await get_tree().process_frame
 
