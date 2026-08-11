@@ -1,3 +1,4 @@
+@tool
 class_name PizzaIcon
 extends Control
 
@@ -10,6 +11,10 @@ extends Control
 ## Two moods. A win shows a whole pie, face up, with pepperoni. A loss shows it
 ## flopped face-down on the floor with a slice broken off and cheese splattered
 ## beside it — the throw that never got delivered.
+##
+## Drawn in the editor as well as in the game, so a new piece of art can be judged
+## in the card it sits in without running anything. The editor shows the win side;
+## the loss only appears once [method set_dropped] is called at runtime.
 
 @export_group("Size")
 ## Radius of the pie, in pixels. The node reserves a square this wide.
