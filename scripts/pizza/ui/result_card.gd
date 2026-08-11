@@ -17,6 +17,13 @@ signal again_pressed
 ## What the street paid. The first %d is the tips, the second the longest run of
 ## deliveries without a miss.
 @export var tips_line: String = "$%d in tips, best run of %d"
+## What the shop's orders came to. The first %d is how many were filled, the second
+## how many were written. Said only on a street that wrote any, so a street with no
+## orders on it does not report nought out of nought.
+@export var orders_line: String = "%d of %d orders filled"
+## Said instead when every one of them was filled, because that is worth more than
+## a fraction the player has to notice reads the same top and bottom.
+@export var orders_all_line: String = "Every order filled"
 @export var won_button: String = "Next street"
 @export var lost_button: String = "Try again"
 ## The street badge, %d being the street's number. Two lines, because the badge is
@@ -45,6 +52,7 @@ signal again_pressed
 @onready var _heading: Label = %Heading
 @onready var _body: Label = %Body
 @onready var _tips: Label = %Tips
+@onready var _orders: Label = %Orders
 @onready var _level: Label = %LevelLabel
 @onready var _pizza: PizzaIcon = %Pizza
 @onready var _again: Button = %AgainButton
@@ -57,7 +65,7 @@ func _ready() -> void:
 
 
 func show_result(won: bool, delivered: int, level_number: int, tips: int = 0,
-		best_streak: int = 0) -> void:
+		best_streak: int = 0, orders_filled: int = 0, orders_written: int = 0) -> void:
 	_won = won
 	_heading.text = won_heading if won else lost_heading
 	_body.text = (won_body if won else lost_body) % delivered
@@ -65,11 +73,22 @@ func show_result(won: bool, delivered: int, level_number: int, tips: int = 0,
 	# empty line on the card reads as something missing rather than as nothing.
 	_tips.visible = tips > 0
 	_tips.text = tips_line % [tips, best_streak]
+	_show_orders(orders_filled, orders_written)
 	_level.text = level_stamp % level_number
 	_again.text = won_button if won else lost_button
 	_pizza.set_dropped(not won)
 	_apply_accent(won)
 	show()
+
+
+## What the shop's orders came to. Silent on a street that never wrote one, which
+## is how the first street is authored, rather than reporting nought out of nought
+## and leaving the player to wonder what they missed.
+func _show_orders(filled: int, written: int) -> void:
+	_orders.visible = written > 0
+	if written <= 0:
+		return
+	_orders.text = orders_all_line if filled >= written else orders_line % [filled, written]
 
 
 ## Recolour the card to match the outcome, so a win and a loss are told apart at

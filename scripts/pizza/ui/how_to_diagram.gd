@@ -24,6 +24,7 @@ enum DiagramKind {
 	CURVE, ## Twisting before the throw, and the bent flight it buys.
 	LAND, ## One in the ring, one into the wall.
 	STACK, ## The boxes left on the bike and the strike dots up top.
+	ORDERS, ## The ticket, and the tap on the road that changes what is on the pizza.
 }
 
 @export var kind: DiagramKind = DiagramKind.FLICK:
@@ -71,6 +72,19 @@ enum DiagramKind {
 @export var good: Color = Color(0.16, 0.68, 0.34)
 @export var bad: Color = Color(0.83, 0.16, 0.14)
 
+@export_group("The order ticket")
+## The card the order is written on, and the bar that is its clock.
+@export var ticket_card: Color = Color(0.13, 0.1, 0.18, 0.85)
+@export var ticket_row: Color = Color(0.94, 0.89, 0.83, 0.55)
+@export var ticket_clock: Color = Color(0.36, 0.71, 0.9)
+## Two flavours' worth of toppings. Not the same size as each other on purpose: at
+## the size a pizza flies at, how many and how big is what tells them apart, and
+## colour alone says nothing to a colour-blind player.
+@export var topping_a: Color = Color(0.71, 0.16, 0.15)
+@export var topping_b: Color = Color(0.97, 0.82, 0.25)
+## The ripple where a finger touched the road.
+@export var tap_ring: Color = Color(1.0, 1.0, 1.0, 0.7)
+
 ## The camera the game actually uses. The pizza sits in your hand at the bottom of
 ## the screen, the houses are along the top, and you flick up the screen at them,
 ## the way a ball is thrown in Pokemon Go. Up the screen is further away, so there
@@ -107,6 +121,8 @@ func _draw() -> void:
 			_draw_land()
 		DiagramKind.STACK:
 			_draw_stack()
+		DiagramKind.ORDERS:
+			_draw_orders()
 
 
 ## The scene every step shares: a night sky with a skyline behind it, the houses
@@ -275,6 +291,80 @@ func _draw_stack() -> void:
 	_draw_dots(3, 1)
 	_draw_counter(5, 2, 1.9)
 	_draw_pizza(IN_HAND, IN_HAND_RADIUS)
+
+
+## The one step nobody would find on their own: that a tap on the road, away from
+## the pizza, changes what is on the next one.
+##
+## Three things and a line between two of them. The ticket says what the shop wants,
+## the ripple says where to tap, and the arrow says which of the two the tap changes.
+## Without the arrow the picture is a ticket and a finger with no relationship
+## between them, which is exactly the thing the page has to establish.
+func _draw_orders() -> void:
+	_draw_ticket()
+	# Well away from the pizza, because that is the whole rule: a touch near it takes
+	# hold of it, and only one further off is read as a tap.
+	var tap := Vector2(0.26, 0.66)
+	_draw_tap(tap)
+	_arc(tap, Vector2(0.34, 0.82), IN_HAND + Vector2(-IN_HAND_RADIUS * 1.5, 0.0), gesture)
+	# Topped to match the ticket's first line, so the picture shows the tap having
+	# already produced what was asked for.
+	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_a, 8, 0.15)
+
+
+## The ticket as it appears in the corner of the screen: two lines, each a flavour
+## and a bar standing in for its wording, and the clock under them part run down.
+func _draw_ticket() -> void:
+	var card := Rect2(_at(0.04, 0.05), Vector2(size.x * 0.42, size.y * 0.2))
+	draw_rect(card, ticket_card)
+
+	var lines := [
+		{"colour": topping_a, "count": 8, "size": 0.055, "filled": 0.62},
+		{"colour": topping_b, "count": 13, "size": 0.04, "filled": 0.34},
+	]
+	for i in lines.size():
+		var line: Dictionary = lines[i]
+		var y := 0.1 + i * 0.062
+		_draw_topped_pizza(Vector2(0.09, y), 0.026, line["colour"], line["count"],
+			line["size"])
+		# A bar rather than words: the diagram is drawn without a font, and a row of
+		# blocks reads as writing at this size anyway.
+		var bar := Rect2(_at(0.135, y - 0.012),
+			Vector2(size.x * 0.26 * line["filled"], size.y * 0.024))
+		draw_rect(bar, ticket_row)
+
+	# The clock, part gone, which is what makes an order a decision rather than a
+	# list to work through at leisure.
+	var track := Rect2(_at(0.06, 0.215), Vector2(size.x * 0.38, size.y * 0.018))
+	draw_rect(track, ticket_row)
+	draw_rect(Rect2(track.position, Vector2(track.size.x * 0.55, track.size.y)),
+		ticket_clock)
+
+
+## A finger's touch: the point, and two rings going out from it.
+func _draw_tap(at: Vector2) -> void:
+	var c := _at(at.x, at.y)
+	var r := size.y * 0.03
+	draw_circle(c, r, tap_ring)
+	for ring_index in 2:
+		var out := r * (1.9 + ring_index * 1.1)
+		draw_arc(c, out, 0.0, TAU, 28,
+			Color(tap_ring, tap_ring.a * (0.5 - ring_index * 0.2)), 4.0, true)
+
+
+## The pizza with something on it. `spots` and `spot_size` are what tell one flavour
+## from another, the same way the real ones do.
+func _draw_topped_pizza(at: Vector2, radius: float, spot: Color, spots: int,
+		spot_size: float) -> void:
+	_draw_pizza(at, radius)
+	var c := _at(at.x, at.y)
+	var r := size.x * radius
+	for i in spots:
+		# The same golden-angle spiral PizzaFlavour lays its toppings out on, so the
+		# page and the game deal the same pizza.
+		var angle := float(i) * 2.399963
+		var reach: float = 0.64 * sqrt((float(i) + 0.5) / float(spots))
+		draw_circle(c + Vector2(cos(angle), sin(angle)) * r * reach, r * spot_size, spot)
 
 
 ## The strike dots as the game shows them: clean, and crossed off once spent.

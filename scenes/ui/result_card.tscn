@@ -115,6 +115,14 @@ text = "$3450 in tips, best run of 5"
 horizontal_alignment = 1
 autowrap_mode = 3
 
+[node name="Orders" type="Label" parent="Panel/Rows"]
+theme_type_variation = &"Caption"
+unique_name_in_owner = true
+layout_mode = 2
+text = "2 of 3 orders filled"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="AgainButton" type="Button" parent="Panel/Rows"]
 theme_type_variation = &"GoButton"
 unique_name_in_owner = true

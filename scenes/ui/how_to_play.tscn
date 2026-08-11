@@ -70,6 +70,13 @@ note = "A pizza dropping into the ring in front of a lit house and a second one 
 diagram = 3
 caption = "Hit a house that is waiting, or land in the ring at its feet. Either one counts. Miss both and you lose a strike. Straight through the lit window pays best of all."
 
+[node name="Orders" parent="Scroll/Steps" instance=ExtResource("2_step")]
+layout_mode = 2
+picture_height = 620.0
+note = "The order ticket in the corner asking for two flavours, a finger tapping the empty road well away from the pizza, and the pizza in hand changing to the flavour the ticket wants"
+diagram = 5
+caption = "Tap the road, away from the pizza, to change what is on the next one. The shop's order asks for flavours: fill it before the clock runs out for a bonus. Ignore it and you lose nothing but the money."
+
 [node name="Stack" parent="Scroll/Steps" instance=ExtResource("2_step")]
 layout_mode = 2
 picture_height = 560.0

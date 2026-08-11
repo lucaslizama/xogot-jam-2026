@@ -882,7 +882,7 @@ func _on_round_ended(won: bool, delivered: int) -> void:
 ## scene goes away mid-beat, holding the tween with it.
 func _show_result_card() -> void:
 	_result.show_result(_pending_won, _pending_delivered, _level_index + 1,
-		_state.tips, _state.best_streak)
+		_state.tips, _state.best_streak, _orders.filled, _orders.filled + _orders.lost)
 	round_ended.emit(_pending_won, _pending_delivered)
 
 

@@ -33,6 +33,8 @@ func _ready() -> void:
 	await _test_a_ticket_shows_what_is_wanted_and_pays_when_filled()
 	await _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw()
 	await _test_a_lost_pizza_comes_apart_where_it_landed()
+	await _test_the_page_teaches_the_tap()
+	await _test_the_card_says_how_the_orders_went()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -633,6 +635,62 @@ func _test_a_lost_pizza_comes_apart_where_it_landed() -> void:
 	game._show_tip(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, 500, 1)
 	_check("a delivery throws no debris", splatter.in_flight() == 0)
 	game.queue_free()
+	await get_tree().process_frame
+
+
+## The tap is a touch on empty road. There is no button, no icon and nothing on
+## screen that hints at it, so if the page does not say it, the orders are a ticket
+## the player cannot fill and the whole feature is dead weight. That makes this step
+## part of the mechanic rather than documentation of it.
+func _test_the_page_teaches_the_tap() -> void:
+	var page: Control = (load("res://scenes/ui/how_to_play.tscn") as PackedScene).instantiate()
+	add_child(page)
+	await get_tree().process_frame
+
+	var steps: Array[Node] = []
+	for child in page.find_child("Steps", true, false).get_children():
+		if child is HowToStep:
+			steps.append(child)
+	_check("the page has steps (got %d)" % steps.size(), steps.size() >= 5)
+
+	var taught := false
+	var drawn := false
+	for step in steps:
+		var caption: String = (step as HowToStep).caption.to_lower()
+		if caption.contains("tap"):
+			taught = true
+			# And it has to be a picture, not only a sentence. A page of prose on a
+			# phone is a page nobody reads to the end of.
+			drawn = (step as HowToStep).diagram == HowToDiagram.DiagramKind.ORDERS
+	_check("one of them says to tap", taught)
+	_check("and it is drawn, not only written", drawn)
+
+	page.queue_free()
+	await get_tree().process_frame
+
+
+## The board counts what the shop asked for and what arrived; the card is the only
+## place a player ever sees it.
+func _test_the_card_says_how_the_orders_went() -> void:
+	var card: ResultCard = (load("res://scenes/ui/result_card.tscn") as PackedScene).instantiate()
+	add_child(card)
+	await get_tree().process_frame
+	var line: Label = card.get_node("%Orders")
+
+	card.show_result(true, 8, 2, 3400, 5, 2, 3)
+	_check("a part-filled street is reported (%s)" % line.text,
+		line.visible and line.text == card.orders_line % [2, 3])
+
+	card.show_result(true, 8, 2, 3400, 5, 3, 3)
+	_check("filling every one gets said outright (%s)" % line.text,
+		line.visible and line.text == card.orders_all_line)
+
+	# The first street writes no orders at all, and "0 of 0" on the card would read
+	# as something having gone wrong.
+	card.show_result(true, 8, 1, 3400, 5, 0, 0)
+	_check("a street with no orders says nothing about them", not line.visible)
+
+	card.queue_free()
 	await get_tree().process_frame
 
 
