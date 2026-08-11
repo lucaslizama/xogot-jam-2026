@@ -12,3 +12,10 @@ Thumbs.db
 desktop.ini
 *.swp
 *~
+
+# Music being tried out. Anything here is played by GameMusic when its track slot
+# is empty, and is never committed — which is also what keeps it out of a release,
+# since the published build is exported from a clean checkout of this repository.
+# A track that is actually going to ship belongs in sounds/ with a licence and a
+# line in the credits.
+/sounds/audition/

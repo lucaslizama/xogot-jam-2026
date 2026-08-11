@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/game_music.gd" id="1_music"]
+
+[node name="Music" type="AudioStreamPlayer"]
+script = ExtResource("1_music")
+level_db = -16.0
+fade_in = 1.6

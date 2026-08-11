@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dywnhe0kaq0mp"]
+[gd_scene load_steps=9 format=3 uid="uid://dywnhe0kaq0mp"]
 
 [ext_resource type="Script" uid="uid://dyb8uy6eaxac4" path="res://scripts/pizza/ui/main_menu.gd" id="1_l6cm7"]
 [ext_resource type="PackedScene" uid="uid://dmt65b37wpllc" path="res://scenes/ui/menu_background.tscn" id="2_menubg"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="5_box"]
 [ext_resource type="PackedScene" path="res://scenes/ui/credits.tscn" id="6_credits"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="7_theme"]
+[ext_resource type="PackedScene" path="res://scenes/music.tscn" id="8_music"]
 
 [node name="MainMenu" type="Control" unique_id=416969500]
 theme = ExtResource("7_theme")
@@ -17,6 +18,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_l6cm7")
+
+[node name="Music" parent="." instance=ExtResource("8_music")]
 
 [node name="MenuBackground" parent="." instance=ExtResource("2_menubg")]
 

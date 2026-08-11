@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=39 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/sim/level_state.gd" id="2_state"]
@@ -36,6 +36,7 @@
 [ext_resource type="Script" path="res://scripts/pizza/view/pizza_view.gd" id="33_pizzaview"]
 [ext_resource type="Resource" path="res://data/pizza_menu.tres" id="34_menu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/order_ticket.tscn" id="36_ticket"]
+[ext_resource type="PackedScene" path="res://scenes/music.tscn" id="37_music"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -77,6 +78,8 @@ menu = ExtResource("34_menu")
 [node name="Audio" type="Node" parent="."]
 script = ExtResource("26_audio")
 bank = ExtResource("27_bank")
+
+[node name="Music" parent="." instance=ExtResource("37_music")]
 
 [node name="LevelState" type="Node" parent="."]
 script = ExtResource("2_state")
