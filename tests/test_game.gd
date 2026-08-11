@@ -20,6 +20,7 @@ func _ready() -> void:
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
+	await _test_a_house_shows_the_street_and_not_its_preview()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -213,6 +214,52 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		Vector3(open_house.side, expected.y * 0.5, open_house.distance + 5.0))
 	_check("a pizza through the front of a real house is a delivery", through_it == open_house)
 	game.queue_free()
+
+
+## The house draws itself in the editor now, from preview values it carries. Those
+## must not survive contact with a real street: a house that kept its preview would
+## be waiting when the street said scenery, and one whose first instruction merely
+## matched the preview would never start its drop point pulsing, which is invisible
+## right up until nobody can find anything to aim at.
+func _test_a_house_shows_the_street_and_not_its_preview() -> void:
+	var game := await _spawn()
+	var scenery: House = null
+	var waiting: House = null
+	for house in game._street.houses():
+		if house.waiting and waiting == null:
+			waiting = house
+		elif not house.waiting and scenery == null:
+			scenery = house
+	_check("the street offered both kinds of house to look at",
+		waiting != null and scenery != null)
+	if waiting == null or scenery == null:
+		game.queue_free()
+		return
+
+	var views: Dictionary = game._views
+	var waiting_view: HouseView = views[waiting]
+	var scenery_view: HouseView = views[scenery]
+	_check("the house that wants a pizza is drawn as one", waiting_view._waiting)
+	_check("and the scenery is not, whatever its preview said",
+		not scenery_view._waiting)
+	_check("the drop point is the size this street's ring really is (%.1f, want %.1f)"
+			% [waiting_view._drop_radius, game._config.drop_radius],
+		is_equal_approx(waiting_view._drop_radius, game._config.drop_radius))
+
+	# The pulse is the thing an early return would silently switch off.
+	_check("a house that wants a pizza is animating its drop point",
+		waiting_view.is_processing())
+
+	# And a house told exactly what its preview already said still wakes up.
+	var fresh: HouseView = (game.house_scene.instantiate() as HouseView)
+	add_child(fresh)
+	await get_tree().process_frame
+	fresh.show_state(fresh.preview_waiting, fresh.preview_served, fresh.preview_drop_radius)
+	_check("even one told exactly what it was already showing",
+		fresh.is_processing())
+	fresh.queue_free()
+	game.queue_free()
+	await get_tree().process_frame
 
 
 ## The rules can be perfect and pay nobody if the scene forgot to hand them over,

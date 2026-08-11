@@ -1,3 +1,4 @@
+@tool
 class_name HouseView
 extends Node2D
 
@@ -12,6 +13,10 @@ extends Node2D
 ## The node's origin is the point where the house meets the ground, because that
 ## is the point the street projects. Scale comes from the parent, which knows
 ## how far away this house is.
+##
+## A tool script, so the house draws itself on the editor canvas. Opening
+## house.tscn shows the house rather than an empty node, and nudging a wall or a
+## colour is answered on the spot instead of after a run.
 
 @export_group("Shape, in world units")
 @export_range(1.0, 30.0, 0.1) var width: float = 20.5
@@ -51,21 +56,65 @@ extends Node2D
 @export var drop_open: Color = Color(0.24, 0.71, 0.9, 0.55)
 @export var drop_served: Color = Color(0.45, 0.85, 0.5, 0.5)
 
+@export_group("Editor preview")
+## What the house shows on the canvas when no street is driving it. The game
+## overrides all three the moment it runs, so these cost nothing at play time and
+## let the scene be opened on a house that is waiting, one that has been served or
+## a piece of scenery, without running anything.
+@export var preview_waiting: bool = true:
+	set(value):
+		preview_waiting = value
+		_apply_preview()
+@export var preview_served: bool = false:
+	set(value):
+		preview_served = value
+		_apply_preview()
+## Matches street_1's drop radius, so the ring on the canvas is the size the ring
+## in the game will be rather than a stand-in.
+@export_range(0.0, 30.0, 0.1) var preview_drop_radius: float = 13.5:
+	set(value):
+		preview_drop_radius = value
+		_apply_preview()
+
 var _waiting: bool = true
 var _served: bool = false
 var _drop_radius: float = 3.2
+## Whether a street has ever spoken. Until it has, the preview values stand, and
+## the first thing the street says is always applied however much it looks like
+## what is already there.
+var _stated: bool = false
 
 
 func _ready() -> void:
-	# Only a house still waiting has anything to animate.
+	# Only a house still waiting has anything to animate, and on the editor canvas
+	# nothing does: a street of houses all pulsing would make the viewport work for
+	# no reason while somebody is trying to place a wall.
 	set_process(false)
+	if not _stated:
+		_apply_preview()
+
+
+## Show what the exported preview says, for as long as nothing else has spoken.
+func _apply_preview() -> void:
+	if _stated:
+		return
+	_waiting = preview_waiting
+	_served = preview_served
+	_drop_radius = preview_drop_radius
+	queue_redraw()
 
 
 ## Told by the street each frame. Redraws only when something actually changed,
 ## since most houses are static most of the time.
 func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
-	if waiting == _waiting and served == _served and is_equal_approx(drop_radius, _drop_radius):
+	# The first word from the street is always acted on. Skipping it because it
+	# happened to match the preview would leave the pulse switched off for the
+	# life of the house, and the only sign would be a drop point that never
+	# breathed on a street where every value looked right.
+	if _stated and waiting == _waiting and served == _served \
+			and is_equal_approx(drop_radius, _drop_radius):
 		return
+	_stated = true
 	_waiting = waiting
 	_served = served
 	_drop_radius = drop_radius
