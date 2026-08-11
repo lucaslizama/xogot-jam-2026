@@ -14,6 +14,9 @@ extends RefCounted
 ## rather than anyone typing it twice. Zero leaves houses as thin air, and only
 ## their drop points can be hit.
 var house_body: Vector2 = Vector2.ZERO
+## How high off the ground a house's wall starts counting. See [member
+## House.doorstep]: at zero the wall stands in its own drop point's doorway.
+var house_doorstep: float = 0.0
 
 var _config: LevelConfig
 var _rng := RandomNumberGenerator.new()
@@ -24,9 +27,11 @@ var _frontier: float = 0.0
 
 ## `body` is passed in rather than set afterwards so that the first houses, which
 ## are placed here, are as solid as every one that follows.
-func _init(config: LevelConfig, seed_value: int = 0, body: Vector2 = Vector2.ZERO) -> void:
+func _init(config: LevelConfig, seed_value: int = 0, body: Vector2 = Vector2.ZERO,
+		doorstep: float = 0.0) -> void:
 	_config = config
 	house_body = body
+	house_doorstep = doorstep
 	_rng.seed = seed_value
 	# Start the frontier just behind the rider so the first stretch of street is
 	# already populated when the level opens rather than arriving late.
@@ -100,6 +105,7 @@ func _restock() -> void:
 			_config.drop_radius,
 			_rng.randf() < _config.waiting_chance,
 			house_body,
+			house_doorstep,
 		))
 
 

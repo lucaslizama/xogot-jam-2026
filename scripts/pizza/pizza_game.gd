@@ -36,6 +36,16 @@ signal round_ended(won: bool, delivered: int)
 ## house is thin air. Its size is not a value here: it is read from the house
 ## scene, so what can be hit is exactly what is drawn.
 @export var houses_are_solid: bool = true
+## How high off the ground a house's wall starts, in world units. A pizza arriving
+## lower than this is landing on the doormat, and the ring at the house's feet
+## decides how well it went.
+##
+## This is not a detail. At zero the wall blocks its own drop point: every throw
+## accurate enough to reach the ring has to pass through the facade to get there,
+## so every good throw was called a scrape and a dead centre landing could not
+## happen at all. Raising it hands precise throws back to the ring and leaves the
+## wall as what saves an overthrow.
+@export_range(0.0, 15.0, 0.5) var wall_doorstep: float = 4.0
 ## How close to the waiting pizza a touch has to land to pick it up. Touches
 ## further away are ignored, so a stray tap cannot fling a pizza.
 @export_range(50.0, 800.0, 10.0) var grab_radius: float = 340.0
@@ -79,6 +89,7 @@ signal round_ended(won: bool, delivered: int)
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _tips: Label = %Tips
 @onready var _tip_popup: TipPopup = %TipPopup
+@onready var _money: MoneyBurst = %MoneyBurst
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
 @onready var _debug: DebugPanel = %DebugPanel
@@ -148,7 +159,8 @@ func start_level() -> void:
 	_aim.marker_radius = _config.drop_radius
 	_begin_hour(_config.time_of_day)
 	_debug.bind_to(physics, _config)
-	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size())
+	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size(),
+		wall_doorstep)
 	_travelled = 0.0
 	_clear_flight()
 	_clear_views()
@@ -291,6 +303,10 @@ func _resolve_landing(struck: House = null) -> void:
 ## Say what the throw earned, where it landed. A tip nobody sees is only a number
 ## going up in the corner, and the corner is not where anyone is looking.
 func _show_tip(at: Vector2, tier: ScoreRules.ThrowTier, award: int, streak: int) -> void:
+	# The bills go up before the words do, and there are more of them for a better
+	# throw. Across the room the burst is the only part anyone can read, so it has
+	# to be the part that says how it went.
+	_money.burst(at, _money.bills_for(tier))
 	var rules: ScoreRules = _state.scoring
 	if rules == null:
 		return

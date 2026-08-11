@@ -50,9 +50,18 @@ enum ThrowTier {
 @export_range(1.0, 10.0, 0.1) var streak_cap: float = 2.5
 
 @export_group("Wording")
-@export var label_bullseye: String = "Bullseye!"
-@export var label_nice: String = "Nice!"
-@export var label_scraped: String = "Scraped it"
+## One of these is picked at random each time, so the same throw twice running
+## does not say the same thing twice and the street keeps a bit of a voice. Add a
+## line and it joins the rotation; leave one entry and it never varies.
+@export var labels_bullseye: PackedStringArray = [
+	"Bullseye!", "Right on the mat!", "Perfect drop!", "Nailed it!",
+]
+@export var labels_nice: PackedStringArray = [
+	"Nice!", "Good throw", "Tidy", "That'll do",
+]
+@export var labels_scraped: PackedStringArray = [
+	"Off the wall", "Scraped it", "Close enough", "They'll find it",
+]
 ## Shown under the tier once a streak is paying. %d is how many in a row.
 @export var label_streak: String = "%d in a row"
 ## The tip that throw earned. %d is the amount. The currency is written here
@@ -86,14 +95,18 @@ func tip_for(tier: ThrowTier) -> int:
 			return tip_scraped
 
 
+## One of the things this tier might say. Empty wording says nothing rather than
+## putting a blank box over the street.
 func label_for(tier: ThrowTier) -> String:
+	var choices: PackedStringArray = labels_scraped
 	match tier:
 		ThrowTier.BULLSEYE:
-			return label_bullseye
+			choices = labels_bullseye
 		ThrowTier.NICE:
-			return label_nice
-		_:
-			return label_scraped
+			choices = labels_nice
+	if choices.is_empty():
+		return ""
+	return choices[randi() % choices.size()]
 
 
 ## What a run of `streak` deliveries multiplies a tip by. One until the streak is

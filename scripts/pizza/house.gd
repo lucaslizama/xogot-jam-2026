@@ -16,6 +16,12 @@ var drop_radius: float = 3.0
 ## or the player will be hitting something they cannot see. Zero means no body,
 ## and only the drop point can be hit.
 var body: Vector2 = Vector2.ZERO
+## How high off the ground the wall starts counting. Below this a pizza is
+## arriving at the door rather than hitting the house, and the drop point at its
+## feet decides. Without it the wall stands in the ring's own doorway: every throw
+## accurate enough to reach the drop point has to cross the facade to get there,
+## so the wall took them all and a dead centre landing was impossible.
+var doorstep: float = 0.0
 ## False for scenery. Only waiting houses are worth throwing at.
 var waiting: bool = true
 ## Set once a pizza lands in the drop point, so it cannot be served twice.
@@ -23,12 +29,13 @@ var served: bool = false
 
 
 func _init(p_side: float, p_distance: float, p_drop_radius: float, p_waiting: bool,
-		p_body: Vector2 = Vector2.ZERO) -> void:
+		p_body: Vector2 = Vector2.ZERO, p_doorstep: float = 0.0) -> void:
 	side = p_side
 	distance = p_distance
 	drop_radius = p_drop_radius
 	waiting = p_waiting
 	body = p_body
+	doorstep = p_doorstep
 
 
 ## True when this house still wants a pizza.
@@ -44,10 +51,14 @@ func miss_by(landed_side: float, landed_distance: float) -> float:
 ## True when a pizza that moved from `from` to `to` went into the front of this
 ## house. Both are (side, height, distance), the same order the flight traces in.
 ##
-## The house is one flat wall standing at its own distance, as wide and as tall as
-## it is drawn, roof included. Squaring off the roof rather than following its
-## slope makes the two top corners a little kinder than they look, which is the
-## right way round for a throw the player has already committed to.
+## The house is one flat wall standing at its own distance, as wide as it is drawn
+## and reaching from [member doorstep] up to its roof. Squaring off the roof rather
+## than following its slope makes the two top corners a little kinder than they
+## look, which is the right way round for a throw already committed to.
+##
+## The wall is therefore the reward for overthrowing, not for aiming: a pizza that
+## would have sailed past is caught by it, while one placed on the mat goes to the
+## drop point and is worth more.
 ##
 ## Taking both ends of the step rather than one point matters: a hard throw covers
 ## more than a house's width in a single frame and would otherwise pass through it.
@@ -63,4 +74,4 @@ func struck_by(from: Vector3, to: Vector3) -> bool:
 	var at_side: float = lerpf(from.x, to.x, t)
 	var at_height: float = lerpf(from.y, to.y, t)
 	return (absf(at_side - side) <= body.x * 0.5
-		and at_height >= 0.0 and at_height <= body.y)
+		and at_height > doorstep and at_height <= body.y)

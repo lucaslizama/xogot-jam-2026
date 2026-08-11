@@ -252,8 +252,30 @@ func _test_a_delivery_pays_and_says_so() -> void:
 
 	# The popup is the game's own reaction, not the state's, so it is driven the
 	# way the game drives it.
+	var money: MoneyBurst = game.get_node("Ui/MoneyBurst")
 	game._show_tip(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, paid, 1)
 	_check("the tip is said where the pizza landed", popup.visible)
+	_check("and the money went up with it (%d bills)" % money.in_flight(),
+		money.in_flight() > 0)
+	_check("a bullseye throws more of it than a scrape (%d against %d)"
+			% [money.bills_for(ScoreRules.ThrowTier.BULLSEYE),
+				money.bills_for(ScoreRules.ThrowTier.SCRAPED)],
+		money.bills_for(ScoreRules.ThrowTier.BULLSEYE)
+			> money.bills_for(ScoreRules.ThrowTier.SCRAPED))
+
+	# A street throwing faster than the bills fall must not pile up forever.
+	for i in 40:
+		money.burst(Vector2(500.0, 900.0), 30)
+	_check("the burst is capped however hard it is asked (%d, ceiling %d)"
+		% [money.in_flight(), money.max_bills],
+		money.in_flight() <= money.max_bills)
+
+	# And they have to clear on their own, or the street fills with money. Waited
+	# on the clock, not on frames: headless runs unthrottled, so thirty frames can
+	# be almost no simulated time at all and the bills would still be in the air.
+	await get_tree().create_timer(money.life + 0.3).timeout
+	_check("bills fall out of the air in time (%d left)" % money.in_flight(),
+		money.in_flight() == 0)
 	game.queue_free()
 	await get_tree().process_frame
 

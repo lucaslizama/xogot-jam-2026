@@ -26,7 +26,10 @@ func _ready() -> void:
 	_test_a_street_with_no_bodies_behaves_as_before()
 	_test_the_nearest_wall_stops_the_pizza()
 	_test_every_house_the_street_makes_is_solid()
+	_test_the_wall_does_not_stand_in_its_own_doorway()
+	_test_the_street_gives_every_house_the_same_doorstep()
 	_test_a_tier_is_earned_by_how_close_it_landed()
+	_test_every_tier_has_something_to_say()
 	_test_a_streak_pays_more_and_is_capped()
 	_test_a_miss_breaks_the_streak_but_keeps_the_tips()
 	_test_a_street_with_no_rules_still_plays()
@@ -259,6 +262,41 @@ func _test_every_house_the_street_makes_is_solid() -> void:
 
 # --- what a delivery is worth -------------------------------------------------
 
+## The bug this was written for: with the wall reaching all the way down, every
+## throw accurate enough to land in the drop point had to pass through the facade
+## on the way, so the wall took it and called it a scrape. A bullseye could not
+## happen at all, and the better the throw the worse the tier it earned.
+func _test_the_wall_does_not_stand_in_its_own_doorway() -> void:
+	var body := Vector2(20.0, 12.0)
+	var doorstep := 4.0
+	var street := StreetModel.new(_config(), 9, body, doorstep)
+	street.houses().clear()
+	street.houses().append(House.new(12.0, 22.0, 3.2, true, body, doorstep))
+
+	_check("a pizza skimming in at ankle height reaches the drop point",
+		street.struck_house(Vector3(12.0, 1.0, 18.0), Vector3(12.0, 0.0, 26.0)) == null)
+	_check("one arriving above the doorstep is still stopped by the wall",
+		street.struck_house(Vector3(12.0, 8.0, 18.0), Vector3(12.0, 8.0, 26.0)) != null)
+	_check("and one right on the doorstep's line is let through",
+		street.struck_house(Vector3(12.0, doorstep, 18.0), Vector3(12.0, doorstep, 26.0)) == null)
+
+	var street_without := StreetModel.new(_config(), 9, body, 0.0)
+	street_without.houses().clear()
+	street_without.houses().append(House.new(12.0, 22.0, 3.2, true, body, 0.0))
+	_check("with no doorstep the wall takes the low one, which was the bug",
+		street_without.struck_house(Vector3(12.0, 1.0, 18.0), Vector3(12.0, 0.5, 26.0)) != null)
+
+
+func _test_the_street_gives_every_house_the_same_doorstep() -> void:
+	var street := StreetModel.new(_config(), 12, Vector2(20.0, 12.0), 4.0)
+	var right := 0
+	for house in street.houses():
+		if is_equal_approx(house.doorstep, 4.0):
+			right += 1
+	_check("the houses the street stocked share its doorstep (%d of %d)"
+		% [right, street.houses().size()],
+		right == street.houses().size() and right > 0)
+
 func _test_a_tier_is_earned_by_how_close_it_landed() -> void:
 	var rules := ScoreRules.new()
 	rules.bullseye_fraction = 0.35
@@ -275,6 +313,26 @@ func _test_a_tier_is_earned_by_how_close_it_landed() -> void:
 		rules.tier_for(0.0, radius, true) == ScoreRules.ThrowTier.SCRAPED)
 	_check("a bullseye pays more than a scrape",
 		rules.tip_for(ScoreRules.ThrowTier.BULLSEYE) > rules.tip_for(ScoreRules.ThrowTier.SCRAPED))
+
+
+## The wording is a list now, picked from at random, so the same throw twice does
+## not say the same thing twice. An empty list has to say nothing rather than put
+## a blank box over the street.
+func _test_every_tier_has_something_to_say() -> void:
+	var rules := ScoreRules.new()
+	for tier in [ScoreRules.ThrowTier.BULLSEYE, ScoreRules.ThrowTier.NICE,
+			ScoreRules.ThrowTier.SCRAPED]:
+		var said := {}
+		for i in 60:
+			said[rules.label_for(tier)] = true
+		_check("tier %d has more than one thing to say (heard %d: %s)"
+			% [tier, said.size(), said.keys()],
+			said.size() > 1)
+		_check("and none of them is blank", not said.has(""))
+
+	rules.labels_nice = PackedStringArray()
+	_check("a tier with nothing written for it says nothing",
+		rules.label_for(ScoreRules.ThrowTier.NICE) == "")
 
 
 func _test_a_streak_pays_more_and_is_capped() -> void:
