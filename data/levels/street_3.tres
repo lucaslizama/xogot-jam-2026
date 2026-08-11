@@ -6,12 +6,12 @@
 [resource]
 script = ExtResource("1_8ksq6")
 pizzas_in_stack = 12
-strikes = 2
+strikes = 3
 time_of_day = ExtResource("2_04vtw")
 street_speed = 44.0
 gap_min = 23.0
 gap_max = 39.0
-distance_min = 66.0
-distance_max = 92.0
-drop_radius = 9.5
+distance_min = 64.0
+distance_max = 80.0
+drop_radius = 11.0
 waiting_chance = 0.55

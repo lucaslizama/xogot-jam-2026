@@ -125,6 +125,7 @@ func _test_every_house_can_be_reached() -> void:
 	while not hardest.step(1.0 / 240.0):
 		pass
 
+	var rules := ScoreRules.new()
 	for name in ["street_1", "street_2", "street_3"]:
 		var level: LevelConfig = load("res://data/levels/%s.tres" % name)
 		var needed: float = level.distance_max - level.drop_radius
@@ -134,6 +135,20 @@ func _test_every_house_can_be_reached() -> void:
 				% [name, hardest.distance - needed], hardest.distance >= needed + 3.0)
 		_check("%s: its nearest house is not trivially close (%.1f)" % [name, level.distance_min],
 			level.distance_min > 20.0)
+
+		# The near edge of the ring being in range is not enough. Street three
+		# once put its houses at 92 against a hardest throw of 88, which passed
+		# the check above and still meant the middle of those houses could not be
+		# landed on, their wall could not be reached, and a bullseye out there was
+		# arithmetically impossible. Nothing said so; the street simply felt unfair.
+		_check("%s: the middle of its furthest house can be landed on (%.1f, reach %.1f)"
+				% [name, level.distance_max, hardest.distance],
+			hardest.distance >= level.distance_max)
+		var bullseye_at: float = level.distance_max - level.drop_radius * rules.bullseye_fraction
+		_check("%s: and a bullseye out there is possible (needs %.1f)" % [name, bullseye_at],
+			hardest.distance >= bullseye_at)
+		_check("%s: its houses can be hit on the wall as well as the ring" % name,
+			hardest.distance >= level.distance_max)
 
 
 # --- landing ----------------------------------------------------------------
