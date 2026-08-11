@@ -9,6 +9,9 @@ extends Node2D
 ## the result on the display.
 
 signal round_ended(won: bool, delivered: int)
+## Which flavour is now in hand. Nothing about the round changes with it; it is
+## here for whatever comes to keep score of orders.
+signal flavour_changed(flavour: PizzaFlavour)
 
 @export_group("Content")
 ## Levels in order. Later entries should be tighter: fewer strikes, faster
@@ -17,6 +20,9 @@ signal round_ended(won: bool, delivered: int)
 @export var physics: PizzaPhysics
 @export var projection: StreetProjection
 @export var house_scene: PackedScene
+## What the shop sells. Leave it unset and there are no flavours, the swap does
+## nothing, and the pizza is the plain one the scene draws.
+@export var menu: PizzaMenu
 
 @export_group("Flow")
 @export var start_automatically: bool = true
@@ -49,6 +55,24 @@ signal round_ended(won: bool, delivered: int)
 ## How close to the waiting pizza a touch has to land to pick it up. Touches
 ## further away are ignored, so a stray tap cannot fling a pizza.
 @export_range(50.0, 800.0, 10.0) var grab_radius: float = 340.0
+## A tap on the road, away from the pizza, changes what is on the next one.
+##
+## It costs no screen space and no new gesture because that touch was already
+## being thrown away: a press outside [member grab_radius] has always been
+## discarded outright. What it does cost is time, which is the point — a couple of
+## taps at a quarter of a second each, spent while a house is closing on you.
+@export var tap_swaps_flavour: bool = true
+## A ring outside [member grab_radius] where a tap does nothing at all.
+##
+## Without it, reaching for the pizza and missing it by a few pixels would quietly
+## change the flavour, which is a bad thing to have happen in the middle of a
+## throw. The dead band makes a swap something you meant.
+@export_range(0.0, 400.0, 10.0) var swap_clearance: float = 120.0
+## How far a touch may travel and still count as a tap. Anything further is a
+## finger going somewhere, not asking for a different pizza.
+@export_range(0.0, 200.0, 5.0) var swap_tap_slop: float = 40.0
+## And how long it may be held. A press left down is not a tap either.
+@export_range(0.05, 2.0, 0.05) var swap_tap_time: float = 0.5
 ## How long the pizza takes to drop back into your hand after a fumble.
 @export_range(0.0, 1.0, 0.01) var return_duration: float = 0.18
 ## How much the pizza's sideways position at release shifts where the throw
@@ -101,9 +125,9 @@ signal round_ended(won: bool, delivered: int)
 @onready var _audio: GameAudio = $Audio
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
-@onready var _pizza: Node2D = $Pizza
+@onready var _pizza: PizzaView = $Pizza
 @onready var _shadow: GroundShadow = $Shadow
-@onready var _ready_pizza: Node2D = $ReadyPizza
+@onready var _ready_pizza: PizzaView = $ReadyPizza
 @onready var _splat: Node2D = $Splat
 @onready var _aim: AimPreview = $AimPreview
 @onready var _strikes: StrikeDots = %StrikeDots
@@ -153,6 +177,15 @@ var _splat_side: float = 0.0
 var _splat_distance: float = 0.0
 ## Counts down through the hold and then the fade; zero means nothing is lying there.
 var _splat_left: float = 0.0
+## Which way up the menu is. Counted rather than wrapped, so the menu decides how
+## long it is and this never has to know.
+var _flavour_at: int = 0
+## The touch that might turn out to be a tap on the road, and where and when it
+## started. A tap is only known to be one when it is let go, so the press has to be
+## remembered until then.
+var _swap_index: int = -1
+var _swap_from: Vector2
+var _swap_began: float = 0.0
 
 
 func _ready() -> void:
@@ -171,6 +204,9 @@ func _ready() -> void:
 	_shadow.visible = false
 	_splat.visible = false
 	_ready_home = _ready_pizza.position
+	# After _ready_home, which is what a tap is measured against: the pizza itself
+	# wanders about while it is being dragged, and the ring must not wander with it.
+	_apply_flavour()
 	_backdrop.projection = projection
 	($Sky as NightSky).projection = projection
 	($Street as StreetSurface).projection = projection
@@ -230,6 +266,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event is InputEventScreenTouch:
 		if event.pressed:
+			# Well clear of the pizza, so it cannot be a reach for it. Noted as a
+			# possible tap and answered on release, since a press that turns into a
+			# drag is a finger going somewhere and means nothing here.
+			if _is_clear_of_the_pizza(event.position):
+				_swap_index = event.index
+				_swap_from = event.position
+				_swap_began = now
+				return
 			# One pizza in the air at a time, and only if there is one to throw.
 			if _flight != null or not _state.can_throw() or _gesture.is_active():
 				return
@@ -244,6 +288,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			_returning = false
 			_gesture.begin(event.position, now)
 			_audio.play(&"pick_up")
+		elif event.index == _swap_index:
+			var held := now - _swap_began
+			# Typed rather than inferred: an InputEvent's position is a Variant, so
+			# the distance off it is one too, and := has nothing to work from.
+			var moved: float = event.position.distance_to(_swap_from)
+			_swap_index = -1
+			if held <= swap_tap_time and moved <= swap_tap_slop:
+				_next_flavour()
 		elif event.index == _touch_index and _gesture.is_active():
 			var flick := _gesture.release(event.position, now)
 			var windup := _gesture.windup()
@@ -259,6 +311,49 @@ func _unhandled_input(event: InputEvent) -> void:
 		_gesture.update(event.position, now)
 		_aim.show_for(_gesture.current_flick(), _gesture.windup())
 		_show_windup(event.position)
+	elif event is InputEventScreenDrag and event.index == _swap_index:
+		# Gone too far to be a tap. Given up on here rather than at the release, so
+		# a long drag that happens to end near where it began is not mistaken for
+		# one either.
+		if event.position.distance_to(_swap_from) > swap_tap_slop:
+			_swap_index = -1
+
+
+# --- what is on the next one -------------------------------------------------
+
+## Whether a touch is far enough from the waiting pizza to be about the menu
+## rather than about the throw. Everything inside the grab ring plus its clearance
+## belongs to the pizza, whether or not one is showing: the ring does not move when
+## the pizza is in the air, so the same patch of screen means the same thing all
+## the way through a throw.
+func _is_clear_of_the_pizza(where: Vector2) -> bool:
+	if not tap_swaps_flavour or menu == null or menu.count() < 2:
+		return false
+	return where.distance_to(_ready_home) > grab_radius + swap_clearance
+
+
+## Move one along the menu. Wraps by counting upwards, so adding a fourth flavour
+## needs nothing here.
+func _next_flavour() -> void:
+	_flavour_at += 1
+	_apply_flavour()
+	_audio.play(&"pick_up")
+
+
+## Put the flavour on the pizza in your hand, and say so.
+##
+## Only the waiting one. A pizza already in the air was thrown as whatever it was,
+## and changing it mid-flight would let a player pick the flavour after seeing
+## where the throw was going to land.
+func _apply_flavour() -> void:
+	var flavour := current_flavour()
+	_ready_pizza.flavour = flavour
+	flavour_changed.emit(flavour)
+
+
+## What the next throw will be. Null when there is no menu at all.
+func current_flavour() -> PizzaFlavour:
+	return menu.flavour_at(_flavour_at) if menu != null else null
 
 
 func _throw(flick: Vector2, windup: float) -> void:
@@ -278,6 +373,9 @@ func _throw(flick: Vector2, windup: float) -> void:
 	_ready_pizza.visible = false
 	_pizza.visible = true
 	_pizza.rotation = 0.0
+	# Fixed at the moment of release. What is in the air is what was in the hand,
+	# and tapping while it flies is preparing the next one.
+	_pizza.flavour = current_flavour()
 	_place_pizza()
 
 

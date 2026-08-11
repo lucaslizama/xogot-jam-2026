@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PizzaFlavour" format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/pizza_flavour.gd" id="1_flavour"]
+
+[resource]
+script = ExtResource("1_flavour")
+display_name = "Margherita"
+base = Color(0.93, 0.83, 0.56, 1)
+topping = Color(0.31, 0.53, 0.2, 1)
+toppings = 5
+topping_size = 0.085
+topping_spread = 0.5

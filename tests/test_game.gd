@@ -25,6 +25,10 @@ func _ready() -> void:
 	await _test_a_throw_starts_from_where_the_pizza_was()
 	await _test_a_street_cleared_is_handed_on()
 	await _test_a_street_lost_is_not_handed_on()
+	await _test_the_shop_sells_more_than_one_thing()
+	await _test_a_tap_on_the_road_changes_the_flavour()
+	await _test_a_tap_near_the_pizza_leaves_the_flavour_alone()
+	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -160,6 +164,11 @@ func _test_a_touch_away_from_the_pizza_does_nothing() -> void:
 	await get_tree().process_frame
 	_check("a flick far from the pizza throws nothing (%d -> %d)" % [before, game._state.pizzas_left],
 		game._state.pizzas_left == before and game._flight == null)
+	# Nor is it a tap asking for a different flavour. It began away from the pizza,
+	# which is where a tap lives, but it travelled 600 px to get to where it was let
+	# go, and a finger going somewhere is not a request for anything.
+	_check("and it is not read as a tap on the road either",
+		game.current_flavour() == game.menu.flavour_at(0))
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -500,8 +509,109 @@ func _spawn(development_build: bool = true) -> Node:
 
 
 ## A fast upward drag: touch, two moves, release. Fast enough to count as a throw.
+## The menu is data, and data can be filled in wrongly without anything breaking.
+## Two flavours drawn the same way would leave the swap invisible: the tap would
+## work, the order would tick, and the player would have no way to tell what they
+## were holding. Cheap to check, and impossible to notice by eye once the pizza is
+## the size it flies at.
+func _test_the_shop_sells_more_than_one_thing() -> void:
+	var game := await _spawn()
+	var menu: PizzaMenu = game.menu
+	_check("the game was given a menu", menu != null)
+	_check("with something on it (got %d)" % menu.count(), menu.count() >= 2)
+	_check("and the pizza in hand is the first thing on it",
+		game._ready_pizza.flavour == menu.flavour_at(0))
+
+	var seen_names := {}
+	var seen_looks := {}
+	for i in menu.count():
+		var f: PizzaFlavour = menu.flavour_at(i)
+		seen_names[f.display_name] = true
+		# What a player actually tells them apart by, once the pizza is small: how
+		# many toppings and how big, not only the hue.
+		seen_looks["%d/%.3f" % [f.toppings, f.topping_size]] = true
+	_check("every flavour has its own name (%d of %d)" % [seen_names.size(), menu.count()],
+		seen_names.size() == menu.count())
+	_check("and its own scatter of toppings (%d of %d)" % [seen_looks.size(), menu.count()],
+		seen_looks.size() == menu.count())
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The tap is the whole input for the swap, and it is deliberately a touch the
+## game used to throw away, so it is worth proving it now lands.
+func _test_a_tap_on_the_road_changes_the_flavour() -> void:
+	var game := await _spawn()
+	var menu: PizzaMenu = game.menu
+	var first: PizzaFlavour = game.current_flavour()
+
+	await _tap(Vector2(180.0, 640.0))
+	_check("a tap on the road moves one along the menu",
+		game.current_flavour() == menu.flavour_at(1))
+	_check("and the pizza in hand is drawn as it", game._ready_pizza.flavour == menu.flavour_at(1))
+
+	# Round the rest of the way. However long the menu is, tapping through it must
+	# come back to where it started rather than running off the end.
+	for i in menu.count() - 1:
+		await _tap(Vector2(180.0, 640.0))
+	_check("and %d taps come back round to the first" % menu.count(),
+		game.current_flavour() == first)
+
+	_check("no pizza was thrown by any of it (%d left)" % game._state.pizzas_left,
+		game._state.pizzas_left == 10 and game._flight == null)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## A player reaching for the pizza and missing it by a little must not find they
+## have changed flavour instead. That is the dead band around the grab ring, and it
+## is the reason the swap can be a bare tap at all.
+func _test_a_tap_near_the_pizza_leaves_the_flavour_alone() -> void:
+	var game := await _spawn()
+	var first: PizzaFlavour = game.current_flavour()
+	var home: Vector2 = game._ready_home
+
+	# Just outside the grab ring, so no throw begins, but inside the clearance.
+	var near := home + Vector2(0.0, -(game.grab_radius + game.swap_clearance * 0.5))
+	await _tap(near)
+	_check("a tap that just missed the pizza changes nothing",
+		game.current_flavour() == first and game._flight == null)
+
+	# And on the pizza itself, which is a grab and a fumble rather than a tap.
+	await _tap(home)
+	_check("nor does a tap on the pizza itself", game.current_flavour() == first)
+	await get_tree().create_timer(game.return_duration + 0.1).timeout
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## Tapping while a pizza is in the air prepares the next one. It must not reach
+## back and change the one already thrown, or a player could wait to see where a
+## throw was going to land before deciding what it had been all along.
+func _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as() -> void:
+	var game := await _spawn()
+	var thrown: PizzaFlavour = game.current_flavour()
+	await _flick(game, 600.0)
+	_check("the pizza in the air is what was in the hand", game._pizza.flavour == thrown)
+
+	await _tap(Vector2(180.0, 640.0))
+	_check("a tap mid-flight leaves it alone", game._pizza.flavour == thrown)
+	_check("and changes what comes next instead", game.current_flavour() != thrown)
+	game.queue_free()
+	await get_tree().process_frame
+
+
 func _flick(game: Node, travel: float) -> void:
 	await _drag(game, travel, 0.0)
+
+
+## Press and release in the same place. Deliberately not routed through _drag,
+## which starts on the pizza and moves: a tap is the absence of both.
+func _tap(pos: Vector2) -> void:
+	_touch(true, pos)
+	await get_tree().process_frame
+	_touch(false, pos)
+	await get_tree().process_frame
 
 
 ## `step_delay` is the real time between each movement. It has to sit BETWEEN

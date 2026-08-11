@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PizzaFlavour" format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/pizza_flavour.gd" id="1_flavour"]
+
+[resource]
+script = ExtResource("1_flavour")
+display_name = "Hawaiian"
+base = Color(0.9, 0.76, 0.47, 1)
+topping = Color(0.97, 0.82, 0.25, 1)
+toppings = 14
+topping_size = 0.075
+topping_spread = 0.75

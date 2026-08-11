@@ -47,5 +47,11 @@ func _draw() -> void:
 	draw_rect(rect, colour)
 	draw_rect(rect, outline, false, maxf(2.0, size.x * 0.04))
 	if corner_mark:
-		var mark := size * 0.24
-		draw_rect(Rect2(rect.position + mark * 0.35, mark), mark_colour)
+		draw_corner_mark(rect)
+
+
+## Split out so a subclass drawing its own box can still put the mark on it,
+## rather than copying these three lines and drifting from them.
+func draw_corner_mark(rect: Rect2) -> void:
+	var mark := size * 0.24
+	draw_rect(Rect2(rect.position + mark * 0.35, mark), mark_colour)

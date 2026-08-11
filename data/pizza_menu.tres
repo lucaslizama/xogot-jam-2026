@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PizzaMenu" format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/pizza_menu.gd" id="1_menu"]
+[ext_resource type="Script" path="res://scripts/pizza/pizza_flavour.gd" id="2_flavour"]
+[ext_resource type="Resource" path="res://data/flavours/pepperoni.tres" id="3_pep"]
+[ext_resource type="Resource" path="res://data/flavours/margherita.tres" id="4_marg"]
+[ext_resource type="Resource" path="res://data/flavours/hawaiian.tres" id="5_haw"]
+
+[resource]
+script = ExtResource("1_menu")
+flavours = Array[ExtResource("2_flavour")]([ExtResource("3_pep"), ExtResource("4_marg"), ExtResource("5_haw")])
