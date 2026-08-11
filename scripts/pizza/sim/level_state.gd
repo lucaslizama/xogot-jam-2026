@@ -94,6 +94,33 @@ func note_delivery(tier: ScoreRules.ThrowTier = ScoreRules.ThrowTier.NICE) -> in
 	return award
 
 
+## Money from something other than a throw — filling an order. Straight onto the
+## tips and nothing else: it is not a delivery, so it does not touch the streak or
+## the count of pizzas that arrived.
+func award_bonus(amount: int) -> void:
+	if _over or amount <= 0:
+		return
+	tips += amount
+	tips_changed.emit(tips)
+
+
+## Hand a spent strike back. Never above what the street began with, so a bonus
+## cannot give the player a chance the level never budgeted for, and never once the
+## round is over — a lost street stays lost.
+##
+## Returns whether there was in fact one to give back, so a caller can say so only
+## when it happened rather than promising a chance it did not hand over.
+func restore_strike() -> bool:
+	if _over or _config == null:
+		return false
+	var budget := clampi(_config.strikes, 1, _max_strikes)
+	if strikes_left >= budget:
+		return false
+	strikes_left += 1
+	strikes_changed.emit(strikes_left)
+	return true
+
+
 func note_miss() -> void:
 	if _over:
 		return

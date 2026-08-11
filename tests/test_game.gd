@@ -29,6 +29,9 @@ func _ready() -> void:
 	await _test_a_tap_on_the_road_changes_the_flavour()
 	await _test_a_tap_near_the_pizza_leaves_the_flavour_alone()
 	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
+	await _test_the_first_street_asks_for_no_orders()
+	await _test_a_ticket_shows_what_is_wanted_and_pays_when_filled()
+	await _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw()
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -491,6 +494,97 @@ func _test_the_tuning_tools_are_absent_from_a_shipped_build() -> void:
 	_check("a build we are running still offers them", dev_panel.is_available())
 	_check("and its button is on screen", dev_panel.visible)
 	ours.queue_free()
+
+
+## Authoring, not code, but worth pinning: the opening street is meant to teach the
+## throw with nothing else on screen to read. Somebody wiring orders into every
+## street would be undoing that on purpose, and should have to change a test to say
+## so.
+func _test_the_first_street_asks_for_no_orders() -> void:
+	var game := await _spawn()
+	_check("the first street has no orders", game._orders_for(game.levels[0]) == null)
+	_check("and none turned up on it", game._orders.open_order() == null)
+	_check("but later streets do (%d levels)" % game.levels.size(),
+		game.levels.size() > 1 and game._orders_for(game.levels[1]) != null)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The whole chain, from a ticket being written to the money landing: the board's
+## signals, the handlers, the real ticket scene and LevelState's bonus. Driven by
+## handing the board rules with no delay rather than by waiting out the seven
+## seconds a real street takes.
+func _test_a_ticket_shows_what_is_wanted_and_pays_when_filled() -> void:
+	var game := await _spawn()
+	var ticket: OrderTicket = game.get_node("Ui/OrderTicket")
+	var rules := OrderRules.new()
+	rules.first_after = 0.0
+	rules.items_min = 2
+	rules.items_max = 2
+	rules.kinds_max = 1
+	rules.seconds_min = 30.0
+	rules.seconds_max = 30.0
+	rules.pays = 800
+	rules.gives_strike_back = false
+
+	game._orders.begin(rules, game.menu, 4)
+	game._orders.advance(0.1)
+	await get_tree().process_frame
+	var order: PizzaOrder = game._orders.open_order()
+	_check("a ticket was written", order != null)
+	_check("and it is on screen", ticket.visible)
+
+	var row: Label = ticket.get_node("Lines/Line1")
+	_check("the first row says what is wanted (%s)" % row.text,
+		row.text.contains(order.wants[0].display_name) and row.text.begins_with("0/"))
+	var spare: Label = ticket.get_node("Lines/Line3")
+	_check("and rows the ticket does not need are hidden", not spare.visible)
+
+	# One of two: the row must move without the ticket being done with.
+	var tips_before: int = game._state.tips
+	game._orders.note_delivery(order.wants[0])
+	await get_tree().process_frame
+	_check("delivering one moves the row on (%s)" % row.text, row.text.begins_with("1/"))
+	_check("and pays nothing yet", game._state.tips == tips_before)
+
+	game._orders.note_delivery(order.wants[0])
+	await get_tree().process_frame
+	_check("filling it pays the bonus (%d -> %d)" % [tips_before, game._state.tips],
+		game._state.tips == tips_before + 800)
+	_check("and the ticket says it is done", ticket.get_node("Verdict").visible)
+	_check("with nothing left on the board", game._orders.open_order() == null)
+
+	# The verdict is on a tween, and freeing the game mid-tween is what the recorded
+	# leak was. Let it play out.
+	await get_tree().create_timer(ticket.verdict_linger + ticket.arrive_duration + 0.1).timeout
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The scene decides how many lines a ticket can have, the same way it decides how
+## many strikes there can be. A rules file asking for more would put a line on the
+## ticket nobody can see, and then hold the order open waiting for it.
+func _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw() -> void:
+	var game := await _spawn()
+	var ticket: OrderTicket = game.get_node("Ui/OrderTicket")
+	var rows := ticket.line_capacity()
+	_check("the ticket scene has rows to draw with (got %d)" % rows, rows >= 2)
+
+	var greedy := OrderRules.new()
+	greedy.kinds_max = rows + 4
+	var used: OrderRules = game._orders_for_rules(greedy)
+	_check("a greedy rules file is clamped to the rows there are (got %d)" % used.kinds_max,
+		used.kinds_max == rows)
+	_check("on a copy, leaving the original as it was written (still %d)" % greedy.kinds_max,
+		greedy.kinds_max == rows + 4)
+
+	# And a modest one is passed straight through rather than needlessly copied.
+	var modest := OrderRules.new()
+	modest.kinds_max = 1
+	_check("a rules file within its means is used as it is",
+		game._orders_for_rules(modest) == modest)
+	game.queue_free()
+	await get_tree().process_frame
 
 
 # --- helpers ----------------------------------------------------------------

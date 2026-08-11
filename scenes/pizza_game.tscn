@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/sim/level_state.gd" id="2_state"]
@@ -35,6 +35,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/handoff.tscn" id="32_handoff"]
 [ext_resource type="Script" path="res://scripts/pizza/view/pizza_view.gd" id="33_pizzaview"]
 [ext_resource type="Resource" path="res://data/pizza_menu.tres" id="34_menu"]
+[ext_resource type="PackedScene" path="res://scenes/ui/order_ticket.tscn" id="36_ticket"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -167,6 +168,9 @@ mouse_filter = 2
 text = "$0"
 horizontal_alignment = 2
 vertical_alignment = 1
+
+[node name="OrderTicket" parent="Ui" instance=ExtResource("36_ticket")]
+unique_name_in_owner = true
 
 [node name="MoneyBurst" type="Node2D" parent="Ui"]
 unique_name_in_owner = true

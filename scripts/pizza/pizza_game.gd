@@ -135,6 +135,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _tip_popup: TipPopup = %TipPopup
 @onready var _money: MoneyBurst = %MoneyBurst
 @onready var _handoff: Handoff = %Handoff
+@onready var _ticket: OrderTicket = %OrderTicket
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
 @onready var _debug: DebugPanel = %DebugPanel
@@ -186,6 +187,13 @@ var _flavour_at: int = 0
 var _swap_index: int = -1
 var _swap_from: Vector2
 var _swap_began: float = 0.0
+## The tickets from the shop. Made once and told to begin again at each street, so
+## nothing about it outlives a round.
+var _orders := OrderBoard.new()
+## What the pizza in the air was topped with, taken at release. Not read back off
+## the pizza when it lands, because by then it may have been retopped for the next
+## throw and the order would be credited to the wrong flavour.
+var _flight_flavour: PizzaFlavour
 
 
 func _ready() -> void:
@@ -199,6 +207,10 @@ func _ready() -> void:
 	_result.again_pressed.connect(_on_again)
 	_handoff.finished.connect(_show_result_card)
 	_debug.win_requested.connect(_win_street_now)
+	_orders.opened.connect(_ticket.show_order)
+	_orders.progressed.connect(_on_order_progressed)
+	_orders.completed.connect(_on_order_filled)
+	_orders.expired.connect(_on_order_lost)
 	_result.hide()
 	_pizza.visible = false
 	_shadow.visible = false
@@ -240,6 +252,8 @@ func start_level() -> void:
 	_result.hide()
 	_strikes_seen = -1
 	_state.begin(_config)
+	_ticket.clear()
+	_orders.begin(_orders_for(_config), menu, street_seed + _level_index * 7919)
 
 
 func _process(delta: float) -> void:
@@ -248,6 +262,8 @@ func _process(delta: float) -> void:
 	if not _state.is_over():
 		_street.advance(delta)
 		_travelled += _config.street_speed * delta
+		_orders.advance(delta)
+		_ticket.show_clock_of(_orders.open_order())
 	_backdrop.set_travelled(_travelled)
 	($Street as StreetSurface).set_travelled(_travelled)
 	_advance_hour(delta)
@@ -375,7 +391,8 @@ func _throw(flick: Vector2, windup: float) -> void:
 	_pizza.rotation = 0.0
 	# Fixed at the moment of release. What is in the air is what was in the hand,
 	# and tapping while it flies is preparing the next one.
-	_pizza.flavour = current_flavour()
+	_flight_flavour = current_flavour()
+	_pizza.flavour = _flight_flavour
 	_place_pizza()
 
 
@@ -455,12 +472,65 @@ func _resolve_landing(struck: House = null,
 		var award := _state.note_delivery(tier)
 		_show_tip(landed_at, tier, award, _state.streak)
 		_audio.play(&"delivered")
+		# After the tip, so an order being filled has the last word on screen rather
+		# than arriving underneath what the throw itself paid.
+		_orders.note_delivery(_flight_flavour)
 	else:
 		_drop_splat(landed_side, landed_distance)
 		_state.note_miss()
 		_audio.play(&"missed")
 	# Only now can the round be won: the last throw still had to land.
 	_state.note_flight_settled()
+
+
+# --- orders ------------------------------------------------------------------
+
+## Which rules a street takes its orders from, clamped to what the ticket can draw.
+##
+## A rules file asking for more flavours in one ticket than the scene has rows would
+## put a line on the ticket the player cannot see, and then hold the order open
+## waiting for a pizza nothing ever asked for. Clamped on a copy so the file on disk
+## is left as the designer wrote it.
+func _orders_for(config: LevelConfig) -> OrderRules:
+	if config == null or config.orders == null:
+		return null
+	return _orders_for_rules(config.orders)
+
+
+## The clamp itself, apart from the level that carried the rules, so it can be
+## checked without authoring a level to check it with.
+func _orders_for_rules(rules: OrderRules) -> OrderRules:
+	var rows := _ticket.line_capacity()
+	if rules.kinds_max <= rows:
+		return rules
+	push_warning("PizzaGame: order rules ask for up to %d flavours a ticket but the ticket scene only has %d rows; clamping. Add rows in order_ticket.tscn to raise the ceiling."
+		% [rules.kinds_max, rows])
+	var clamped := rules.duplicate() as OrderRules
+	clamped.kinds_max = rows
+	return clamped
+
+
+func _on_order_progressed(order: PizzaOrder) -> void:
+	_ticket.update_order(order)
+
+
+## Filling one pays, and on the harder streets hands a spent chance back. The money
+## bursts where the last pizza landed rather than over the ticket: that is where the
+## player is looking, and it is the throw that earned it.
+func _on_order_filled(order: PizzaOrder) -> void:
+	_state.award_bonus(order.pays)
+	var gave_one_back := order.gives_strike_back and _state.restore_strike()
+	_ticket.update_order(order)
+	_ticket.close_order(_ticket.filled_wording, _ticket.line_filled, order.pays,
+		gave_one_back)
+	_money.burst(_last_landing, _money.bills_for(ScoreRules.ThrowTier.WINDOW))
+	_audio.play(&"delivered")
+
+
+## Losing one costs nothing but the bonus, so it is said quietly and with no sound.
+## A noise here would be indistinguishable from a strike.
+func _on_order_lost(_order: PizzaOrder) -> void:
+	_ticket.close_order(_ticket.expired_wording, _ticket.line_owed, 0, false)
 
 
 # --- tips --------------------------------------------------------------------
@@ -782,6 +852,11 @@ func _on_strikes_changed(left: int) -> void:
 
 func _on_round_ended(won: bool, delivered: int) -> void:
 	_clear_flight()
+	# Silently, verdict and all. A street ending under an open ticket is not the
+	# player having failed that ticket, and "order gone" over the result card would
+	# say it was.
+	_orders.close()
+	_ticket.clear()
 	_audio.play(&"round_won" if won else &"round_lost")
 	# A street cleared is passed on to the next rider before the card says what it
 	# paid. A street lost has nothing to hand over, so it goes straight to the

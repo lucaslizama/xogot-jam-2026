@@ -1,0 +1,90 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/ui/order_ticket.gd" id="1_ticket"]
+[ext_resource type="Theme" path="res://data/ui_theme.tres" id="2_theme"]
+
+[node name="OrderTicket" type="Control"]
+theme = ExtResource("2_theme")
+offset_left = 40.0
+offset_top = 190.0
+offset_right = 600.0
+offset_bottom = 470.0
+mouse_filter = 2
+script = ExtResource("1_ticket")
+
+[node name="Card" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.13, 0.1, 0.18, 0.82)
+mouse_filter = 2
+
+[node name="Heading" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.62)
+theme_type_variation = &"Caption"
+offset_left = 28.0
+offset_top = 12.0
+offset_right = 532.0
+offset_bottom = 62.0
+mouse_filter = 2
+text = "ORDER"
+vertical_alignment = 1
+
+[node name="Lines" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 28.0
+offset_top = 68.0
+offset_right = 532.0
+offset_bottom = 236.0
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Line1" type="Label" parent="Lines"]
+theme_type_variation = &"Caption"
+layout_mode = 2
+mouse_filter = 2
+text = "0/2  Pepperoni"
+
+[node name="Line2" type="Label" parent="Lines"]
+theme_type_variation = &"Caption"
+layout_mode = 2
+mouse_filter = 2
+text = "0/1  Hawaiian"
+
+[node name="Line3" type="Label" parent="Lines"]
+visible = false
+theme_type_variation = &"Caption"
+layout_mode = 2
+mouse_filter = 2
+text = "0/1  Margherita"
+
+[node name="ClockTrack" type="Control" parent="."]
+unique_name_in_owner = true
+offset_left = 28.0
+offset_top = 246.0
+offset_right = 532.0
+offset_bottom = 264.0
+mouse_filter = 2
+
+[node name="Clock" type="ColorRect" parent="ClockTrack"]
+unique_name_in_owner = true
+offset_right = 504.0
+offset_bottom = 18.0
+color = Color(0.36, 0.71, 0.9, 1)
+mouse_filter = 2
+
+[node name="Verdict" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+theme_type_variation = &"Caption"
+offset_left = 28.0
+offset_top = 90.0
+offset_right = 532.0
+offset_bottom = 190.0
+mouse_filter = 2
+text = "ORDER UP!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

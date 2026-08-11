@@ -30,6 +30,12 @@ extends Resource
 ## keep the street from reading as a shooting gallery.
 @export_range(0.0, 1.0, 0.05) var waiting_chance: float = 0.62
 
+@export_group("Orders")
+## How this street asks for orders. Leave it unset and it asks for none, which is a
+## fair way to author an opening street: the player learns to throw before they are
+## given anything else to read.
+@export var orders: OrderRules
+
 @export_group("Streaming")
 ## Houses are kept stocked out to this far ahead along the street.
 @export_range(20.0, 800.0, 5.0) var spawn_ahead: float = 230.0

@@ -2,9 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/pizza/rules/level_config.gd" id="1_8ksq6"]
 [ext_resource type="Resource" path="res://data/daylight/day.tres" id="2_04vtw"]
+[ext_resource type="Resource" path="res://data/orders_hard.tres" id="3_orders"]
 
 [resource]
 script = ExtResource("1_8ksq6")
+orders = ExtResource("3_orders")
 pizzas_in_stack = 12
 strikes = 3
 time_of_day = ExtResource("2_04vtw")

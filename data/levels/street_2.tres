@@ -2,9 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/pizza/rules/level_config.gd" id="1_m32sf"]
 [ext_resource type="Resource" path="res://data/daylight/sunrise.tres" id="2_vv3tl"]
+[ext_resource type="Resource" path="res://data/orders.tres" id="3_orders"]
 
 [resource]
 script = ExtResource("1_m32sf")
+orders = ExtResource("3_orders")
 pizzas_in_stack = 12
 time_of_day = ExtResource("2_vv3tl")
 street_speed = 36.0

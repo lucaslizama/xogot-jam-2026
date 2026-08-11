@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="OrderRules" format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/rules/order_rules.gd" id="1_orders"]
+
+[resource]
+script = ExtResource("1_orders")
+first_after = 6.0
+gap_after = 4.5
+items_min = 2
+items_max = 3
+kinds_max = 2
+seconds_min = 18.0
+seconds_max = 24.0
+pays = 500
+gives_strike_back = true

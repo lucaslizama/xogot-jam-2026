@@ -38,6 +38,16 @@ func _ready() -> void:
 	_test_round_is_won_when_the_stack_empties()
 	_test_round_is_not_won_before_the_last_pizza_lands()
 	_test_strikes_are_clamped_to_the_dots_available()
+	_test_a_street_with_no_order_rules_never_asks()
+	_test_an_order_turns_up_when_it_is_due()
+	_test_an_order_only_asks_for_things_on_the_menu()
+	_test_delivering_what_was_asked_fills_the_order()
+	_test_a_flavour_nobody_asked_for_is_ignored()
+	_test_a_line_already_full_takes_no_more()
+	_test_an_order_that_runs_out_costs_nothing()
+	_test_a_street_ending_drops_the_open_order_quietly()
+	_test_a_bonus_pays_without_counting_as_a_delivery()
+	_test_a_chance_back_never_beats_the_budget()
 
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
 	for f in _failures:
@@ -557,6 +567,251 @@ func _same(a: StreetModel, b: StreetModel) -> bool:
 		if not is_equal_approx(a.houses()[i].distance, b.houses()[i].distance):
 			return false
 	return true
+
+
+# --- orders -----------------------------------------------------------------
+
+## A street with nothing in its orders slot has no orders at all. That is how the
+## first street is authored: the player learns to throw before they are given
+## anything else to read.
+func _test_a_street_with_no_order_rules_never_asks() -> void:
+	var board := OrderBoard.new()
+	board.begin(null, _menu(), 1)
+	for i in 200:
+		board.advance(0.5)
+	_check("no rules means no orders, ever", board.open_order() == null)
+
+	# And the same for rules with nothing to ask for, which is the other way the
+	# board can be handed an impossible job.
+	var empty := PizzaMenu.new()
+	board.begin(_order_rules(), empty, 1)
+	for i in 200:
+		board.advance(0.5)
+	_check("nor does an empty menu", board.open_order() == null)
+
+
+func _test_an_order_turns_up_when_it_is_due() -> void:
+	var rules := _order_rules()
+	rules.first_after = 5.0
+	var board := OrderBoard.new()
+	board.begin(rules, _menu(), 1)
+
+	board.advance(4.0)
+	_check("nothing on the board before it is due", board.open_order() == null)
+	board.advance(1.5)
+	_check("and a ticket once it is", board.open_order() != null)
+
+
+func _test_an_order_only_asks_for_things_on_the_menu() -> void:
+	var menu := _menu()
+	var rules := _order_rules()
+	rules.first_after = 0.0
+	rules.items_min = 3
+	rules.items_max = 3
+	rules.kinds_max = 2
+
+	# Dealt many times over rather than once: the ticket is random, and a rule that
+	# holds for one deal says nothing about the next.
+	var all_on_menu := true
+	var every_line_wants_one := true
+	var totals_right := true
+	var kinds_capped := true
+	for seed_value in 40:
+		var board := OrderBoard.new()
+		board.begin(rules, menu, seed_value)
+		board.advance(0.1)
+		var order := board.open_order()
+		for i in order.line_count():
+			if menu.flavours.find(order.wants[i]) < 0:
+				all_on_menu = false
+			if order.line(i).x < 1:
+				every_line_wants_one = false
+		if order.total_needed() != 3:
+			totals_right = false
+		if order.line_count() > 2:
+			kinds_capped = false
+
+	_check("every flavour asked for is on the menu", all_on_menu)
+	_check("no line asks for nothing", every_line_wants_one)
+	_check("the total is what the rules asked for", totals_right)
+	_check("and no more kinds than the rules allow", kinds_capped)
+
+
+func _test_delivering_what_was_asked_fills_the_order() -> void:
+	var rules := _order_rules()
+	rules.first_after = 0.0
+	rules.pays = 750
+	var board := OrderBoard.new()
+	board.begin(rules, _menu(), 3)
+	board.advance(0.1)
+	var order := board.open_order()
+
+	var completed: Array[PizzaOrder] = []
+	board.completed.connect(func(o: PizzaOrder) -> void: completed.append(o))
+
+	# Deliver exactly what it asked for, line by line.
+	for i in order.line_count():
+		for n in order.line(i).x:
+			board.note_delivery(order.wants[i])
+
+	_check("filling every line completes the order", completed.size() == 1)
+	_check("the board says so too (%d filled)" % board.filled, board.filled == 1)
+	_check("and remembers what it paid (got %d)" % board.earned, board.earned == 750)
+	_check("the ticket comes off the board", board.open_order() == null)
+
+
+func _test_a_flavour_nobody_asked_for_is_ignored() -> void:
+	# A menu of two, and a ticket that can only name one of them.
+	var menu := _menu()
+	var rules := _order_rules()
+	rules.first_after = 0.0
+	rules.items_min = 1
+	rules.items_max = 1
+	rules.kinds_max = 1
+	var board := OrderBoard.new()
+	board.begin(rules, menu, 5)
+	board.advance(0.1)
+	var order := board.open_order()
+
+	var unwanted: PizzaFlavour = menu.flavours[0]
+	if unwanted == order.wants[0]:
+		unwanted = menu.flavours[1]
+
+	var moved := false
+	board.progressed.connect(func(_o: PizzaOrder) -> void: moved = true)
+	board.completed.connect(func(_o: PizzaOrder) -> void: moved = true)
+	board.note_delivery(unwanted)
+	_check("a flavour the ticket never asked for does nothing", not moved)
+	_check("and leaves the ticket where it was", board.open_order() == order)
+
+	# Nor does no flavour at all, which is what a street with no menu delivers.
+	board.note_delivery(null)
+	_check("nor does a pizza with nothing on it", not moved)
+
+
+## Two pepperoni wanted and a hawaiian owed: a third pepperoni must not fill the
+## hawaiian line just because the ticket is still open.
+func _test_a_line_already_full_takes_no_more() -> void:
+	var order := PizzaOrder.new()
+	var pepperoni := _flavour("Pepperoni")
+	var hawaiian := _flavour("Hawaiian")
+	order.wants = [pepperoni, hawaiian] as Array[PizzaFlavour]
+	order.needed = PackedInt32Array([2, 1])
+	order.done = PackedInt32Array([0, 0])
+
+	_check("the first pepperoni counts", order.take(pepperoni))
+	_check("and the second", order.take(pepperoni))
+	_check("but not a third", not order.take(pepperoni))
+	_check("the order is not filled by them alone", not order.is_filled())
+	_check("the hawaiian finishes it", order.take(hawaiian) and order.is_filled())
+
+
+func _test_an_order_that_runs_out_costs_nothing() -> void:
+	var rules := _order_rules()
+	rules.first_after = 0.0
+	rules.seconds_min = 6.0
+	rules.seconds_max = 6.0
+	var board := OrderBoard.new()
+	board.begin(rules, _menu(), 7)
+	board.advance(0.1)
+	_check("a ticket is up", board.open_order() != null)
+
+	var lost: Array[PizzaOrder] = []
+	board.expired.connect(func(o: PizzaOrder) -> void: lost.append(o))
+	for i in 20:
+		board.advance(0.5)
+	_check("it is lost once the clock runs out", lost.size() >= 1)
+	_check("the board counts it (%d lost)" % board.lost, board.lost >= 1)
+	_check("and nothing was earned by it (got %d)" % board.earned, board.earned == 0)
+
+
+## A round ending under an open ticket is not the player failing that ticket, so no
+## verdict is announced for it.
+func _test_a_street_ending_drops_the_open_order_quietly() -> void:
+	var rules := _order_rules()
+	rules.first_after = 0.0
+	var board := OrderBoard.new()
+	board.begin(rules, _menu(), 11)
+	board.advance(0.1)
+
+	var spoke := false
+	board.expired.connect(func(_o: PizzaOrder) -> void: spoke = true)
+	board.completed.connect(func(_o: PizzaOrder) -> void: spoke = true)
+	board.close()
+	_check("closing the board says nothing about the open ticket", not spoke)
+	_check("and takes it off the board", board.open_order() == null)
+
+	# And a closed board is deaf: a late landing cannot fill a ticket that is gone.
+	for i in 40:
+		board.advance(0.5)
+	_check("a closed board writes no more tickets", board.open_order() == null and not spoke)
+
+
+func _test_a_bonus_pays_without_counting_as_a_delivery() -> void:
+	var state := LevelState.new()
+	state.scoring = ScoreRules.new()
+	state.begin(_config())
+	state.note_delivery(ScoreRules.ThrowTier.NICE)
+	var tips_before := state.tips
+	var streak_before := state.streak
+	var delivered_before := state.delivered
+
+	state.award_bonus(900)
+	_check("a bonus goes onto the tips (%d -> %d)" % [tips_before, state.tips],
+		state.tips == tips_before + 900)
+	_check("without touching the streak", state.streak == streak_before)
+	_check("and without counting as a pizza delivered", state.delivered == delivered_before)
+	state.free()
+
+
+func _test_a_chance_back_never_beats_the_budget() -> void:
+	var state := LevelState.new()
+	var config := _config()
+	config.strikes = 3
+	state.begin(config)
+
+	_check("nothing to give back on a clean street", not state.restore_strike())
+	_check("and the count is untouched (got %d)" % state.strikes_left, state.strikes_left == 3)
+
+	state.note_miss()
+	state.note_miss()
+	_check("a spent chance can be handed back", state.restore_strike())
+	_check("one at a time (got %d)" % state.strikes_left, state.strikes_left == 2)
+	_check("and only up to what the street began with",
+		state.restore_strike() and not state.restore_strike() and state.strikes_left == 3)
+
+	# A lost street stays lost: the last strike is not refundable.
+	state.note_miss()
+	state.note_miss()
+	state.note_miss()
+	_check("a lost round takes nothing back", not state.restore_strike())
+	state.free()
+
+
+func _flavour(named: String) -> PizzaFlavour:
+	var flavour := PizzaFlavour.new()
+	flavour.display_name = named
+	return flavour
+
+
+## Two flavours is the smallest menu that can tell "wanted" from "not wanted" apart.
+func _menu() -> PizzaMenu:
+	var menu := PizzaMenu.new()
+	menu.flavours.assign([_flavour("Pepperoni"), _flavour("Hawaiian")])
+	return menu
+
+
+func _order_rules() -> OrderRules:
+	var rules := OrderRules.new()
+	rules.first_after = 0.0
+	rules.gap_after = 1.0
+	rules.items_min = 2
+	rules.items_max = 2
+	rules.kinds_max = 2
+	rules.seconds_min = 20.0
+	rules.seconds_max = 20.0
+	rules.pays = 500
+	return rules
 
 
 func _check(what: String, ok: bool) -> void:
