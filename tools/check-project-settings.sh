@@ -86,26 +86,12 @@ expect 'window/stretch/aspect.web' '"keep"' \
 expect 'pointing/emulate_touch_from_mouse' 'true' \
     'The game is touch only. Without this it cannot be played, or tested, with a mouse.'
 
-# --- the export presets, which the editor rewrites just as readily ------------
-
-# Only when checking the project as it stands. The hook hands us one staged file
-# and has nothing to say about this one.
-if [ "$file" = "$repo/project.godot" ] && [ -f "$repo/export_presets.cfg" ]; then
-    # iPhone Safari will not put a web page fullscreen, so the only route to a
-    # game without a browser round it is adding it to the home screen, and that
-    # needs these tags in the page's head. They live in a file the editor writes
-    # out whenever an export setting changes, so they are easy to lose without
-    # noticing: nothing breaks, the game merely opens with Safari's furniture
-    # round it for ever after.
-    for tag in "apple-mobile-web-app-capable" "viewport-fit=cover"; do
-        checked=$((checked + 1))
-        if ! grep -q "$tag" "$repo/export_presets.cfg"; then
-            printf '  MISSING  %s, from the Web preset head include in export_presets.cfg\n' "$tag"
-            printf '           Without it an iPhone player cannot get the browser out of the way.\n'
-            failures=$((failures + 1))
-        fi
-    done
-fi
+# The Web preset's head include is deliberately not checked. It carries the tags
+# an iPhone needs to run the game from the home screen without Safari round it,
+# and they work, but only for somebody who has opened the game at its own address
+# rather than through the itch page, which is a path no player is going to find.
+# Guarding something nobody depends on only teaches people that a failure here can
+# be ignored, and then a real one is ignored too.
 
 # --- shape rather than an exact value ---------------------------------------
 

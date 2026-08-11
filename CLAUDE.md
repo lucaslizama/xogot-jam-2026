@@ -96,6 +96,17 @@ and delete the script afterwards.
 project setting the command line will not name. Open the editor's export dialog,
 which prints the real reason.
 
+**The fullscreen button on itch does nothing on an iPhone, and cannot be made
+to.** iPhone Safari does not put a page fullscreen: the API arrived in 17.2 but
+sits behind a flag the player has to switch on, so itch treats the iPhone as
+unsupported and fills the browser window instead. iPad works because iPadOS
+implements it, which is why the same build behaves differently on the two. The
+Web preset's head include carries the tags for running from the home screen
+without Safari round it, and they do work, but only from the game's own address
+rather than the itch page, which is a path no player will find. Investigated on 11
+August 2026 and left alone deliberately. The useful question is not fullscreen but
+whether the game uses all the room Safari does give it.
+
 **Adding an `@export` to a `@tool` script while the editor is open breaks that
 script in the editor until the project is reloaded.** The editor keeps an instance
 built from the old property list, so every new export reads back as `nil`. A
