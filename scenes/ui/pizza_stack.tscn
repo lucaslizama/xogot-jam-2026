@@ -4,9 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://donsuvaswcfqs" path="res://sprites/pizza_box.png" id="2_box"]
 
 [node name="PizzaStack" type="Control"]
-; Anchors left at the top-left corner on purpose. This lives in the world under
-; a Node2D rather than under a CanvasLayer, so nothing hands it the screen and
-; the script claims it instead. Full-rect anchors here would fight that.
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1170.0
@@ -15,11 +12,6 @@ mouse_filter = 2
 script = ExtResource("1_stack")
 
 [node name="Boxes" type="Control" parent="."]
-; Positioned by PizzaStack.place_on from the rider's rack, so no anchors: it used
-; to hang off the viewport's bottom-right corner, which put the boxes somewhere
-; different relative to the bike on every screen shape. The size here is one box,
-; only so the editor has something to show; the boxes below place themselves off
-; this origin and the whole lot is scaled to the width of the rack.
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 190.0

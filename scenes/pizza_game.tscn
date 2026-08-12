@@ -145,9 +145,6 @@ scale = Vector2(0.6914, 0.6914)
 
 [node name="PizzaStack" parent="." instance=ExtResource("8_stack")]
 unique_name_in_owner = true
-; Behind the rider, not in front of her. The rack is further up the street than she
-; is, so she occludes it; in the aiming pose she holds a box up over the rack, and
-; drawn the other way round the stack covers her hand.
 z_index = -15
 
 [node name="Ui" type="CanvasLayer" parent="."]

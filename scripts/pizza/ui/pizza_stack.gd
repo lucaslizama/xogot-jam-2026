@@ -7,6 +7,20 @@ extends Control
 ##
 ## Boxes are authored in the scene and hidden as they are thrown, so the stack
 ## shrinks from the top exactly the way a real one would.
+##
+## Two things about the scene that the scene itself cannot say, because Godot
+## rewrites a .tscn whenever it is saved and drops any comment in it:
+##
+## Neither this node nor Boxes is anchored. This one is left at the top-left
+## corner on purpose and claims the viewport in [method _fit_to_screen] below.
+## Boxes is placed by [method place_on] from the rider's rack; the size authored
+## on it is one box, only so the editor has something to show, and the boxes place
+## themselves off that origin.
+##
+## The stack's z_index in pizza_game.tscn is below the rider's, and has to stay
+## there. The rack is further up the street than she is, so she occludes it, and
+## in the aiming pose she holds a box out over the rack — drawn the other way
+## round, the stack paints across her hand.
 
 @onready var _boxes: Control = %Boxes
 

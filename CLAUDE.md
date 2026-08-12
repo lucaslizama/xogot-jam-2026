@@ -134,6 +134,17 @@ commit; the hook can be stepped past once with `git commit --no-verify`.
 including blanking the Android Java SDK path. Close it before editing that file,
 and prefer setting such values in the GUI.
 
+**A `;` comment in a `.tscn` or `.tres` does not survive the file being saved.**
+The format accepts them on the way in, so a hand-written note sits there looking
+like documentation and reads fine in a diff; but Godot regenerates the whole file
+from the loaded resource when it saves, and every comment goes. Verified by
+loading a scene and re-saving it headlessly: eleven comment lines became zero,
+with nothing said about it. The ones lost this way were explaining why two nodes
+had no anchors and why the pizza stack sits behind the rider — exactly the sort of
+thing somebody would otherwise undo by accident. Put that reasoning in the script
+that owns the node, where it cannot be silently deleted, and let the scene hold
+only values.
+
 ## Where a new script goes
 
 `scripts/pizza/` holds only the glue, `pizza_game.gd` and `game_audio.gd`.
