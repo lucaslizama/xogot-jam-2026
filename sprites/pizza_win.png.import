@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b8wqk3rxvpn2y"
-path.s3tc="res://.godot/imported/pizza_win.png-4c9b2f3ece750e88c34d70f3f2f34de0.s3tc.ctex"
-path.etc2="res://.godot/imported/pizza_win.png-4c9b2f3ece750e88c34d70f3f2f34de0.etc2.ctex"
+path="res://.godot/imported/pizza_win.png-4c9b2f3ece750e88c34d70f3f2f34de0.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://sprites/pizza_win.png"
-dest_files=["res://.godot/imported/pizza_win.png-4c9b2f3ece750e88c34d70f3f2f34de0.s3tc.ctex", "res://.godot/imported/pizza_win.png-4c9b2f3ece750e88c34d70f3f2f34de0.etc2.ctex"]
+dest_files=["res://.godot/imported/pizza_win.png-4c9b2f3ece750e88c34d70f3f2f34de0.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

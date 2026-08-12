@@ -3,21 +3,19 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://8wmfppnkohf7"
-path.s3tc="res://.godot/imported/DeliveryGirl_idle.png-f104a93dcbf1f44af74ebbb85d8ebcf3.s3tc.ctex"
-path.etc2="res://.godot/imported/DeliveryGirl_idle.png-f104a93dcbf1f44af74ebbb85d8ebcf3.etc2.ctex"
+path="res://.godot/imported/DeliveryGirl_idle.png-f104a93dcbf1f44af74ebbb85d8ebcf3.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://sprites/DeliveryGirl_idle.png"
-dest_files=["res://.godot/imported/DeliveryGirl_idle.png-f104a93dcbf1f44af74ebbb85d8ebcf3.s3tc.ctex", "res://.godot/imported/DeliveryGirl_idle.png-f104a93dcbf1f44af74ebbb85d8ebcf3.etc2.ctex"]
+dest_files=["res://.godot/imported/DeliveryGirl_idle.png-f104a93dcbf1f44af74ebbb85d8ebcf3.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
