@@ -18,6 +18,18 @@ func slot_count() -> int:
 	return _dots.get_child_count()
 
 
+## The y below which nothing else may sit, in this layer's own coordinates.
+##
+## Measured rather than read off the scene: the row is a container, so if the dots
+## are made bigger or a sixth is added it grows past the height authored for it,
+## and anything placed under it by a number typed in by hand ends up underneath the
+## dots instead of below them. Whoever needs to clear this row asks it how tall it
+## actually is.
+func bottom_edge() -> float:
+	var height := maxf(_dots.size.y, _dots.get_combined_minimum_size().y)
+	return _dots.position.y + height
+
+
 func show_strikes(left: int) -> void:
 	var slots := _dots.get_children()
 	for i in slots.size():

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/pizza/rules/level_config.gd" id="1_1thwv"]
 [ext_resource type="Resource" path="res://data/daylight/night.tres" id="2_8u1d1"]
+[ext_resource type="Resource" path="res://data/orders.tres" id="3_orders"]
 
 [resource]
 script = ExtResource("1_1thwv")
@@ -12,3 +13,4 @@ gap_min = 31.0
 gap_max = 52.0
 drop_radius = 13.5
 waiting_chance = 0.66
+orders = ExtResource("3_orders")

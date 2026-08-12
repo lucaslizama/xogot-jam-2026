@@ -15,19 +15,15 @@ mouse_filter = 2
 script = ExtResource("1_stack")
 
 [node name="Boxes" type="Control" parent="."]
+; Positioned by PizzaStack.place_on from the rider's rack, so no anchors: it used
+; to hang off the viewport's bottom-right corner, which put the boxes somewhere
+; different relative to the bike on every screen shape. The size here is one box,
+; only so the editor has something to show; the boxes below place themselves off
+; this origin and the whole lot is scaled to the width of the rack.
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -760.0
-offset_top = -560.0
-offset_right = -560.0
-offset_bottom = -260.0
-grow_horizontal = 0
-grow_vertical = 0
+layout_mode = 0
+offset_right = 190.0
+offset_bottom = 21.0
 mouse_filter = 2
 
 [node name="Box1" type="TextureRect" parent="Boxes"]

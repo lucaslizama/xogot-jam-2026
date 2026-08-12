@@ -35,6 +35,17 @@ signal flavour_changed(flavour: PizzaFlavour)
 ## should be seen coming up, not be found already up.
 @export_range(0.0, 12.0, 0.1) var daylight_crossfade: float = 2.5
 
+## Clear space left between the bottom of the strike dots and the top of the order
+## ticket. The ticket's own y in the scene is overridden from this: the dots are a
+## container whose height depends on how many the level asked for and how big the
+## art is, so the only safe place for the ticket is however far below wherever they
+## actually end.
+## Thirty was what the two happened to clear each other by when both were placed by
+## hand, and on a phone that is under two millimetres: the dots sit directly over
+## the ticket's width, so at that distance they read as one crowded block and the
+## row looks like it is resting on the card. Seventy separates them.
+@export_range(0.0, 240.0, 2.0) var ticket_gap_below_strikes: float = 70.0
+
 @export_group("Feel")
 ## Whether a pizza thrown into a house counts as delivered, as well as one that
 ## lands in the drop point at its feet. On, the house is what the player can see,
@@ -130,6 +141,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _ready_pizza: PizzaView = $ReadyPizza
 @onready var _splat: Node2D = $Splat
 @onready var _aim: AimPreview = $AimPreview
+@onready var _rider: RiderView = %Rider
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _tips: Label = %Tips
 @onready var _tip_popup: TipPopup = %TipPopup
@@ -225,11 +237,26 @@ func _ready() -> void:
 	($Street as StreetSurface).projection = projection
 	_aim.projection = projection
 	_aim.physics = physics
+	_place_ticket_below_strikes()
+	get_viewport().size_changed.connect(_place_ticket_below_strikes)
+	# The rider is placed in world space and never moves, so once is enough: unlike
+	# the ticket, the stack no longer depends on the shape of the screen at all.
+	_stack.place_on(_rider.rack_rect())
 
 	if start_automatically:
 		# Deferred: the first houses would otherwise be added while this node is
 		# still setting up its own children.
 		start_level.call_deferred()
+
+
+## Sit the order ticket below the strike dots rather than at the y it was authored
+## at. Done here, in the glue, because it is the one place that knows about both.
+##
+## Run again whenever the window changes shape: the dots are centred on a viewport
+## whose size is not the one in the project settings on most phones, and the ticket
+## arriving on top of them is the sort of thing only the real device shows.
+func _place_ticket_below_strikes() -> void:
+	_ticket.position.y = _strikes.bottom_edge() + ticket_gap_below_strikes
 
 
 func start_level() -> void:
@@ -304,6 +331,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_grab_offset = _ready_pizza.position - event.position
 			_returning = false
 			_gesture.begin(event.position, now)
+			# She winds up the moment the pizza is in hand, not on the first drag,
+			# so taking hold of it is answered even if the finger never moves.
+			_rider.set_aiming(true)
 			_audio.play(&"pick_up")
 		elif event.index == _swap_index:
 			var held := now - _swap_began
@@ -318,6 +348,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			var windup := _gesture.windup()
 			_touch_index = -1
 			_aim.clear()
+			_rider.set_aiming(false)
 			# A slow release is a fumble: the pizza drops back into your hand and
 			# costs nothing. Only a real flick leaves the bike.
 			if -flick.y < physics.min_throw_flick:
@@ -845,6 +876,7 @@ func _clear_flight() -> void:
 	_splat_left = 0.0
 	_splat.visible = false
 	_aim.clear()
+	_rider.set_aiming(false)
 
 
 # --- the round ---------------------------------------------------------------

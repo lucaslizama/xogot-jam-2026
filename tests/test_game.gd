@@ -29,7 +29,8 @@ func _ready() -> void:
 	await _test_a_tap_on_the_road_changes_the_flavour()
 	await _test_a_tap_near_the_pizza_leaves_the_flavour_alone()
 	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
-	await _test_the_first_street_asks_for_no_orders()
+	await _test_every_street_asks_for_orders()
+	await _test_the_order_ticket_clears_the_strike_dots()
 	await _test_a_ticket_shows_what_is_wanted_and_pays_when_filled()
 	await _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw()
 	await _test_a_lost_pizza_comes_apart_where_it_landed()
@@ -499,16 +500,17 @@ func _test_the_tuning_tools_are_absent_from_a_shipped_build() -> void:
 	ours.queue_free()
 
 
-## Authoring, not code, but worth pinning: the opening street is meant to teach the
-## throw with nothing else on screen to read. Somebody wiring orders into every
-## street would be undoing that on purpose, and should have to change a test to say
-## so.
-func _test_the_first_street_asks_for_no_orders() -> void:
+## Authoring, not code, but worth pinning: every street asks for orders, the first
+## one included. It used to open with none, so the throw could be learned with
+## nothing else on screen to read; that was changed deliberately on 11 August 2026
+## and the ramp now comes from the rules getting harder rather than from the first
+## street being bare. Anyone taking orders off it again is undoing that on purpose
+## and should have to change this test to say so.
+func _test_every_street_asks_for_orders() -> void:
 	var game := await _spawn()
-	_check("the first street has no orders", game._orders_for(game.levels[0]) == null)
-	_check("and none turned up on it", game._orders.open_order() == null)
-	_check("but later streets do (%d levels)" % game.levels.size(),
-		game.levels.size() > 1 and game._orders_for(game.levels[1]) != null)
+	for i in game.levels.size():
+		_check("street %d asks for orders" % (i + 1), game._orders_for(game.levels[i]) != null)
+	_check("and the first one is no exception", game._orders_for(game.levels[0]) != null)
 	game.queue_free()
 	await get_tree().process_frame
 
@@ -707,6 +709,37 @@ func _spawn(development_build: bool = true) -> Node:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	return game
+
+
+## The order ticket slides in under the strike dots, and the two are the only
+## things sharing that corner. They were laid out by hand and cleared each other by
+## thirty pixels, which held on the desktop and not on a phone. The ticket is now
+## placed from wherever the dots actually end, so this checks the gap rather than
+## the number: a bigger dot, a sixth one, or a differently shaped screen all move
+## the row, and none of them may put the ticket on top of it.
+func _test_the_order_ticket_clears_the_strike_dots() -> void:
+	var game := await _spawn()
+	var dots: StrikeDots = game.find_child("StrikeDots", true, false)
+	var ticket: OrderTicket = game.find_child("OrderTicket", true, false)
+	_check("the dots and the ticket are both in the scene", dots != null and ticket != null)
+	if dots == null or ticket == null:
+		game.queue_free()
+		return
+	var below := dots.bottom_edge()
+	_check("the ticket starts below the dots (dots end %.0f, ticket starts %.0f)"
+		% [below, ticket.position.y], ticket.position.y >= below)
+	_check("with the gap the game asks for",
+		is_equal_approx(ticket.position.y, below + game.ticket_gap_below_strikes))
+
+	# The row growing is the case the hand-typed y could not survive, so make it
+	# grow: a taller dot lengthens the container, and the ticket must follow.
+	var first := dots.get_node("%Dots").get_child(0) as Control
+	first.custom_minimum_size = Vector2(84, 300)
+	await get_tree().process_frame
+	game._place_ticket_below_strikes()
+	_check("a taller row pushes the ticket down with it (now ends %.0f, ticket %.0f)"
+		% [dots.bottom_edge(), ticket.position.y], ticket.position.y >= dots.bottom_edge())
+	game.queue_free()
 
 
 ## A fast upward drag: touch, two moves, release. Fast enough to count as a throw.
