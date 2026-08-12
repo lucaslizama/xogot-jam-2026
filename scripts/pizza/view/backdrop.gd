@@ -1,3 +1,4 @@
+@tool
 class_name Backdrop
 extends Node2D
 
@@ -6,6 +7,10 @@ extends Node2D
 ## The rows are drawn rather than authored as nodes because the street is
 ## endless: what would be authored is a pattern, not a set of objects, and the
 ## pattern's numbers are exported on the layer resources instead.
+##
+## [code]@tool[/code] so that pattern can be seen while it is being tuned. Drawn
+## at a travelled distance of zero in the editor, which is simply where the street
+## starts; nothing here needs the game to be running.
 
 @export var projection: StreetProjection
 ## Rows behind the street, furthest first. Each is a resource you can open.

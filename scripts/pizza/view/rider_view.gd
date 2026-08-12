@@ -1,3 +1,4 @@
+@tool
 class_name RiderView
 extends Placeholder2D
 

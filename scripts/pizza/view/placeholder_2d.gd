@@ -1,3 +1,4 @@
+@tool
 class_name Placeholder2D
 extends Node2D
 
@@ -10,6 +11,12 @@ extends Node2D
 ##
 ## The box occupies exactly the space the finished art will, so the layout is
 ## already right before anything is drawn.
+##
+## [code]@tool[/code] because of that last part. A placeholder that only appears
+## once the game is running cannot do the job it exists for: the layout is settled
+## in the editor, and so is the moment somebody drops the real art in and wants to
+## see whether it sits right. This is inherited, so every placeholder shows on the
+## canvas, the rider included.
 
 @export var texture: Texture2D:
 	set(value):

@@ -1,3 +1,4 @@
+@tool
 class_name GroundShadow
 extends Node2D
 
@@ -6,6 +7,10 @@ extends Node2D
 ## This is the single cheapest thing that makes a fake-3D throw readable. Without
 ## it a box high and close looks identical to one low and far away, and the
 ## player has no way to tell how the throw is going until it lands.
+##
+## [code]@tool[/code] so its size and squash can be judged on the canvas. The node
+## is hidden in pizza_game.tscn until a pizza is in the air, so turn it visible to
+## look at it, and back off afterwards.
 
 ## A square image drawn flat on the road. Leave empty for the plain ellipse.
 @export var art: Texture2D
