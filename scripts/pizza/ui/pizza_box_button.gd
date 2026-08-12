@@ -14,11 +14,11 @@ extends Button
 ## so it reads as a physical box being picked up.
 
 @export_group("Box")
-@export var lid: Color = Color(0.78, 0.6, 0.38)
-@export var base: Color = Color(0.62, 0.45, 0.27)
-@export var edge: Color = Color(0.42, 0.3, 0.17)
+@export var lid: Color = Color(1, 0.709804, 0.439216)
+@export var base: Color = Color(0.94902, 0.65098, 0.368627)
+@export var edge: Color = Color(0.729412, 0.380392, 0.337255)
 ## The greasy translucent window some boxes have, drawn on the lid.
-@export var window: Color = Color(0.96, 0.86, 0.55, 0.22)
+@export var window: Color = Color(1, 0.894118, 0.470588, 0.22)
 @export_range(0.0, 40.0, 0.5) var corner: float = 14.0
 @export_range(2.0, 24.0, 0.5) var outline: float = 5.0
 ## How tall the base slab is as a fraction of the button. The lid takes the rest.

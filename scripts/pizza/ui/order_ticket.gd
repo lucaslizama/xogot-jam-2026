@@ -30,11 +30,11 @@ extends Control
 
 @export_group("Colours")
 ## A line still owed, and a line that has been filled.
-@export var line_owed: Color = Color(0.94, 0.89, 0.83)
-@export var line_filled: Color = Color(0.35, 0.87, 0.47)
+@export var line_owed: Color = Color(1, 1, 0.921569)
+@export var line_filled: Color = Color(0.560784, 0.870588, 0.364706)
 ## The clock, and what it turns into as it runs down.
-@export var clock_calm: Color = Color(0.36, 0.71, 0.9)
-@export var clock_urgent: Color = Color(0.9, 0.32, 0.28)
+@export var clock_calm: Color = Color(0.301961, 0.65098, 1)
+@export var clock_urgent: Color = Color(0.921569, 0.337255, 0.294118)
 ## Below this much of the clock left, it is the urgent colour.
 @export_range(0.0, 1.0, 0.01) var urgent_below: float = 0.3
 

@@ -27,12 +27,12 @@ extends Control
 ## so the reward closes on the thing you aimed at.
 ## Through the window is the best throw in the game, so it gets the warm light of
 ## the window itself rather than the drop point's cool blue.
-@export var colour_window: Color = Color(1.0, 0.82, 0.35)
-@export var colour_bullseye: Color = Color(0.24, 0.71, 0.9)
-@export var colour_nice: Color = Color(1.0, 0.85, 0.45)
-@export var colour_scraped: Color = Color(0.86, 0.86, 0.9)
+@export var colour_window: Color = Color(1, 0.894118, 0.470588)
+@export var colour_bullseye: Color = Color(0.301961, 0.65098, 1)
+@export var colour_nice: Color = Color(1, 0.894118, 0.470588)
+@export var colour_scraped: Color = Color(0.760784, 0.760784, 0.819608)
 ## Said when a run ends, so it reads as a loss rather than as a score.
-@export var colour_streak_lost: Color = Color(0.83, 0.29, 0.27)
+@export var colour_streak_lost: Color = Color(0.921569, 0.337255, 0.294118)
 
 @onready var _tier: Label = %Tier
 @onready var _tip: Label = %Tip

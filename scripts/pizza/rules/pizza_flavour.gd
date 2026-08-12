@@ -25,13 +25,13 @@ extends Resource
 @export var icon: Texture2D
 
 @export_group("While it is still a box")
-@export var base: Color = Color(0.88, 0.74, 0.49)
+@export var base: Color = Color(1, 0.709804, 0.439216)
 ## Toppings, drawn as discs over the base.
 ##
 ## Not decoration. Colour alone is a poor way to tell flavours apart: it reads
 ## badly at the size the pizza flies at, and it tells a colour-blind player
 ## nothing at all. A count and a size differ whatever the hue does.
-@export var topping: Color = Color(0.75, 0.2, 0.16)
+@export var topping: Color = Color(0.690196, 0.188235, 0.360784)
 @export_range(0, 16) var toppings: int = 7
 ## Radius of one topping, as a fraction of the pizza's own radius.
 @export_range(0.0, 0.4, 0.005) var topping_size: float = 0.1

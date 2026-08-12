@@ -12,8 +12,8 @@ extends Resource
 @export var display_name: String = "Night"
 
 @export_group("Sky")
-@export var sky_top: Color = Color(0.055, 0.043, 0.125)
-@export var sky_horizon: Color = Color(0.29, 0.18, 0.33)
+@export var sky_top: Color = Color(0.152941, 0.152941, 0.211765)
+@export var sky_horizon: Color = Color(0.341176, 0.160784, 0.294118)
 ## Stars go out as the sky comes up. Zero is broad daylight.
 @export_range(0.0, 4.0, 0.05) var star_brightness: float = 1.4
 ## Thinning them out as well as dimming them stops dawn looking like a fade.
@@ -21,14 +21,14 @@ extends Resource
 
 @export_group("Air")
 ## What distance recedes into. Everything solid is tinted towards this.
-@export var haze_colour: Color = Color(0.42, 0.36, 0.58)
+@export var haze_colour: Color = Color(0.278431, 0.231373, 0.470588)
 @export_range(0.0, 1.0, 0.05) var haze_strength: float = 0.75
 
 @export_group("Ground")
-@export var asphalt: Color = Color(0.15, 0.14, 0.17)
-@export var asphalt_grain: Color = Color(0.21, 0.20, 0.24)
-@export var verge: Color = Color(0.19, 0.21, 0.17)
-@export var lane: Color = Color(0.78, 0.74, 0.55, 0.7)
+@export var asphalt: Color = Color(0.152941, 0.152941, 0.211765)
+@export var asphalt_grain: Color = Color(0.196078, 0.160784, 0.278431)
+@export var verge: Color = Color(0.196078, 0.243137, 0.309804)
+@export var lane: Color = Color(1, 0.894118, 0.470588, 0.7)
 
 @export_group("Everything solid")
 ## Multiplied over the houses and the skyline, so the whole world warms with the

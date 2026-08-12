@@ -14,8 +14,8 @@ extends Node2D
 @export_group("Ground")
 ## The sky above the horizon belongs to the NightSky shader, which paints its
 ## gradient and scatters the stars. Drawing it here as well would cover them.
-@export var road: Color = Color(0.15, 0.14, 0.17)
-@export var verge: Color = Color(0.19, 0.21, 0.17)
+@export var road: Color = Color(0.152941, 0.152941, 0.211765)
+@export var verge: Color = Color(0.196078, 0.243137, 0.309804)
 ## How far back the road surface reaches, in world units.
 @export_range(5.0, 400.0, 1.0) var road_depth: float = 18.0
 
@@ -23,7 +23,7 @@ extends Node2D
 ## Without these the road is a flat band and the only thing saying the rider is
 ## moving is the houses going by. Marks on the road say it directly, and they
 ## come free from the same scroll the houses use.
-@export var lane_colour: Color = Color(0.78, 0.74, 0.55, 0.65)
+@export var lane_colour: Color = Color(1, 0.894118, 0.470588, 0.65)
 ## How far back from the rider the marks are painted.
 @export_range(0.5, 100.0, 0.5) var lane_distance: float = 7.0
 ## Length of one mark and the gap to the next, in world units.

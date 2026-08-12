@@ -24,7 +24,7 @@ extends Resource
 ## is and the only one that survives whatever art turns up: it multiplies over a
 ## finished sprite exactly as it does over a placeholder box. Set it near the sky
 ## so the far end of the street sinks into it.
-@export var haze_colour: Color = Color(0.42, 0.36, 0.58)
+@export var haze_colour: Color = Color(0.278431, 0.231373, 0.470588)
 ## Nothing nearer than this is tinted at all.
 @export_range(0.0, 300.0, 1.0) var haze_from: float = 18.0
 ## By this distance the tint is at full strength.

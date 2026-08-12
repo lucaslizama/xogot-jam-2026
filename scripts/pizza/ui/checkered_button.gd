@@ -11,15 +11,15 @@ extends Button
 ## border shows on the editor canvas as well.
 
 @export_group("Checker")
-@export var check_a: Color = Color(0.83, 0.16, 0.14)
-@export var check_b: Color = Color(1, 1, 1)
+@export var check_a: Color = Color(0.921569, 0.337255, 0.294118)
+@export var check_b: Color = Color(1, 1, 0.921569)
 ## Side of one check square, in pixels. The ring is one check thick.
 @export_range(6.0, 60.0, 1.0) var check_size: float = 22.0:
 	set(value):
 		check_size = value
 		queue_redraw()
 ## The panel behind the label, inside the checked ring.
-@export var fill: Color = Color(1, 0.98, 0.94):
+@export var fill: Color = Color(1, 1, 0.921569):
 	set(value):
 		fill = value
 		queue_redraw()

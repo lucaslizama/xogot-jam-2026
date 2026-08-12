@@ -13,12 +13,12 @@ content_margin_left = 64.0
 content_margin_top = 56.0
 content_margin_right = 64.0
 content_margin_bottom = 56.0
-bg_color = Color(0.72156864, 0.5411765, 0.34509805, 1)
+bg_color = Color(0.729412, 0.380392, 0.337255, 1)
 border_width_left = 14
 border_width_top = 14
 border_width_right = 14
 border_width_bottom = 14
-border_color = Color(0.49803922, 0.36078432, 0.21176471, 1)
+border_color = Color(0.588235, 0.258824, 0.32549, 1)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
 corner_radius_bottom_right = 28
@@ -43,7 +43,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.101960786, 0.07058824, 0.14901961, 0.8666667)
+color = Color(0.152941, 0.152941, 0.211765, 0.8666667)
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1

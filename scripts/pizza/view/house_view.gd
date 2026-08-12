@@ -59,16 +59,16 @@ extends Node2D
 @export var art_drop_marker: Texture2D
 
 @export_group("Colours")
-@export var wall_waiting: Color = Color(0.62, 0.44, 0.36)
-@export var wall_scenery: Color = Color(0.28, 0.26, 0.32)
-@export var wall_served: Color = Color(0.34, 0.47, 0.32)
-@export var roof: Color = Color(0.36, 0.22, 0.24)
-@export var window_lit: Color = Color(1.0, 0.85, 0.45)
+@export var wall_waiting: Color = Color(0.729412, 0.380392, 0.337255)
+@export var wall_scenery: Color = Color(0.262745, 0.262745, 0.309804)
+@export var wall_served: Color = Color(0.239216, 0.431373, 0.439216)
+@export var roof: Color = Color(0.341176, 0.160784, 0.294118)
+@export var window_lit: Color = Color(1, 0.894118, 0.470588)
 ## A frame around the window, so it reads as something to aim at rather than as a
 ## patch of light on the wall.
-@export var window_frame: Color = Color(0.25, 0.16, 0.12, 0.8)
-@export var drop_open: Color = Color(0.24, 0.71, 0.9, 0.55)
-@export var drop_served: Color = Color(0.45, 0.85, 0.5, 0.5)
+@export var window_frame: Color = Color(0.152941, 0.152941, 0.211765, 0.8)
+@export var drop_open: Color = Color(0.301961, 0.65098, 1, 0.55)
+@export var drop_served: Color = Color(0.560784, 0.870588, 0.364706, 0.5)
 
 @export_group("Editor preview")
 ## What the house shows on the canvas when no street is driving it. The game
@@ -211,5 +211,5 @@ func _draw_drop_point() -> void:
 		return
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
 	draw_circle(Vector2.ZERO, radius, drop_served if _served else drop_open)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(1, 1, 1, 0.5), 4.0)
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(1, 1, 0.921569, 0.5), 4.0)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

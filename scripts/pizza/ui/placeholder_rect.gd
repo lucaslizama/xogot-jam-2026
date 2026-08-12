@@ -37,7 +37,7 @@ extends Control
 	set(value):
 		note = value
 		queue_redraw()
-@export var colour: Color = Color(0.88, 0.74, 0.49):
+@export var colour: Color = Color(1, 0.709804, 0.439216):
 	set(value):
 		colour = value
 		queue_redraw()
@@ -45,7 +45,7 @@ extends Control
 	set(value):
 		outline = value
 		queue_redraw()
-@export var note_colour: Color = Color(0.29411766, 0.19607843, 0.10980392):
+@export var note_colour: Color = Color(0.152941, 0.152941, 0.211765):
 	set(value):
 		note_colour = value
 		queue_redraw()

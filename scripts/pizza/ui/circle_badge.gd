@@ -12,11 +12,11 @@ extends MarginContainer
 
 @export_group("Ring")
 ## The two colours the ring alternates between.
-@export var ring_a: Color = Color(0.83, 0.16, 0.14):
+@export var ring_a: Color = Color(0.921569, 0.337255, 0.294118):
 	set(value):
 		ring_a = value
 		queue_redraw()
-@export var ring_b: Color = Color(0.16, 0.68, 0.34):
+@export var ring_b: Color = Color(0.235294, 0.639216, 0.439216):
 	set(value):
 		ring_b = value
 		queue_redraw()
@@ -33,7 +33,7 @@ extends MarginContainer
 		queue_redraw()
 
 @export_group("Disc")
-@export var fill: Color = Color(1, 1, 1):
+@export var fill: Color = Color(1, 1, 0.921569):
 	set(value):
 		fill = value
 		queue_redraw()

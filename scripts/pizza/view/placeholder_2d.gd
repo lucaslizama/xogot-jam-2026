@@ -31,12 +31,12 @@ extends Node2D
 @export var anchor: Vector2 = Vector2(0.5, 0.5)
 
 @export_group("While it is still a box")
-@export var colour: Color = Color(0.88, 0.74, 0.49)
+@export var colour: Color = Color(1, 0.709804, 0.439216)
 @export var outline: Color = Color(0.0, 0.0, 0.0, 0.35)
 ## Marks one corner. A plain box looks identical every quarter turn, so anything
 ## that rotates needs this or its spin cannot be read at all.
 @export var corner_mark: bool = false
-@export var mark_colour: Color = Color(0.95, 0.95, 0.9)
+@export var mark_colour: Color = Color(1, 1, 0.921569)
 
 
 func _draw() -> void:

@@ -51,11 +51,11 @@ extends Node2D
 ## split between cheese and whatever was on top.
 @export_range(0.0, 1.0, 0.05) var crust_share: float = 0.34
 @export_range(0.0, 1.0, 0.05) var topping_share: float = 0.3
-@export var crust: Color = Color(0.78, 0.55, 0.32)
-@export var crust_edge: Color = Color(0.55, 0.35, 0.18, 0.8)
-@export var cheese: Color = Color(0.96, 0.79, 0.4)
+@export var crust: Color = Color(0.94902, 0.65098, 0.368627)
+@export var crust_edge: Color = Color(0.729412, 0.380392, 0.337255, 0.8)
+@export var cheese: Color = Color(1, 0.894118, 0.470588)
 ## Used for the topping pieces when the throw had no flavour on it at all.
-@export var topping_fallback: Color = Color(0.72, 0.19, 0.16)
+@export var topping_fallback: Color = Color(0.690196, 0.188235, 0.360784)
 ## Drawn in place of all of the above, tinted with the piece's own colour so a
 ## single chunk image still comes apart in the flavour that was thrown.
 @export var chunk_art: Texture2D

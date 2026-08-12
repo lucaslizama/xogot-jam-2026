@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_flavour")
 display_name = "Pepperoni"
-base = Color(0.87, 0.7, 0.42, 1)
-topping = Color(0.71, 0.16, 0.15, 1)
+base = Color(0.94902, 0.65098, 0.368627, 1)
+topping = Color(0.690196, 0.188235, 0.360784, 1)
 toppings = 9
 topping_size = 0.125
 topping_spread = 0.64

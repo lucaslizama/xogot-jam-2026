@@ -24,20 +24,20 @@ uniform float travelled = 0.0;
 // Where the tarmac stops and the verge begins.
 uniform float road_far : hint_range(1.0, 200.0) = 18.0;
 
-uniform vec4 asphalt : source_color = vec4(0.15, 0.14, 0.17, 1.0);
-uniform vec4 asphalt_grain : source_color = vec4(0.21, 0.20, 0.24, 1.0);
+uniform vec4 asphalt : source_color = vec4(0.152941, 0.152941, 0.211765, 1.0);
+uniform vec4 asphalt_grain : source_color = vec4(0.196078, 0.160784, 0.278431, 1.0);
 uniform float grain_amount : hint_range(0.0, 1.0) = 0.35;
 uniform float grain_scale : hint_range(0.05, 8.0) = 1.1;
-uniform vec4 verge_colour : source_color = vec4(0.19, 0.21, 0.17, 1.0);
+uniform vec4 verge_colour : source_color = vec4(0.196078, 0.243137, 0.309804, 1.0);
 uniform float verge_depth : hint_range(0.0, 20.0) = 1.6;
 
-uniform vec4 lane_colour : source_color = vec4(0.78, 0.74, 0.55, 0.7);
+uniform vec4 lane_colour : source_color = vec4(1.0, 0.894118, 0.470588, 0.7);
 uniform float lane_distance : hint_range(0.0, 60.0) = 7.0;
 uniform float lane_width : hint_range(0.1, 10.0) = 1.1;
 uniform float lane_dash : hint_range(0.5, 40.0) = 7.0;
 uniform float lane_gap : hint_range(0.5, 40.0) = 9.0;
 
-uniform vec4 haze_colour : source_color = vec4(0.42, 0.36, 0.58, 1.0);
+uniform vec4 haze_colour : source_color = vec4(0.278431, 0.231373, 0.470588, 1.0);
 uniform float haze_from = 18.0;
 uniform float haze_full = 260.0;
 uniform float haze_strength : hint_range(0.0, 1.0) = 0.75;

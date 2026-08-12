@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_flavour")
 display_name = "Margherita"
-base = Color(0.93, 0.83, 0.56, 1)
-topping = Color(0.31, 0.53, 0.2, 1)
+base = Color(1, 0.894118, 0.470588, 1)
+topping = Color(0.235294, 0.639216, 0.439216, 1)
 toppings = 5
 topping_size = 0.085
 topping_spread = 0.5

@@ -21,8 +21,8 @@ extends Control
 @export var art_spent: Texture2D
 
 @export_group("While they are still shapes")
-@export var clean_colour: Color = Color(1.0, 0.98, 0.9)
-@export var spent_colour: Color = Color(0.85, 0.27, 0.33)
+@export var clean_colour: Color = Color(1, 1, 0.921569)
+@export var spent_colour: Color = Color(0.921569, 0.337255, 0.294118)
 ## Radius of the dot, as a fraction of the smaller side.
 @export_range(0.1, 0.5, 0.01) var dot_radius: float = 0.36
 ## Half-length of each arm of the cross, as a fraction of the smaller side.

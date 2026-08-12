@@ -5,14 +5,14 @@
 [resource]
 script = ExtResource("1_nh6ix")
 display_name = "Sunrise"
-sky_top = Color(0.2, 0.24, 0.46, 1)
-sky_horizon = Color(0.98, 0.55, 0.36, 1)
+sky_top = Color(0.278431, 0.231373, 0.470588, 1)
+sky_horizon = Color(1, 0.568627, 0.4, 1)
 star_brightness = 0.35
 star_chance = 0.04
-haze_colour = Color(0.95, 0.62, 0.48, 1)
+haze_colour = Color(0.94902, 0.65098, 0.368627, 1)
 haze_strength = 0.62
-asphalt = Color(0.24, 0.2, 0.22, 1)
-asphalt_grain = Color(0.34, 0.28, 0.28, 1)
-verge = Color(0.3, 0.31, 0.21, 1)
-lane = Color(0.95, 0.86, 0.62, 0.75)
+asphalt = Color(0.196078, 0.243137, 0.309804, 1)
+asphalt_grain = Color(0.262745, 0.262745, 0.309804, 1)
+verge = Color(0.239216, 0.431373, 0.439216, 1)
+lane = Color(1, 0.894118, 0.470588, 0.75)
 world_tint = Color(1.1, 0.94, 0.84, 1)

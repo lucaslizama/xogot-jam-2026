@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.13, 0.1, 0.18, 0.82)
+color = Color(0.152941, 0.152941, 0.211765, 0.82)
 mouse_filter = 2
 
 [node name="Heading" type="Label" parent="."]
@@ -72,7 +72,7 @@ mouse_filter = 2
 unique_name_in_owner = true
 offset_right = 504.0
 offset_bottom = 18.0
-color = Color(0.36, 0.71, 0.9, 1)
+color = Color(0.301961, 0.65098, 1, 1)
 mouse_filter = 2
 
 [node name="Verdict" type="Label" parent="."]

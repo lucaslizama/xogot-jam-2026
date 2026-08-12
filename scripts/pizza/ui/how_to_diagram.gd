@@ -46,44 +46,44 @@ enum DiagramKind {
 
 @export_group("Colours")
 ## The night the game is played in, and the road under it.
-@export var sky: Color = Color(0.14, 0.1, 0.2)
+@export var sky: Color = Color(0.196078, 0.160784, 0.278431)
 ## The ground either side of the paving. Without it anything standing off the road
 ## has nothing under it and floats in the sky, which is exactly how it looked.
-@export var ground: Color = Color(0.16, 0.14, 0.16)
-@export var road: Color = Color(0.24, 0.22, 0.26)
-@export var road_edge: Color = Color(0.86, 0.82, 0.7, 0.5)
+@export var ground: Color = Color(0.196078, 0.243137, 0.309804)
+@export var road: Color = Color(0.262745, 0.262745, 0.309804)
+@export var road_edge: Color = Color(1, 0.894118, 0.470588, 0.5)
 ## The paint on the road. Fainter and thinner than the kerbs, or the marks read as
 ## slabs lying across the street rather than as markings on it.
-@export var lane_mark: Color = Color(0.86, 0.82, 0.7, 0.3)
-@export var horizon_glow: Color = Color(0.32, 0.22, 0.36)
+@export var lane_mark: Color = Color(1, 0.894118, 0.470588, 0.3)
+@export var horizon_glow: Color = Color(0.368627, 0.192157, 0.356863)
 ## Taken from the house placeholder, so a house here is the house there.
-@export var wall: Color = Color(0.62, 0.44, 0.36)
-@export var roof: Color = Color(0.36, 0.22, 0.24)
-@export var window_lit: Color = Color(1.0, 0.85, 0.45)
+@export var wall: Color = Color(0.729412, 0.380392, 0.337255)
+@export var roof: Color = Color(0.341176, 0.160784, 0.294118)
+@export var window_lit: Color = Color(1, 0.894118, 0.470588)
 ## The drop point's cyan, the colour a waiting house is aimed at.
-@export var ring: Color = Color(0.24, 0.71, 0.9, 0.55)
-@export var pizza: Color = Color(0.96, 0.78, 0.36)
-@export var pizza_rim: Color = Color(0.78, 0.55, 0.32)
+@export var ring: Color = Color(0.301961, 0.65098, 1, 0.55)
+@export var pizza: Color = Color(1, 0.894118, 0.470588)
+@export var pizza_rim: Color = Color(0.94902, 0.65098, 0.368627)
 ## The strike dots: clean, and crossed off.
-@export var clean: Color = Color(1.0, 0.98, 0.9)
-@export var spent: Color = Color(0.85, 0.27, 0.33)
+@export var clean: Color = Color(1, 1, 0.921569)
+@export var spent: Color = Color(0.921569, 0.337255, 0.294118)
 ## The gesture drawn over the scene, and the good and bad outcomes.
-@export var gesture: Color = Color(1.0, 1.0, 1.0, 0.85)
-@export var good: Color = Color(0.16, 0.68, 0.34)
-@export var bad: Color = Color(0.83, 0.16, 0.14)
+@export var gesture: Color = Color(1, 1, 0.921569, 0.85)
+@export var good: Color = Color(0.235294, 0.639216, 0.439216)
+@export var bad: Color = Color(0.921569, 0.337255, 0.294118)
 
 @export_group("The order ticket")
 ## The card the order is written on, and the bar that is its clock.
-@export var ticket_card: Color = Color(0.13, 0.1, 0.18, 0.85)
-@export var ticket_row: Color = Color(0.94, 0.89, 0.83, 0.55)
-@export var ticket_clock: Color = Color(0.36, 0.71, 0.9)
+@export var ticket_card: Color = Color(0.152941, 0.152941, 0.211765, 0.85)
+@export var ticket_row: Color = Color(1, 1, 0.921569, 0.55)
+@export var ticket_clock: Color = Color(0.301961, 0.65098, 1)
 ## Two flavours' worth of toppings. Not the same size as each other on purpose: at
 ## the size a pizza flies at, how many and how big is what tells them apart, and
 ## colour alone says nothing to a colour-blind player.
-@export var topping_a: Color = Color(0.71, 0.16, 0.15)
-@export var topping_b: Color = Color(0.97, 0.82, 0.25)
+@export var topping_a: Color = Color(0.690196, 0.188235, 0.360784)
+@export var topping_b: Color = Color(0.811765, 1, 0.439216)
 ## The ripple where a finger touched the road.
-@export var tap_ring: Color = Color(1.0, 1.0, 1.0, 0.7)
+@export var tap_ring: Color = Color(1, 1, 0.921569, 0.7)
 
 ## The camera the game actually uses. The pizza sits in your hand at the bottom of
 ## the screen, the houses are along the top, and you flick up the screen at them,

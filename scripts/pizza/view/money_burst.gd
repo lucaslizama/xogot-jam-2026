@@ -44,10 +44,10 @@ extends Node2D
 
 @export_group("Look")
 @export var bill_size: Vector2 = Vector2(56.0, 28.0)
-@export var note: Color = Color(0.35294118, 0.87058824, 0.47058824)
+@export var note: Color = Color(0.560784, 0.870588, 0.364706)
 ## The band down the middle, so a bill reads as a bill and not as a green brick.
-@export var note_band: Color = Color(0.83, 0.98, 0.85, 0.85)
-@export var note_edge: Color = Color(0.09, 0.32, 0.18, 0.75)
+@export var note_band: Color = Color(0.811765, 1, 0.439216, 0.85)
+@export var note_edge: Color = Color(0.239216, 0.431373, 0.439216, 0.75)
 ## Drawn in place of everything above, filling the same rectangle.
 @export var bill_art: Texture2D
 

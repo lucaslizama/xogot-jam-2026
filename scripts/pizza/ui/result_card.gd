@@ -35,18 +35,18 @@ signal again_pressed
 ## The box lid's tape, the heading and the delivery stamp take this on a win.
 ## Cyan is the brand's "good": it is the colour of an open drop point, so a win
 ## closes on the colour you were aiming at.
-@export var won_accent: Color = Color(0.23529412, 0.7058824, 0.8980392)
-@export var won_button_colour: Color = Color(0.23529412, 0.7058824, 0.8980392)
+@export var won_accent: Color = Color(0.301961, 0.65098, 1)
+@export var won_button_colour: Color = Color(0.301961, 0.65098, 1)
 ## And these on a loss. A clear red reads as a stop; the earlier rose was too
 ## washed out to read against the box.
-@export var lost_accent: Color = Color(0.83137256, 0.15686275, 0.13725491)
-@export var lost_button_colour: Color = Color(0.83137256, 0.15686275, 0.13725491)
+@export var lost_accent: Color = Color(0.921569, 0.337255, 0.294118)
+@export var lost_button_colour: Color = Color(0.921569, 0.337255, 0.294118)
 
 @export_group("Button letters")
 ## The checked button's label goes green to go on, red to try again — the two
 ## colours a diner reads without thinking.
-@export var won_button_text: Color = Color(0.16078432, 0.6784314, 0.34117648)
-@export var lost_button_text: Color = Color(0.83137256, 0.15686275, 0.13725491)
+@export var won_button_text: Color = Color(0.235294, 0.639216, 0.439216)
+@export var lost_button_text: Color = Color(0.921569, 0.337255, 0.294118)
 
 @onready var _panel: PanelContainer = $Panel
 @onready var _heading: Label = %Heading

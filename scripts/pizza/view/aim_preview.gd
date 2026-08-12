@@ -19,9 +19,9 @@ extends Node2D
 @export var enabled: bool = false
 
 @export_group("Look")
-@export var arc_colour: Color = Color(1.0, 1.0, 1.0, 0.32)
+@export var arc_colour: Color = Color(1, 1, 0.921569, 0.32)
 @export var arc_width: float = 5.0
-@export var marker_colour: Color = Color(0.24, 0.71, 0.9, 0.75)
+@export var marker_colour: Color = Color(0.301961, 0.65098, 1, 0.75)
 ## Radius of the landing ring, in world units. Matching a level's drop radius
 ## makes the preview honest about how much room there is for error.
 @export_range(0.2, 20.0, 0.1) var marker_radius: float = 3.4

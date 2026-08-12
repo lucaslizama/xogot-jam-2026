@@ -25,14 +25,14 @@ extends Control
 		queue_redraw()
 
 @export_group("Colours")
-@export var crust: Color = Color(0.78, 0.55, 0.32)
-@export var crust_rim: Color = Color(0.62, 0.41, 0.22)
-@export var cheese: Color = Color(0.96, 0.78, 0.36)
-@export var sauce: Color = Color(0.79, 0.29, 0.2)
-@export var pepperoni: Color = Color(0.72, 0.19, 0.16)
+@export var crust: Color = Color(0.94902, 0.65098, 0.368627)
+@export var crust_rim: Color = Color(0.729412, 0.380392, 0.337255)
+@export var cheese: Color = Color(1, 0.894118, 0.470588)
+@export var sauce: Color = Color(0.921569, 0.337255, 0.294118)
+@export var pepperoni: Color = Color(0.690196, 0.188235, 0.360784)
 ## The underside, shown when the pizza has landed face-down on a loss.
-@export var underside: Color = Color(0.66, 0.45, 0.26)
-@export var floor_splat: Color = Color(0.86, 0.68, 0.34)
+@export var underside: Color = Color(0.588235, 0.258824, 0.32549)
+@export var floor_splat: Color = Color(1, 0.709804, 0.439216)
 
 @export_group("Toppings")
 @export_range(0, 20) var pepperoni_count: int = 7

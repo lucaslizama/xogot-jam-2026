@@ -34,7 +34,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.101960786, 0.07058824, 0.14901961, 0.35)
+color = Color(0.152941, 0.152941, 0.211765, 0.35)
 mouse_filter = 2
 
 [node name="CreditsContainer" type="VBoxContainer" parent="."]

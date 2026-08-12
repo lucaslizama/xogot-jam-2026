@@ -9,4 +9,4 @@ height = 48.0
 width = 39.0
 gap = 15.0
 height_variation = 0.3
-colour = Color(0.21, 0.17, 0.3, 1)
+colour = Color(0.243137, 0.137255, 0.278431, 1)

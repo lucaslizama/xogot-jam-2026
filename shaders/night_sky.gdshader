@@ -12,8 +12,8 @@ shader_type canvas_item;
 // the same hash decides. That makes the field stable frame to frame without a
 // list of anything.
 
-uniform vec4 top_colour : source_color = vec4(0.055, 0.043, 0.125, 1.0);
-uniform vec4 horizon_colour : source_color = vec4(0.29, 0.18, 0.33, 1.0);
+uniform vec4 top_colour : source_color = vec4(0.152941, 0.152941, 0.211765, 1.0);
+uniform vec4 horizon_colour : source_color = vec4(0.341176, 0.160784, 0.294118, 1.0);
 
 // Where the sky meets the street, as a fraction down the screen. Set from the
 // projection so the two cannot drift apart.
@@ -24,7 +24,7 @@ uniform float star_cells : hint_range(4.0, 400.0) = 90.0;
 // night sky and starts reading as noise.
 uniform float star_chance : hint_range(0.0, 1.0) = 0.12;
 uniform float star_size : hint_range(0.001, 0.3) = 0.055;
-uniform vec4 star_colour : source_color = vec4(1.0, 0.97, 0.9, 1.0);
+uniform vec4 star_colour : source_color = vec4(1.0, 1.0, 0.921569, 1.0);
 // One knob for how much the stars stand out, kept separate from their colour so
 // brightness can be tuned without also shifting the tint.
 uniform float star_brightness : hint_range(0.0, 4.0) = 1.4;
