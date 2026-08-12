@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/sim/level_state.gd" id="2_state"]
@@ -33,14 +33,12 @@
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="30_theme"]
 [ext_resource type="Script" path="res://scripts/pizza/view/money_burst.gd" id="31_money"]
 [ext_resource type="PackedScene" path="res://scenes/ui/handoff.tscn" id="32_handoff"]
-[ext_resource type="Script" path="res://scripts/pizza/view/pizza_view.gd" id="33_pizzaview"]
+[ext_resource type="PackedScene" path="res://scenes/pizza.tscn" id="33_pizzascene"]
 [ext_resource type="Resource" path="res://data/pizza_menu.tres" id="34_menu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/order_ticket.tscn" id="36_ticket"]
 [ext_resource type="PackedScene" path="res://scenes/music.tscn" id="37_music"]
 [ext_resource type="Script" path="res://scripts/pizza/view/splat_burst.gd" id="38_splatter"]
-[ext_resource type="Script" path="res://scripts/pizza/view/rider_view.gd" id="39_rider"]
-[ext_resource type="Texture2D" uid="uid://8wmfppnkohf7" path="res://sprites/DeliveryGirl_idle.png" id="40_girlidle"]
-[ext_resource type="Texture2D" uid="uid://ucv01u2vondp" path="res://sprites/DeliveryGirl_aim.png" id="41_girlaim"]
+[ext_resource type="PackedScene" path="res://scenes/rider.tscn" id="39_riderscene"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -121,10 +119,7 @@ script = ExtResource("18_shadow")
 z_index = 5
 script = ExtResource("19_aim")
 
-[node name="Pizza" type="Node2D" parent="."]
-script = ExtResource("33_pizzaview")
-size = Vector2(74, 74)
-corner_mark = true
+[node name="Pizza" parent="." instance=ExtResource("33_pizzascene")]
 
 [node name="SplatBurst" type="Node2D" parent="."]
 unique_name_in_owner = true
@@ -137,24 +132,16 @@ texture = ExtResource("35_splat")
 size = Vector2(96, 122)
 anchor = Vector2(0.5, 1)
 
-[node name="ReadyPizza" type="Node2D" parent="."]
+[node name="ReadyPizza" parent="." instance=ExtResource("33_pizzascene")]
 position = Vector2(585, 2470)
 z_index = 10
-script = ExtResource("33_pizzaview")
 size = Vector2(420, 420)
-corner_mark = true
 
-[node name="Rider" type="Node2D" parent="."]
+[node name="Rider" parent="." instance=ExtResource("39_riderscene")]
 unique_name_in_owner = true
 position = Vector2(585, 1729.6)
 z_index = -14
 scale = Vector2(0.6914, 0.6914)
-script = ExtResource("39_rider")
-size = Vector2(650, 650)
-anchor = Vector2(0.5, 0.956)
-colour = Color(0.741176, 0.282353, 0.509804, 1)
-idle_art = ExtResource("40_girlidle")
-aim_art = ExtResource("41_girlaim")
 
 [node name="PizzaStack" parent="." instance=ExtResource("8_stack")]
 unique_name_in_owner = true
