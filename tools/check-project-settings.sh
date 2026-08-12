@@ -70,6 +70,16 @@ expect 'renderer/rendering_method' '"mobile"' \
 expect 'textures/vram_compression/import_etc2_astc' 'true' \
     'The Android export fails with an empty error message without it, and the command line will not name the reason.'
 
+# The two below deal with two different kinds of jagged edge, and neither covers
+# for the other. Losing one leaves half the problem back, which is easy to miss
+# because the other half still looks fixed.
+
+expect 'textures/canvas_textures/default_texture_filter' '2' \
+    '2 is Linear Mipmap; the enum reads Nearest, Linear, Linear Mipmap, Nearest Mipmap, so 3 is not the mipmapped one and 1 is what this was. The rider is a 2048px drawing shown at about 449, and sampling that without mipmaps breaks her outlines into stair steps. Needs mipmaps/generate on the sprites too: either alone does nothing.'
+
+expect 'anti_aliasing/quality/msaa_2d' '2' \
+    '2 is 4x. This smooths the edges of what the game draws rather than what it samples: the houses, the backdrop silhouettes, the strike dots and the pizza are all draw_rect and draw_circle, and unsmoothed they step badly against the road. Godot labels 4x "Slow" and this is a phone, so if something has to give for frame rate, drop it to 1 rather than 0 and say so here.'
+
 expect 'window/size/viewport_width' '1170' \
     'The whole layout, and every measurement in the art brief, is in this space.'
 expect 'window/size/viewport_height' '2532' \
