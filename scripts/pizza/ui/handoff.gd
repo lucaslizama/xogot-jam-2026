@@ -10,8 +10,23 @@ extends Control
 ##
 ## Everything is placed in handoff.tscn: where each rider stands, where the box
 ## starts, where it ends. This owns only the timing and the order of it, so the
-## staging can be rearranged on the canvas without opening a script. The riders
-## and the box are placeholders with art slots, like everything else.
+## staging can be rearranged on the canvas without opening a script.
+##
+## The rider leaving is the one you have been playing, so RiderOut is an instance of
+## scenes/rider.tscn rather than a second copy of her values: the artist changes her
+## in one place and both the street and this beat follow. It is also the slot her art
+## suits, since she is drawn facing right and the box travels rightwards. RiderIn is
+## still a placeholder box, because only one rider has been drawn and putting her in
+## both slots would have her hand the bag to herself. Drop a second rider's art in
+## there and the box is gone.
+##
+## Their two scale numbers differ by a lot, and that is not a mistake. Both are set
+## to the same silhouette height, about 234 pixels, which is what the placeholder
+## box she replaced stood at. Her canvas is 650 square with the drawing filling 93%
+## of its height and the rest transparent margin, while the box is 240x350 of solid
+## colour, so the same height on screen is a different number on each. If either is
+## resized, match the silhouette and not the scale. About 400 is as tall as they can
+## both go before they overlap where they stand.
 ##
 ## A tap sends it on early. Nobody wants to sit through the same beat three times
 ## in a run, and a cutscene that cannot be skipped is a cutscene people resent.

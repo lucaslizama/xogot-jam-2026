@@ -13,10 +13,24 @@ extends Placeholder2D
 ## screen and she rides along it; up the screen is across the road, towards the
 ## houses she throws at. So the road's two lanes are stacked up the screen, divided
 ## by the dashed line the street shader puts at depth 7, with the tarmac ending at
-## depth 18. She rides the top lane, centred at depth 12.5.
+## depth 18. She rides the bottom lane, which runs from depth 0 to that line.
 ##
-## That depth is what fixes both numbers in the scene: y=1729.6 is the row the
-## projection puts the ground on there, and 0.6914 is scale_at(12.5). The two have
+## Her depth in it is 1.0, not the 3.5 that halves the lane, because the lane is not
+## halved on screen where it is halved in the world. Perspective squeezes the far
+## part of it: the line sits on row 1860 and depth 0 on row 2100, so the depth-3.5
+## midpoint draws at 1966.7, only a hundred pixels below the line and two hundred
+## above the near edge. She read as riding the line with a wide empty stretch of
+## tarmac beneath her. Depth 1.0 lands on 2058.6, which is about the middle of the
+## band as drawn, and that is the one a player sees.
+##
+## The bottom lane is also the honest one. A throw does not leave from wherever she
+## is drawn: PizzaGame launches it at depth 0, the rider's own distance, taking only
+## its side and height from where the pizza was let go. Standing her in the near
+## lane puts her within a few units of the plane the pizza actually flies out of,
+## instead of a dozen behind it.
+##
+## That depth is what fixes both numbers in the scene: y=2058.6 is the row the
+## projection puts the ground on there, and 0.9655 is scale_at(1.0). The two have
 ## to agree. Move her up or down and the scale must be recomputed from
 ## StreetProjection.scale_at for the depth the new row implies, or she is drawn at
 ## one distance and standing at another.

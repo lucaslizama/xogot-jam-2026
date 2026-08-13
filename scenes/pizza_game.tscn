@@ -139,9 +139,9 @@ size = Vector2(420, 420)
 
 [node name="Rider" parent="." instance=ExtResource("39_riderscene")]
 unique_name_in_owner = true
-position = Vector2(585, 1729.6)
+position = Vector2(585, 2058.6)
 z_index = -14
-scale = Vector2(0.6914, 0.6914)
+scale = Vector2(0.9655, 0.9655)
 
 [node name="PizzaStack" parent="." instance=ExtResource("8_stack")]
 unique_name_in_owner = true
