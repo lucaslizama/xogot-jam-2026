@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="PizzaFlavour" format=3]
+[gd_resource type="Resource" script_class="PizzaFlavour" format=3 uid="uid://bwa3vku0dqpjr"]
 
-[ext_resource type="Script" path="res://scripts/pizza/rules/pizza_flavour.gd" id="1_flavour"]
+[ext_resource type="Script" uid="uid://dvqdtis2nlijv" path="res://scripts/pizza/rules/pizza_flavour.gd" id="1_flavour"]
+[ext_resource type="Texture2D" uid="uid://rgkub7bu3yj6" path="res://sprites/pizzabox_idle.png" id="1_floo1"]
 
 [resource]
 script = ExtResource("1_flavour")
 display_name = "Pepperoni"
+art = ExtResource("1_floo1")
 base = Color(0.94902, 0.65098, 0.368627, 1)
-topping = Color(0.690196, 0.188235, 0.360784, 1)
 toppings = 9
 topping_size = 0.125
 topping_spread = 0.64
