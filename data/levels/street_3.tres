@@ -9,6 +9,7 @@ script = ExtResource("1_8ksq6")
 orders = ExtResource("3_orders")
 pizzas_in_stack = 12
 strikes = 3
+music_speed = 1.15
 time_of_day = ExtResource("2_04vtw")
 street_speed = 44.0
 gap_min = 23.0

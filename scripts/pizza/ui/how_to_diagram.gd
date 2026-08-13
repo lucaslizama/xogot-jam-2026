@@ -25,6 +25,7 @@ enum DiagramKind {
 	LAND, ## One in the ring, one into the wall.
 	STACK, ## The boxes left on the bike and the strike dots up top.
 	ORDERS, ## The ticket, and the tap on the road that changes what is on the pizza.
+	FLAVOURS, ## The tap on the road, and the three flavours it turns the pizza through.
 }
 
 @export var kind: DiagramKind = DiagramKind.FLICK:
@@ -82,6 +83,9 @@ enum DiagramKind {
 ## colour alone says nothing to a colour-blind player.
 @export var topping_a: Color = Color(0.690196, 0.188235, 0.360784)
 @export var topping_b: Color = Color(0.811765, 1, 0.439216)
+## And a third, for the flavours picture, which is the only one that has to show the
+## whole menu at once. The ticket never needs it: an order names two at most.
+@export var topping_c: Color = Color(1, 0.729412, 0.298039)
 ## The ripple where a finger touched the road.
 @export var tap_ring: Color = Color(1, 1, 0.921569, 0.7)
 
@@ -123,6 +127,8 @@ func _draw() -> void:
 			_draw_stack()
 		DiagramKind.ORDERS:
 			_draw_orders()
+		DiagramKind.FLAVOURS:
+			_draw_flavours()
 
 
 ## The scene every step shares: a night sky with a skyline behind it, the houses
@@ -310,6 +316,29 @@ func _draw_orders() -> void:
 	# Topped to match the ticket's first line, so the picture shows the tap having
 	# already produced what was asked for.
 	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_a, 8, 0.15)
+
+
+## The swap on its own: the tap, and the three flavours it turns the pizza through.
+##
+## Drawn as three pizzas in a row rather than one changing, because a still picture
+## cannot show a thing becoming another thing, and a row says "these are what there
+## are" — which is also the fact the page is short of. The one in hand is the middle
+## of the three and full size; the other two are smaller and set back, so the row
+## reads as a menu behind the pizza rather than three pizzas on the road.
+##
+## They differ by how many toppings and how big, not only by colour. Same reason as
+## everywhere else: at the size a pizza flies at, hue alone tells a colour-blind
+## player nothing.
+func _draw_flavours() -> void:
+	var small := IN_HAND_RADIUS * 0.62
+	_draw_topped_pizza(Vector2(0.22, 0.72), small, topping_a, 8, 0.15)
+	_draw_topped_pizza(Vector2(0.78, 0.72), small, topping_b, 13, 0.1)
+	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_c, 5, 0.19)
+	# Well away from the pizza, because that is the whole rule: a touch near it takes
+	# hold of it, and only one further off is read as a tap.
+	var tap := Vector2(0.26, 0.6)
+	_draw_tap(tap)
+	_arc(tap, Vector2(0.34, 0.78), IN_HAND + Vector2(-IN_HAND_RADIUS * 1.5, 0.0), gesture)
 
 
 ## The ticket as it appears in the corner of the screen: two lines, each a flavour

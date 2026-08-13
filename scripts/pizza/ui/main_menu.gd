@@ -15,8 +15,10 @@ extends Control
 @onready var menu_container: VBoxContainer = $MenuContainer
 @onready var credits_page: Credits = $CreditsPage
 @onready var how_to_play_page: HowToPlay = $HowToPlayPage
+@onready var settings_page: SettingsPage = $SettingsPage
 @onready var start_button: Button = $MenuContainer/StartButton
 @onready var how_to_play_button: Button = $MenuContainer/HowToPlayButton
+@onready var settings_button: Button = $MenuContainer/SettingsButton
 @onready var credits_button: Button = $MenuContainer/CreditsButton
 @onready var version_label: Label = %Version
 
@@ -24,9 +26,11 @@ extends Control
 func _ready() -> void:
 	start_button.pressed.connect(_start_game)
 	how_to_play_button.pressed.connect(_show_how_to_play)
+	settings_button.pressed.connect(_show_settings)
 	credits_button.pressed.connect(_show_credits)
 	credits_page.back_pressed.connect(_show_menu)
 	how_to_play_page.back_pressed.connect(_show_menu)
+	settings_page.back_pressed.connect(_show_menu)
 	_alternate_box_flips()
 	_show_version()
 	_show_menu()
@@ -61,19 +65,29 @@ func _start_game() -> void:
 	get_tree().change_scene_to_file(game_scene)
 
 
+## One page at a time, over the street the menu leaves standing. Written out rather
+## than looped, because there are three of them and a list of pages to hide reads
+## worse than saying which one is up.
 func _show_credits() -> void:
-	menu_container.visible = false
-	how_to_play_page.visible = false
-	credits_page.visible = true
+	_show_page(credits_page)
 
 
 func _show_how_to_play() -> void:
+	_show_page(how_to_play_page)
+
+
+func _show_settings() -> void:
+	_show_page(settings_page)
+
+
+func _show_page(page: Control) -> void:
 	menu_container.visible = false
-	credits_page.visible = false
-	how_to_play_page.visible = true
+	for other in [credits_page, how_to_play_page, settings_page]:
+		other.visible = other == page
 
 
 func _show_menu() -> void:
 	credits_page.visible = false
 	how_to_play_page.visible = false
+	settings_page.visible = false
 	menu_container.visible = true

@@ -134,6 +134,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 
 @onready var _state: LevelState = $LevelState
 @onready var _audio: GameAudio = $Audio
+@onready var _music: GameMusic = $Music
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: PizzaView = $Pizza
@@ -271,6 +272,9 @@ func start_level() -> void:
 	# The landing ring promises exactly the room this street actually gives.
 	_aim.marker_radius = _config.drop_radius
 	_begin_hour(_config.time_of_day)
+	# The street's own music, at the street's own speed. Told here rather than in
+	# _ready because a run crosses three streets without the scene being rebuilt.
+	_music.play_for_level(_level_index, _config.music_speed)
 	_debug.bind_to(physics, _config)
 	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size(),
 		wall_doorstep, _house_window_size(), _house_window_centre())

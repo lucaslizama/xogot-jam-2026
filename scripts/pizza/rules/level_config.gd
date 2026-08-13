@@ -15,6 +15,16 @@ extends Resource
 ## the last street was, so the sun comes up over the course of a run.
 @export var time_of_day: TimeOfDay
 
+## How fast the music runs on this street, as a multiple of the recording. Later
+## streets are quicker, so the evening sounds like it is getting away from you
+## without a second recording having to exist.
+##
+## Tempo and pitch move together, which is what playing a recording faster does. A
+## few per cent reads as urgency; much past 1.2 and the band starts to sound like
+## a cassette on the wrong setting. Applies to whichever track the street plays, so
+## it still means something once [member GameMusic.level_tracks] is filled in.
+@export_range(0.5, 1.5, 0.01) var music_speed: float = 1.0
+
 @export_group("The street")
 ## How fast the world slides past, in world units per second.
 @export_range(0.0, 80.0, 0.5) var street_speed: float = 33.0

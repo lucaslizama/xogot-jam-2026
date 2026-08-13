@@ -44,7 +44,10 @@ Playable, tuned on a real phone, and published to itch on every version tag.
   daylight, crossing between them rather than cutting.
 - **Two shaders** — a generated night sky with stars, and a road that inverts the projection
   per pixel so its grain and markings scroll at the rate their depth deserves.
-- **Sound** — public domain foley for throwing, landing, missing and losing a strike.
+- **Sound** — public domain foley for throwing, landing, missing and losing a strike, on a
+  Music bus and an SFX bus. A settings page slides each one, and remembers it.
+- **Music** — a bed under the menu and under every street, playing faster the harder the
+  street gets. Each level can take a track of its own when there is one worth having.
 - **Tuning panel** — an on-device "tune" button with sliders for the throw and a readout of
   what your last drag actually measured. Also a button that clears a street outright. It
   appears only in a build we are running ourselves, never in the one on itch.
@@ -60,7 +63,8 @@ xogot-jam-2026/
 ├── scenes/                 # Scene files (.tscn): layout, values, arrangement
 ├── shaders/                # Night sky, road surface
 ├── data/                   # Tuning, levels and times of day, editable in the editor
-├── scripts/pizza/          # The glue: PizzaGame and GameAudio
+├── default_bus_layout.tres # The Music and SFX buses the settings page slides
+├── scripts/pizza/          # The glue: PizzaGame, GameAudio, GameMusic, GameVolume
 │   ├── rules/              #   Resources: tuning and data, no behaviour
 │   ├── sim/                #   The rules themselves, tested with no screen
 │   ├── view/               #   Draws the street and what is on it
@@ -71,7 +75,8 @@ xogot-jam-2026/
 ├── docs/                   # Art brief, machine setup
 ├── sprites/                # Textures and art
 ├── fonts/                  # Fredoka and Nunito, with credits and their OFL licences
-└── sounds/                 # Sound effects, with credits
+└── sounds/                 # Sound effects and music, with credits
+    └── music/              #   What ships; sounds/audition/ is local-only and ignored
 ```
 
 Scenes own the *values* (positions, colours, sizes, wording) so they stay editable in
@@ -154,5 +159,6 @@ Built for Xogot Jam 2026.
 
 ## License
 
-TBD. Sound is CC0; see `sounds/CREDITS.md`. Fonts are Fredoka and Nunito, both under
-the SIL Open Font License; see `fonts/CREDITS.md`.
+TBD. Sound effects are CC0 and the music is CC BY, credited in the game as that licence
+requires; see `sounds/CREDITS.md`. Fonts are Fredoka and Nunito, both under the SIL Open
+Font License; see `fonts/CREDITS.md`.

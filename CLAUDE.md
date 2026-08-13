@@ -147,8 +147,8 @@ only values.
 
 ## Where a new script goes
 
-`scripts/pizza/` holds only the glue, `pizza_game.gd` and `game_audio.gd`.
-Everything else sits in one of four folders, and which one is not a matter of
+`scripts/pizza/` holds only the glue: `pizza_game.gd`, `game_audio.gd`,
+`game_music.gd` and `game_volume.gd`. Everything else sits in one of four folders, and which one is not a matter of
 taste:
 
 - `rules/` — a `Resource`. Tuning and data a designer edits; no behaviour beyond

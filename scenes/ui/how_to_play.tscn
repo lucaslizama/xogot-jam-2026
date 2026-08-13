@@ -70,12 +70,19 @@ note = "A pizza dropping into the ring in front of a lit house and a second one 
 diagram = 3
 caption = "Hit a house that is waiting, or land in the ring at its feet. Either one counts. Miss both and you lose a strike. Straight through the lit window pays best of all."
 
+[node name="Flavours" parent="Scroll/Steps" instance=ExtResource("2_step")]
+layout_mode = 2
+picture_height = 620.0
+note = "A finger tapping the empty road well away from the pizza, and the pizza in hand turning over from pepperoni to margherita to hawaiian"
+diagram = 6
+caption = "Tap the road, away from the pizza, to change what is on the next one. Three flavours, round and round. A flavour never changes how a pizza flies or what it pays: every house takes whatever arrives."
+
 [node name="Orders" parent="Scroll/Steps" instance=ExtResource("2_step")]
 layout_mode = 2
 picture_height = 620.0
-note = "The order ticket in the corner asking for two flavours, a finger tapping the empty road well away from the pizza, and the pizza in hand changing to the flavour the ticket wants"
+note = "The order ticket in the corner asking for two of one flavour and one of another, its clock bar running down, and a filled line being ticked off"
 diagram = 5
-caption = "Tap the road, away from the pizza, to change what is on the next one. The shop's order asks for flavours: fill it before the clock runs out for a bonus. Ignore it and you lose nothing but the money."
+caption = "The shop calls in an order: two or three pizzas, sometimes two different flavours, before the clock on the ticket runs out. Fill it for a fat tip, and on the last street for a strike back instead. Let it lapse and it costs you nothing but the money."
 
 [node name="Stack" parent="Scroll/Steps" instance=ExtResource("2_step")]
 layout_mode = 2

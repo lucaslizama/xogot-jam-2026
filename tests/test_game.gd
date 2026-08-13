@@ -260,6 +260,11 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 ## an old build.
 func _test_the_menu_says_which_build_it_is() -> void:
 	var menu: Control = (load("res://scenes/main_menu.tscn") as PackedScene).instantiate()
+	# Silent here too, for the reason given in _spawn.
+	var music: GameMusic = menu.find_child("Music", true, false)
+	if music != null:
+		music.track = null
+		music.audition_path = ""
 	add_child(menu)
 	await get_tree().process_frame
 
@@ -662,8 +667,12 @@ func _test_the_page_teaches_the_tap() -> void:
 		if caption.contains("tap"):
 			taught = true
 			# And it has to be a picture, not only a sentence. A page of prose on a
-			# phone is a page nobody reads to the end of.
-			drawn = (step as HowToStep).diagram == HowToDiagram.DiagramKind.ORDERS
+			# phone is a page nobody reads to the end of. Which picture is not fixed
+			# here: the tap was taught by the ticket when the ticket was the only
+			# reason to swap, and is taught by the flavours now that they are a step
+			# of their own. Pinning the kind made this fail for a page that had got
+			# better, so it asks only that the step draws something.
+			drawn = (step as HowToStep).diagram != HowToDiagram.DiagramKind.NONE
 	_check("one of them says to tap", taught)
 	_check("and it is drawn, not only written", drawn)
 
@@ -704,6 +713,15 @@ func _spawn(development_build: bool = true) -> Node:
 	var panel: DebugPanel = game.find_child("DebugPanel", true, false)
 	if panel != null:
 		panel.development_build = development_build
+	# No music under the tests. A four-minute track started by every one of two dozen
+	# spawns is still playing when its game is freed, and a stream the audio server
+	# has not let go of is reported at exit as a resource still in use — the message
+	# this suite has already been sent chasing once. Emptied before the tree wakes it,
+	# because it picks its track in _ready.
+	var music: GameMusic = game.find_child("Music", true, false)
+	if music != null:
+		music.track = null
+		music.audition_path = ""
 	add_child(game)
 	# start_level is deferred in _ready, so give it a frame to land.
 	await get_tree().process_frame

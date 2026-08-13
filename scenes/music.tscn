@@ -1,8 +1,11 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/game_music.gd" id="1_music"]
+[ext_resource type="AudioStream" path="res://sounds/music/mediterranean_breeze.ogg" id="2_track"]
 
 [node name="Music" type="AudioStreamPlayer"]
+bus = &"Music"
 script = ExtResource("1_music")
+track = ExtResource("2_track")
 level_db = -16.0
 fade_in = 1.6

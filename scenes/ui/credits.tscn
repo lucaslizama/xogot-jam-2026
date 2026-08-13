@@ -44,9 +44,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -420.0
-offset_top = -580.0
+offset_top = -800.0
 offset_right = 420.0
-offset_bottom = 580.0
+offset_bottom = 800.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 24
@@ -103,23 +103,50 @@ autowrap_mode = 2
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
+[node name="RoleMusic" type="Label" parent="CreditsContainer"]
+theme_type_variation = &"CreditRoleMinor"
+layout_mode = 2
+text = "Music"
+horizontal_alignment = 1
+
+[node name="NameMusic" type="Label" parent="CreditsContainer"]
+theme_type_variation = &"CreditNameMinor"
+layout_mode = 2
+text = "Eric Matyas, soundimage.org - CC BY 4.0"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer5" type="Control" parent="CreditsContainer"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="RoleSound" type="Label" parent="CreditsContainer"]
+theme_type_variation = &"CreditRoleMinor"
+layout_mode = 2
+text = "Sound"
+horizontal_alignment = 1
+
+[node name="NameSound" type="Label" parent="CreditsContainer"]
+theme_type_variation = &"CreditNameMinor"
+layout_mode = 2
+text = "Kenney - CC0"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Spacer6" type="Control" parent="CreditsContainer"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
 [node name="RoleFonts" type="Label" parent="CreditsContainer"]
-theme_type_variation = &"CreditRole"
+theme_type_variation = &"CreditRoleMinor"
 layout_mode = 2
 text = "Fonts"
 horizontal_alignment = 1
 
 [node name="NameFonts" type="Label" parent="CreditsContainer"]
-theme_type_variation = &"CreditName"
+theme_type_variation = &"CreditNameMinor"
 layout_mode = 2
-text = "Fredoka & Nunito"
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="LicenceFonts" type="Label" parent="CreditsContainer"]
-theme_type_variation = &"Caption"
-layout_mode = 2
-text = "SIL Open Font License"
+text = "Fredoka & Nunito - SIL Open Font License"
 horizontal_alignment = 1
 autowrap_mode = 2
 

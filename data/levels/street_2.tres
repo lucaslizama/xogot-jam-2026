@@ -8,6 +8,7 @@
 script = ExtResource("1_m32sf")
 orders = ExtResource("3_orders")
 pizzas_in_stack = 12
+music_speed = 1.07
 time_of_day = ExtResource("2_vv3tl")
 street_speed = 36.0
 gap_min = 26.0

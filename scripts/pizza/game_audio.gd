@@ -10,6 +10,9 @@ extends Node
 @export var bank: SoundBank
 ## How many sounds may ring at once. Beyond this the oldest is taken over.
 @export_range(1, 16) var voices: int = 8
+## The mixer bus every voice plays on. Its own bus rather than Master, so the
+## effects can be silenced while the music plays on. See [GameVolume].
+@export var bus: StringName = GameVolume.SFX
 
 var _players: Array[AudioStreamPlayer] = []
 var _next: int = 0
@@ -18,9 +21,14 @@ var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	_rng.randomize()
+	# Whatever the player last chose to silence. Asked for here as well as in the
+	# menu because the game is also entered directly, from the editor and from the
+	# tests, with no menu having run first.
+	GameVolume.load_saved()
 	for i in voices:
 		var player := AudioStreamPlayer.new()
 		player.name = "Voice%d" % i
+		player.bus = bus
 		add_child(player)
 		_players.append(player)
 
