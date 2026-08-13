@@ -30,6 +30,8 @@ func _ready() -> void:
 	await _test_a_tap_on_the_road_changes_the_flavour()
 	await _test_a_tap_near_the_pizza_leaves_the_flavour_alone()
 	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
+	await _test_only_the_pizza_you_can_grab_is_animated()
+	_test_a_sheet_is_cut_into_frames()
 	await _test_every_street_asks_for_orders()
 	await _test_the_order_ticket_clears_the_strike_dots()
 	await _test_a_ticket_shows_what_is_wanted_and_pays_when_filled()
@@ -909,6 +911,76 @@ func _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as() -> void:
 	_check("and changes what comes next instead", game.current_flavour() != thrown)
 	game.queue_free()
 	await get_tree().process_frame
+
+
+## Which pizza moves, and which one holds still. Both are decided in the scene, so
+## both can be undone in the scene by accident; and neither is visible to a test
+## that only looks at flavours, because the pizza in the air is drawn from the same
+## flavour as the one in the hand.
+func _test_only_the_pizza_you_can_grab_is_animated() -> void:
+	var game := await _spawn()
+	var hand: PizzaView = game._ready_pizza
+	var air: PizzaView = game._pizza
+	var flavour: PizzaFlavour = game.current_flavour()
+
+	_check("the flavour brought a sheet with frames on it (got %d)" % flavour.frame_count(),
+		flavour.frame_count() > 1)
+	_check("the pizza you can grab plays it", hand.plays_animation())
+	_check("and the one in the air does not", not air.plays_animation())
+
+	# Real time, not frames. Headless runs unthrottled, so a hundred process frames
+	# can be a few milliseconds of a loop that turns over twelve times a second.
+	var was: int = hand.frame_shown()
+	await get_tree().create_timer(2.5 / flavour.animation_fps).timeout
+	_check("the pizza in hand has moved on (frame %d, was %d)" % [hand.frame_shown(), was],
+		hand.frame_shown() != was)
+
+	# And the thrown one stays on its one frame the whole way down the street.
+	await _flick(game, 600.0)
+	var held: int = air.frame_shown()
+	await get_tree().create_timer(2.5 / flavour.animation_fps).timeout
+	_check("the thrown pizza is still on frame %d" % air.frame_shown(),
+		game._pizza.frame_shown() == held and not air.plays_animation())
+	_check("and it is drawn from the flavour's still art, not a cut of the sheet",
+		air.flavour.art != null)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The grid maths, on a sheet whose numbers are picked to make a wrong answer
+## obvious. Cheap to get subtly wrong — a row and a column swapped draws the right
+## frames in the wrong order, which reads as bad animation rather than as a bug.
+func _test_a_sheet_is_cut_into_frames() -> void:
+	var flavour := PizzaFlavour.new()
+	_check("a flavour with no sheet has no frames", flavour.frame_count() == 0)
+	_check("and asking for one draws nothing", flavour.frame_region(0) == Rect2())
+
+	var sheet := PlaceholderTexture2D.new()
+	sheet.size = Vector2(400, 200)
+	flavour.animation = sheet
+	flavour.animation_columns = 4
+	flavour.animation_rows = 2
+	_check("a 4x2 sheet has eight frames (got %d)" % flavour.frame_count(),
+		flavour.frame_count() == 8)
+	_check("the first is the top left corner (%s)" % flavour.frame_region(0),
+		flavour.frame_region(0) == Rect2(0, 0, 100, 100))
+	_check("the second is beside it, not below (%s)" % flavour.frame_region(1),
+		flavour.frame_region(1) == Rect2(100, 0, 100, 100))
+	_check("the fifth starts the second row (%s)" % flavour.frame_region(4),
+		flavour.frame_region(4) == Rect2(0, 100, 100, 100))
+	_check("and counting past the end comes round to the start",
+		flavour.frame_region(8) == flavour.frame_region(0))
+
+	# A sheet with a part-filled last row: the cells are still cut the same way,
+	# there are just fewer of them drawn.
+	flavour.animation_length = 6
+	_check("a shortened sheet stops where it is told (got %d)" % flavour.frame_count(),
+		flavour.frame_count() == 6)
+	_check("and wraps at that point instead",
+		flavour.frame_region(6) == flavour.frame_region(0))
+	flavour.animation_length = 99
+	_check("asking for more frames than the grid holds is clamped to the grid",
+		flavour.frame_count() == 8)
 
 
 func _flick(game: Node, travel: float) -> void:

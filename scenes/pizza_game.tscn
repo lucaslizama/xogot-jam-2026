@@ -141,6 +141,7 @@ anchor = Vector2(0.5, 1)
 position = Vector2(585, 2470)
 z_index = 10
 size = Vector2(420, 420)
+animated = true
 
 [node name="Rider" parent="." instance=ExtResource("39_riderscene")]
 unique_name_in_owner = true
