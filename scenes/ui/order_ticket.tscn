@@ -8,7 +8,7 @@ theme = ExtResource("2_theme")
 offset_left = 40.0
 offset_top = 190.0
 offset_right = 600.0
-offset_bottom = 470.0
+offset_bottom = 486.0
 mouse_filter = 2
 script = ExtResource("1_ticket")
 
@@ -37,35 +37,77 @@ unique_name_in_owner = true
 offset_left = 28.0
 offset_top = 68.0
 offset_right = 532.0
-offset_bottom = 236.0
+offset_bottom = 248.0
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Line1" type="Label" parent="Lines"]
+[node name="Line1" type="HBoxContainer" parent="Lines"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="Lines/Line1"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Text" type="Label" parent="Lines/Line1"]
 theme_type_variation = &"Caption"
 layout_mode = 2
 mouse_filter = 2
 text = "0/2  Pepperoni"
+vertical_alignment = 1
 
-[node name="Line2" type="Label" parent="Lines"]
+[node name="Line2" type="HBoxContainer" parent="Lines"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="Lines/Line2"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Text" type="Label" parent="Lines/Line2"]
 theme_type_variation = &"Caption"
 layout_mode = 2
 mouse_filter = 2
 text = "0/1  Hawaiian"
+vertical_alignment = 1
 
-[node name="Line3" type="Label" parent="Lines"]
+[node name="Line3" type="HBoxContainer" parent="Lines"]
 visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="Lines/Line3"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Text" type="Label" parent="Lines/Line3"]
 theme_type_variation = &"Caption"
 layout_mode = 2
 mouse_filter = 2
 text = "0/1  Margherita"
+vertical_alignment = 1
 
 [node name="ClockTrack" type="Control" parent="."]
 unique_name_in_owner = true
 offset_left = 28.0
-offset_top = 246.0
+offset_top = 258.0
 offset_right = 532.0
-offset_bottom = 264.0
+offset_bottom = 276.0
 mouse_filter = 2
 
 [node name="Clock" type="ColorRect" parent="ClockTrack"]

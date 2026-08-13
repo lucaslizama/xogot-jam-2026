@@ -594,11 +594,18 @@ func _test_a_ticket_shows_what_is_wanted_and_pays_when_filled() -> void:
 	_check("a ticket was written", order != null)
 	_check("and it is on screen", ticket.visible)
 
-	var row: Label = ticket.get_node("Lines/Line1")
+	var row: Label = ticket.get_node("Lines/Line1/Text")
 	_check("the first row says what is wanted (%s)" % row.text,
 		row.text.contains(order.wants[0].display_name) and row.text.begins_with("0/"))
-	var spare: Label = ticket.get_node("Lines/Line3")
+	var spare: Control = ticket.get_node("Lines/Line3")
 	_check("and rows the ticket does not need are hidden", not spare.visible)
+
+	# The picture as well as the name. A row showing the wrong flavour's icon would
+	# read as the ticket asking for something it is not, and no wording on the card
+	# would talk the player out of what they can see.
+	var icon: TextureRect = ticket.get_node("Lines/Line1/Icon")
+	_check("and shows that flavour's icon, not another's",
+		icon.visible and icon.texture == order.wants[0].icon)
 
 	# One of two: the row must move without the ticket being done with.
 	var tips_before: int = game._state.tips

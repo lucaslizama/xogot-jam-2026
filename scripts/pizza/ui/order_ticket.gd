@@ -10,6 +10,12 @@ extends Control
 ## may have: a rules file asking for more kinds than there are rows gets clamped and
 ## told about it, rather than quietly asking for a flavour the player cannot see.
 ##
+## Each row is a box holding two things: an [code]Icon[/code] showing the flavour and
+## a [code]Text[/code] label saying how many of it are wanted. Both are found by name,
+## so a row can be rearranged, resized or reordered on the canvas without touching
+## this file; how big the icon is and how far it sits from the words are the scene's
+## business. A row missing its label says so at startup rather than coming up blank.
+##
 ## Nothing here is a size or a font. What it says lives in the exports below, what
 ## it looks like lives in order_ticket.tscn and the theme.
 ##
@@ -69,6 +75,21 @@ func _ready() -> void:
 	position.x = _home_x - hide_offset
 	modulate.a = 0.0
 	visible = false
+	_check_the_rows_can_be_written()
+
+
+## Said once, at startup, rather than every time a ticket is filled in.
+##
+## A row is two nodes in the scene and this reaches them by name, so rearranging a
+## row is easy and breaking one is silent: a missing label writes nothing, and a
+## ticket with blank lines looks like the orders themselves have gone wrong. Better
+## to name the row that cannot be written than to leave somebody reading the board.
+func _check_the_rows_can_be_written() -> void:
+	for row in _lines.get_children():
+		if row.get_node_or_null(^"Text") == null:
+			push_warning(("OrderTicket: row %s has no Text label, so what the order "
+				+ "wants cannot be written on it. Each row in order_ticket.tscn wants "
+				+ "a Text label, and an Icon beside it to show the flavour.") % row.name)
 
 
 ## How many lines the scene can actually draw. OrderRules is clamped to this.
@@ -146,7 +167,7 @@ func _kill_tween() -> void:
 func _fill_lines(order: PizzaOrder) -> void:
 	var rows := _lines.get_children()
 	for i in rows.size():
-		var row := rows[i] as Label
+		var row := rows[i] as Control
 		if row == null:
 			continue
 		if i >= order.line_count():
@@ -155,9 +176,21 @@ func _fill_lines(order: PizzaOrder) -> void:
 		var counts := order.line(i)
 		var flavour := order.wants[i]
 		row.visible = true
-		row.text = line_format % [counts.y, counts.x, flavour.display_name]
-		row.add_theme_color_override(&"font_color",
-			line_filled if order.line_is_filled(i) else line_owed)
+
+		var text := row.get_node_or_null(^"Text") as Label
+		if text != null:
+			text.text = line_format % [counts.y, counts.x, flavour.display_name]
+			text.add_theme_color_override(&"font_color",
+				line_filled if order.line_is_filled(i) else line_owed)
+
+		# The name stays even with a picture beside it. A flavour has to be readable
+		# to somebody who cannot tell its colours apart, which is the same reason the
+		# pizzas differ by how many toppings they have and not only by hue.
+		var icon := row.get_node_or_null(^"Icon") as TextureRect
+		if icon != null:
+			icon.texture = flavour.icon
+			# A flavour that brought no icon leaves no gap where one would have been.
+			icon.visible = flavour.icon != null
 
 
 ## The bar is sized rather than scaled, so the rounded ends of the art that will
