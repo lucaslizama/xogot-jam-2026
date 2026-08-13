@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ba86amr7v7hhn"
-path="res://.godot/imported/pizzabox_flying_4x4.png-3d7d639ce2de541329ae217b4fc63acd.ctex"
+uid="uid://b2xrwhi7fcm3y"
+path="res://.godot/imported/pizzabox_flying_hawaiian_4x4.png-4013462a6bc06df63fcaac256aeffa94.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/pizzabox_flying_4x4.png"
-dest_files=["res://.godot/imported/pizzabox_flying_4x4.png-3d7d639ce2de541329ae217b4fc63acd.ctex"]
+source_file="res://sprites/pizzabox_flying_hawaiian_4x4.png"
+dest_files=["res://.godot/imported/pizzabox_flying_hawaiian_4x4.png-4013462a6bc06df63fcaac256aeffa94.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
