@@ -1,9 +1,18 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/ui/handoff.gd" id="1_handoff"]
 [ext_resource type="Script" path="res://scripts/pizza/view/placeholder_2d.gd" id="2_ph"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="3_theme"]
 [ext_resource type="PackedScene" path="res://scenes/rider.tscn" id="4_rider"]
+[ext_resource type="Shader" path="res://shaders/rider_recolour.gdshader" id="5_recolour"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_riderout"]
+shader = ExtResource("5_recolour")
+shader_parameter/hue_shift = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_riderin"]
+shader = ExtResource("5_recolour")
+shader_parameter/hue_shift = 0.31
 
 [node name="Handoff" type="Control"]
 theme = ExtResource("3_theme")
@@ -44,17 +53,15 @@ horizontal_alignment = 1
 
 [node name="RiderOut" parent="." instance=ExtResource("4_rider")]
 unique_name_in_owner = true
+material = SubResource("ShaderMaterial_riderout")
 position = Vector2(400, 1700)
 scale = Vector2(0.385, 0.385)
 
-[node name="RiderIn" type="Node2D" parent="."]
+[node name="RiderIn" parent="." instance=ExtResource("4_rider")]
 unique_name_in_owner = true
+material = SubResource("ShaderMaterial_riderin")
 position = Vector2(790, 1700)
-scale = Vector2(0.667, 0.667)
-script = ExtResource("2_ph")
-size = Vector2(240, 350)
-anchor = Vector2(0.5, 1)
-colour = Color(0.301961, 0.65098, 1, 1)
+scale = Vector2(-0.385, 0.385)
 
 [node name="BoxTarget" type="Node2D" parent="."]
 unique_name_in_owner = true

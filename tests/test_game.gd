@@ -24,6 +24,7 @@ func _ready() -> void:
 	await _test_the_menu_says_which_build_it_is()
 	await _test_a_throw_starts_from_where_the_pizza_was()
 	await _test_a_street_cleared_is_handed_on()
+	await _test_you_become_the_rider_you_handed_the_bag_to()
 	await _test_a_street_lost_is_not_handed_on()
 	await _test_the_shop_sells_more_than_one_thing()
 	await _test_a_tap_on_the_road_changes_the_flavour()
@@ -337,6 +338,53 @@ func _test_a_street_cleared_is_handed_on() -> void:
 	_check("and puts it away", not relay.visible)
 	_check("the card follows it", card.visible)
 	_check("and the round is called, won (%s)" % [ended], ended == [true, 10])
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The relay means something: the rider who takes the bag is the rider you play next.
+## Two riders on screen at once is the only chance the game gets to show that, so the
+## arriving one has to be wearing the colours you turn up in on the next street, and
+## the leaving one the colours you have been playing. Checked end to end, from clearing
+## a street to standing on the next one, because every part of it being individually
+## right and the pair being swapped would look exactly like this test passing.
+func _test_you_become_the_rider_you_handed_the_bag_to() -> void:
+	var game := await _spawn()
+	var relay: Handoff = game.get_node("Ui/Handoff")
+	var rider: RiderView = game.get_node("Rider")
+	var leaving: RiderView = relay.get_node("RiderOut")
+	var arriving: RiderView = relay.get_node("RiderIn")
+
+	_check("the first rider is the art as drawn (got %.2f)" % rider.hue(),
+		is_equal_approx(rider.hue(), 0.0))
+	_check("and no two riders in a row look alike",
+		not is_equal_approx(game.rider_hue(0), game.rider_hue(1)))
+
+	_win_the_street(game)
+	await get_tree().process_frame
+	_check("the rider leaving wears what you were playing (%.2f vs %.2f)"
+			% [leaving.hue(), rider.hue()],
+		is_equal_approx(leaving.hue(), rider.hue()))
+	var taken_by := arriving.hue()
+	_check("and the one arriving is somebody else (%.2f)" % taken_by,
+		not is_equal_approx(taken_by, leaving.hue()))
+
+	relay.skip()
+	await get_tree().process_frame
+	game._on_again()
+	await get_tree().process_frame
+	_check("on the next street you are her (%.2f vs %.2f)" % [rider.hue(), taken_by],
+		is_equal_approx(rider.hue(), taken_by))
+
+	# Losing hands nothing over, so it must not move you on to another rider either.
+	var mine := rider.hue()
+	while game._state.strikes_left > 0:
+		game._state.note_miss()
+	await get_tree().process_frame
+	game._on_again()
+	await get_tree().process_frame
+	_check("a street lost leaves you as yourself (%.2f)" % rider.hue(),
+		is_equal_approx(rider.hue(), mine))
 	game.queue_free()
 	await get_tree().process_frame
 

@@ -12,21 +12,39 @@ extends Control
 ## starts, where it ends. This owns only the timing and the order of it, so the
 ## staging can be rearranged on the canvas without opening a script.
 ##
-## The rider leaving is the one you have been playing, so RiderOut is an instance of
-## scenes/rider.tscn rather than a second copy of her values: the artist changes her
-## in one place and both the street and this beat follow. It is also the slot her art
-## suits, since she is drawn facing right and the box travels rightwards. RiderIn is
-## still a placeholder box, because only one rider has been drawn and putting her in
-## both slots would have her hand the bag to herself. Drop a second rider's art in
-## there and the box is gone.
+## Both riders are instances of scenes/rider.tscn rather than copies of her values:
+## the artist changes her in one place and the street, this beat and both slots
+## follow. The rider leaving is the one you have been playing, and she suits that
+## slot as drawn, facing right with the box travelling rightwards.
 ##
-## Their two scale numbers differ by a lot, and that is not a mistake. Both are set
-## to the same silhouette height, about 234 pixels, which is what the placeholder
-## box she replaced stood at. Her canvas is 650 square with the drawing filling 93%
-## of its height and the rest transparent margin, while the box is 240x350 of solid
-## colour, so the same height on screen is a different number on each. If either is
-## resized, match the silhouette and not the scale. About 400 is as tall as they can
-## both go before they overlap where they stand.
+## The one arriving is the same scene twice over, which would have her hand the bag
+## to herself, so the scene does two things about it. She is mirrored, scale.x
+## negative, which turns her to face the rider she is taking it from; because the
+## rider's anchor is at her feet, flipping her leaves those feet where they were
+## rather than sliding her sideways. And her hues are rotated by the material on the
+## node, shaders/rider_recolour.gdshader, which spares her skin and moves everything
+## a player reads as which rider this is.
+##
+## A plain `modulate` tint was tried there first and was not enough. Multiplying
+## leaves every hue where it was, so she read as the same girl in different light;
+## side by side for a second, nobody would take her for anyone else.
+##
+## Neither hue is authored here, because the pair has to mean something: the rider
+## leaving is wearing the colours you have been playing, and the rider arriving is
+## wearing the ones you are about to. [method play] is told both by the game, which
+## is the only thing that knows how far into a run you are. The values in the scene
+## are what the beat looks like opened on its own in the editor.
+##
+## Both are staging for a sprite that does not exist yet, and both come off in one
+## step when it does: point RiderIn's `idle_art` at the second rider, clear the
+## material, and decide then whether she still wants mirroring.
+##
+## Both scales are the same 0.385, which puts each silhouette at about 234 pixels,
+## the height the placeholder box they replaced stood at. Her canvas is 650 square
+## with the drawing filling 93% of its height and the rest transparent margin, so
+## that scale is smaller than it looks. If she is resized, match the silhouette
+## rather than the number, and mirror by negating x only. About 400 pixels is as
+## tall as they can both go before they overlap where they stand.
 ##
 ## A tap sends it on early. Nobody wants to sit through the same beat three times
 ## in a run, and a cutscene that cannot be skipped is a cutscene people resent.
@@ -51,8 +69,10 @@ signal finished
 @export_range(0.0, 400.0, 5.0) var pass_arc: float = 90.0
 
 @onready var _scrim: ColorRect = %Scrim
-@onready var _rider_out: Node2D = %RiderOut
-@onready var _rider_in: Node2D = %RiderIn
+## Both slots are rider instances now, not a rider and a placeholder box, which is
+## what lets either of them be recoloured into somebody else.
+@onready var _rider_out: RiderView = %RiderOut
+@onready var _rider_in: RiderView = %RiderIn
 @onready var _box: Node2D = %Box
 @onready var _box_target: Node2D = %BoxTarget
 @onready var _caption: Label = %Caption
@@ -74,11 +94,18 @@ func _ready() -> void:
 
 
 ## Play the beat. Returns immediately; wait on [signal finished].
-func play() -> void:
+##
+## The two hues are turns round the hue wheel: who is leaving and who is arriving.
+## Passing them every time rather than setting them once is deliberate — the beat
+## plays three times in a run with a different pair each time, and a colour left over
+## from the last street would put the wrong rider on the screen.
+func play(leaving_hue: float, arriving_hue: float) -> void:
 	if _playing:
 		return
 	_playing = true
 	_reset()
+	_rider_out.set_hue(leaving_hue)
+	_rider_in.set_hue(arriving_hue)
 	show()
 
 	var width: float = size.x if size.x > 1.0 else get_viewport_rect().size.x

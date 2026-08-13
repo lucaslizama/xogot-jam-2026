@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=40 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/pizza/sim/level_state.gd" id="2_state"]
@@ -39,6 +39,11 @@
 [ext_resource type="PackedScene" path="res://scenes/music.tscn" id="37_music"]
 [ext_resource type="Script" path="res://scripts/pizza/view/splat_burst.gd" id="38_splatter"]
 [ext_resource type="PackedScene" path="res://scenes/rider.tscn" id="39_riderscene"]
+[ext_resource type="Shader" path="res://shaders/rider_recolour.gdshader" id="40_recolour"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rider"]
+shader = ExtResource("40_recolour")
+shader_parameter/hue_shift = 0.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -139,6 +144,7 @@ size = Vector2(420, 420)
 
 [node name="Rider" parent="." instance=ExtResource("39_riderscene")]
 unique_name_in_owner = true
+material = SubResource("ShaderMaterial_rider")
 position = Vector2(585, 2058.6)
 z_index = -14
 scale = Vector2(0.9655, 0.9655)

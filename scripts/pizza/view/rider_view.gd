@@ -71,6 +71,33 @@ extends Placeholder2D
 var _aiming: bool = false
 
 
+## Which rider this is, as a turn round the hue wheel. Zero is the art as drawn.
+##
+## There is one sprite and a run has a new rider on every street, so who you are is
+## a recolour: shaders/rider_recolour.gdshader rotates her hues and spares her skin.
+## That the recolour is a shader parameter is knowledge kept here rather than at the
+## two call sites, so the game and the handoff ask for a rider and not for a uniform.
+##
+## Silent when there is no material. A rider without one is the rider as drawn, which
+## is a legitimate thing to want in a scene, not a mistake worth a warning on every
+## street.
+func set_hue(turns: float) -> void:
+	var shaded := material as ShaderMaterial
+	if shaded == null:
+		return
+	shaded.set_shader_parameter(&"hue_shift", turns)
+
+
+## What set_hue was last told, or zero for a rider drawn in her own colours. Asked by
+## the tests, and by anything staging one rider to match another.
+func hue() -> float:
+	var shaded := material as ShaderMaterial
+	if shaded == null:
+		return 0.0
+	var set_to: Variant = shaded.get_shader_parameter(&"hue_shift")
+	return 0.0 if set_to == null else float(set_to)
+
+
 ## The flat of the rack in the coordinates of whatever this hangs under: where its
 ## top surface starts, and how wide it is. No height to it; it is a line to stand
 ## things on rather than a box.

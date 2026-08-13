@@ -30,6 +30,25 @@ signal flavour_changed(flavour: PizzaFlavour)
 ## reproducible while every level still looks different.
 @export var street_seed: int = 20260807
 
+@export_group("Who you are")
+## How far round the hue wheel each rider sits from the one before, in turns.
+##
+## A run is a relay: you clear a street, hand the bag to the rider who pulls up, and
+## on the next street you are her. There is one sprite, so a rider is a recolour of
+## it — shaders/rider_recolour.gdshader rotates her hues and leaves her skin alone —
+## and this is the only number that decides how far apart any two of them look.
+##
+## Spacing them rather than picking a colour each is what keeps a long run honest:
+## the first rider is the art as drawn, at zero, and every rider after her is one
+## more step round, wrapped. At 0.31 no two consecutive riders are close and it takes
+## more streets than the game has before one comes round near a previous one, which
+## is why it is not a round number. It also never lands her hair on the hue her skin
+## is protected at, which would leave her looking bald from a distance.
+##
+## Any step is legal. Zero means every rider in the run is the art as drawn, which is
+## the way to switch the whole idea off from the editor if it ever needs switching off.
+@export_range(0.0, 1.0, 0.01) var rider_hue_step: float = 0.31
+
 @export_group("Daylight")
 ## How long the sky takes to cross from one street's hour to the next. The sun
 ## should be seen coming up, not be found already up.
@@ -162,6 +181,16 @@ var _gesture := ThrowGesture.new()
 var _views: Dictionary = {}
 var _travelled: float = 0.0
 var _level_index: int = 0
+## Which rider you are, counted in bags taken rather than in streets played.
+##
+## Not the level index, though they move together for the first few streets. Winning
+## the last street leaves _level_index where it is, because there is nothing after it
+## to move to, and you play that street again — but you did take the bag from somebody
+## at the end of it, and a run where you are handed a purple rider and then turn up
+## teal again is a run that contradicts its own cutscene. Counting handoffs says who
+## you are correctly however long the run goes on. A street lost hands nothing over
+## and so leaves this alone: you are still you, and you try the same street again.
+var _rider_index: int = 0
 var _touch_index: int = -1
 var _ready_home: Vector2
 var _drag_from: Vector2
@@ -276,6 +305,8 @@ func start_level() -> void:
 	# The street's own music, at the street's own speed. Told here rather than in
 	# _ready because a run crosses three streets without the scene being rebuilt.
 	_music.play_for_level(_level_index, _config.music_speed)
+	# And whoever you are by now. Same reason: one scene, several riders through it.
+	_rider.set_hue(rider_hue(_rider_index))
 	_debug.bind_to(physics, _config)
 	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size(),
 		wall_doorstep, _house_window_size(), _house_window_centre())
@@ -917,7 +948,11 @@ func _on_round_ended(won: bool, delivered: int) -> void:
 	_pending_won = won
 	_pending_delivered = delivered
 	if won and _handoff != null:
-		_handoff.play()
+		# You in the colours you have been playing, and the rider you are about to be
+		# in hers. The beat is the only place the two are ever on screen together, so
+		# it is the only place the change of rider can be seen happening rather than
+		# just being true by the next street.
+		_handoff.play(rider_hue(_rider_index), rider_hue(_rider_index + 1))
 		return
 	_show_result_card()
 
@@ -935,7 +970,20 @@ func _on_again() -> void:
 	# Winning moves you up the list; losing puts you back on the same street.
 	if _result.was_won():
 		_level_index = mini(_level_index + 1, maxi(0, levels.size() - 1))
+		# And you are the rider you were just handed the bag by. Counted separately
+		# from the level, and deliberately not clamped with it: see _rider_index.
+		_rider_index += 1
 	start_level()
+
+
+## Which rider the nth one of a run is, as a turn round the hue wheel.
+##
+## Public because it is the whole of the rule and the tests ask it directly, which is
+## cheaper than clearing three streets to find out what colour anybody was. The first
+## rider is the art as drawn; every one after is another step round, wrapped, so a run
+## can go on as long as it likes without running out of riders.
+func rider_hue(index: int) -> float:
+	return fposmod(float(index) * rider_hue_step, 1.0)
 
 
 func _level_at(index: int) -> LevelConfig:
