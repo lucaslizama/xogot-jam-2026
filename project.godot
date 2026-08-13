@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Pizza Flicker"
-config/version="0.25.0"
+config/version="0.27.0"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
@@ -20,10 +20,10 @@ config/icon="res://icon.svg"
 
 window/size/viewport_width=1170
 window/size/viewport_height=2532
-window/size/mode.editor=2
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
+window/size/mode.editor=2
 window/stretch/aspect.web="keep"
 window/stretch/aspect.editor="keep"
 
