@@ -188,8 +188,8 @@ remote that starts the build.
 - [x] The handoff between one street and the next
 - [x] Flavours, and orders that ask for them
 - [x] Art for the rider and the pizzas
+- [x] Flavour icons shown on the order ticket
 - [ ] Art for the houses and the skyline
-- [ ] Flavour icons shown on the order ticket
 
 ## Team
 
