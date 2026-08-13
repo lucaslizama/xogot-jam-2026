@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="PizzaFlavour" format=3 uid="uid://4rrkhnsoekk6"]
 
 [ext_resource type="Script" uid="uid://dvqdtis2nlijv" path="res://scripts/pizza/rules/pizza_flavour.gd" id="1_flavour"]
-[ext_resource type="Texture2D" uid="uid://cm7ely4kneaon" path="res://sprites/pizzabox_margherita_idle.png" id="1_jxopk"]
+[ext_resource type="Texture2D" uid="uid://cm7ely4kneaon" path="res://sprites/pizzabox_margherita_flying.png" id="1_jxopk"]
 [ext_resource type="Texture2D" uid="uid://bwetfmon2cyy8" path="res://sprites/pizza_margherita_icon.png" id="2_q8gdi"]
-[ext_resource type="Texture2D" uid="uid://ktrgeiihlcrt" path="res://sprites/pizzabox_margherita_flying_4x4.png" id="3_anim"]
+[ext_resource type="Texture2D" uid="uid://ktrgeiihlcrt" path="res://sprites/pizzabox_margherita_idle_4x4.png" id="3_anim"]
 
 [resource]
 script = ExtResource("1_flavour")

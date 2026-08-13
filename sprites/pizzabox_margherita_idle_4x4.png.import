@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bwfv76e1og2g4"
-path="res://.godot/imported/pizzabox_hawaiian_idle.png-237b5939eda724b351eb81489d75aecc.ctex"
+uid="uid://ktrgeiihlcrt"
+path="res://.godot/imported/pizzabox_margherita_idle_4x4.png-7f1d5cc80cd53ae0ad81f2a09e99eb00.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/pizzabox_hawaiian_idle.png"
-dest_files=["res://.godot/imported/pizzabox_hawaiian_idle.png-237b5939eda724b351eb81489d75aecc.ctex"]
+source_file="res://sprites/pizzabox_margherita_idle_4x4.png"
+dest_files=["res://.godot/imported/pizzabox_margherita_idle_4x4.png-7f1d5cc80cd53ae0ad81f2a09e99eb00.ctex"]
 
 [params]
 
@@ -36,5 +36,5 @@ process/premult_alpha=true
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=512
+process/size_limit=0
 detect_3d/compress_to=1

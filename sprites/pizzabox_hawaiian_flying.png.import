@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cm7ely4kneaon"
-path="res://.godot/imported/pizzabox_margherita_idle.png-5c8a0af42926eea100ecba28b55b330f.ctex"
+uid="uid://bwfv76e1og2g4"
+path="res://.godot/imported/pizzabox_hawaiian_flying.png-6eaabd7e987c383f3ae61870cecff4af.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/pizzabox_margherita_idle.png"
-dest_files=["res://.godot/imported/pizzabox_margherita_idle.png-5c8a0af42926eea100ecba28b55b330f.ctex"]
+source_file="res://sprites/pizzabox_hawaiian_flying.png"
+dest_files=["res://.godot/imported/pizzabox_hawaiian_flying.png-6eaabd7e987c383f3ae61870cecff4af.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rgkub7bu3yj6"
-path="res://.godot/imported/pizzabox_pepperoni_idle.png-21017d1e446afecce7c3ed0916f15ade.ctex"
+uid="uid://ba86amr7v7hhn"
+path="res://.godot/imported/pizzabox_pepperoni_idle_4x4.png-bc662a8c6f6e4428bd9f0d9393eeb841.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/pizzabox_pepperoni_idle.png"
-dest_files=["res://.godot/imported/pizzabox_pepperoni_idle.png-21017d1e446afecce7c3ed0916f15ade.ctex"]
+source_file="res://sprites/pizzabox_pepperoni_idle_4x4.png"
+dest_files=["res://.godot/imported/pizzabox_pepperoni_idle_4x4.png-bc662a8c6f6e4428bd9f0d9393eeb841.ctex"]
 
 [params]
 
@@ -36,5 +36,5 @@ process/premult_alpha=true
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=512
+process/size_limit=0
 detect_3d/compress_to=1
