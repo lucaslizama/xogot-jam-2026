@@ -12,12 +12,19 @@ extends Control
 ##
 ## Nothing here is a size or a font. What it says lives in the exports below, what
 ## it looks like lives in order_ticket.tscn and the theme.
+##
+## The verdict is no longer written on the card. It was, and nobody read it: an order
+## is filled by a throw, and while a pizza is in the air the player is watching the
+## far end of the street, not a card in the top corner. The wording still lives here,
+## because it is the ticket's own words and this is where a designer looks for them,
+## but the saying of it is the OrderPopup's job, over the rider. All this does when a
+## ticket is finished is hold still long enough for the rows to be read and leave.
 
 @export_group("Wording")
 ## One line of the ticket. Three numbers in order: how many have arrived, how many
 ## are wanted, and what they are.
 @export var line_format: String = "%d/%d  %s"
-## Said across the ticket when it is filled, and when it runs out. The second is
+## Said over the rider when the ticket is filled, and when it runs out. The second is
 ## deliberately mild: losing an order costs nothing but the bonus, and language that
 ## reads like a punishment would say otherwise.
 @export var filled_wording: String = "ORDER UP!"
@@ -41,13 +48,13 @@ extends Control
 @export_group("Timing")
 ## How long the ticket takes to slide in and out.
 @export_range(0.0, 1.0, 0.01) var arrive_duration: float = 0.25
-## How long the verdict sits there once the ticket is settled, before it leaves.
-@export_range(0.0, 3.0, 0.05) var verdict_linger: float = 1.1
+## How long a finished ticket stays put before it leaves, so the row that just turned
+## green can be read. What it earned is said over the rider meanwhile.
+@export_range(0.0, 3.0, 0.05) var finished_linger: float = 1.1
 ## How far to the left the ticket sits while it is away.
 @export_range(0.0, 1200.0, 10.0) var hide_offset: float = 620.0
 
 @onready var _lines: VBoxContainer = %Lines
-@onready var _verdict: Label = %Verdict
 @onready var _clock: ColorRect = %Clock
 @onready var _clock_track: Control = %ClockTrack
 
@@ -61,7 +68,6 @@ func _ready() -> void:
 	_home_x = position.x
 	position.x = _home_x - hide_offset
 	modulate.a = 0.0
-	_verdict.hide()
 	visible = false
 
 
@@ -72,7 +78,6 @@ func line_capacity() -> int:
 
 ## A new ticket. Fills the rows in, hides the surplus, and slides it in.
 func show_order(order: PizzaOrder) -> void:
-	_verdict.hide()
 	_fill_lines(order)
 	_show_clock(order)
 	visible = true
@@ -96,24 +101,24 @@ func show_clock_of(order: PizzaOrder) -> void:
 	_show_clock(order)
 
 
-## Say how it went, then take the ticket away. The same move either way, because
-## either way the ticket is finished with; only the words and the colour differ.
-func close_order(wording: String, colour: Color, paid: int, gave_strike_back: bool) -> void:
-	var said := wording
-	if paid > 0 and not paid_format.is_empty():
-		said += "  " + paid_format % paid
-	if gave_strike_back and not strike_back_wording.is_empty():
-		said += "  " + strike_back_wording
-	_verdict.text = said
-	_verdict.add_theme_color_override(&"font_color", colour)
-	_verdict.show()
+## What filling one paid, worded, for whoever is saying so. Empty when there was
+## nothing to pay or the ticket is set to say nothing about it.
+func paid_line(paid: int) -> String:
+	if paid <= 0 or paid_format.is_empty():
+		return ""
+	return paid_format % paid
 
+
+## Hold still for a moment, then take the ticket away. The same move whether it was
+## filled or lost, because either way the ticket is finished with; what happened is
+## said elsewhere, and the rows already show which it was.
+func close_order() -> void:
 	_kill_tween()
 	# Deliberately not awaited. A tween the game waits on is a tween still held if
 	# the scene goes away mid-slide, which is reported as a leaked instance and
 	# reads exactly like a bug in the game.
 	_tween = create_tween()
-	_tween.tween_interval(verdict_linger)
+	_tween.tween_interval(finished_linger)
 	_tween.tween_property(self, "position:x", _home_x - hide_offset, arrive_duration) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_tween.parallel().tween_property(self, "modulate:a", 0.0, arrive_duration)
@@ -129,7 +134,6 @@ func clear() -> void:
 
 func _park() -> void:
 	visible = false
-	_verdict.hide()
 	modulate.a = 0.0
 	position.x = _home_x - hide_offset
 

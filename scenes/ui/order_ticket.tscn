@@ -74,17 +74,3 @@ offset_right = 504.0
 offset_bottom = 18.0
 color = Color(0.301961, 0.65098, 1, 1)
 mouse_filter = 2
-
-[node name="Verdict" type="Label" parent="."]
-unique_name_in_owner = true
-visible = false
-theme_type_variation = &"Caption"
-offset_left = 28.0
-offset_top = 90.0
-offset_right = 532.0
-offset_bottom = 190.0
-mouse_filter = 2
-text = "ORDER UP!"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 2

@@ -180,6 +180,14 @@ script = ExtResource("31_money")
 [node name="TipPopup" parent="Ui" instance=ExtResource("28_tip")]
 unique_name_in_owner = true
 
+[node name="OrderPopup" parent="Ui" instance=ExtResource("28_tip")]
+unique_name_in_owner = true
+linger = 2.85
+offset_left = 355.0
+offset_top = 1240.0
+offset_right = 815.0
+offset_bottom = 1450.0
+
 [node name="Handoff" parent="Ui" instance=ExtResource("32_handoff")]
 unique_name_in_owner = true
 visible = false

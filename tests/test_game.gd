@@ -561,12 +561,22 @@ func _test_a_ticket_shows_what_is_wanted_and_pays_when_filled() -> void:
 	await get_tree().process_frame
 	_check("filling it pays the bonus (%d -> %d)" % [tips_before, game._state.tips],
 		game._state.tips == tips_before + 800)
-	_check("and the ticket says it is done", ticket.get_node("Verdict").visible)
+	# Said over the rider, not on the card. The card is in the top corner and the
+	# player is watching a pizza land at the far end of the street when this happens,
+	# so a verdict written there went unread. Moved deliberately on 12 August 2026;
+	# putting it back on the ticket means changing this test to say so.
+	var popup: TipPopup = game.get_node("Ui/OrderPopup")
+	var rider: Node2D = game.get_node("Rider")
+	_check("and it says so (%s)" % popup.get_node("Rows/Tier").text,
+		popup.visible and popup.get_node("Rows/Tier").text == ticket.filled_wording)
+	_check("nearer the rider than the ticket is",
+		absf(popup.position.y - rider.position.y) < absf(ticket.position.y - rider.position.y))
 	_check("with nothing left on the board", game._orders.open_order() == null)
 
-	# The verdict is on a tween, and freeing the game mid-tween is what the recorded
-	# leak was. Let it play out.
-	await get_tree().create_timer(ticket.verdict_linger + ticket.arrive_duration + 0.1).timeout
+	# Both the ticket leaving and the popup floating are tweens, and freeing the game
+	# mid-tween is what the recorded leak was. Let the longer of the two play out.
+	var floating := maxf(ticket.finished_linger + ticket.arrive_duration, popup.linger)
+	await get_tree().create_timer(floating + 0.1).timeout
 	game.queue_free()
 	await get_tree().process_frame
 

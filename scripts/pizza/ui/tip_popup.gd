@@ -8,6 +8,12 @@ extends Control
 ## resolve at a time, and a second one arriving simply takes the popup over. The
 ## rows are authored in the scene; this places it, fills it in and floats it.
 ##
+## pizza_game.tscn has two of them, and they are two nodes rather than one because
+## they can be on screen together: filling an order is resolved by the same throw
+## that just paid a tip, so one popup would mean the order verdict killing the tip's
+## tween a frame after it started. TipPopup goes wherever the pizza landed, out on
+## the street; OrderPopup is parked over the rider and stays there.
+##
 ## Nothing here is a size or a colour. The look lives in tip_popup.tscn and in the
 ## theme, so what a bullseye looks like is changed without opening a script.
 
@@ -15,8 +21,10 @@ extends Control
 ## How far it drifts up while fading, in pixels.
 @export_range(0.0, 400.0, 5.0) var rise: float = 110.0
 ## How long it lasts. Long enough to read, short enough not to still be there when
-## the next pizza lands.
-@export_range(0.1, 3.0, 0.05) var linger: float = 0.85
+## the next pizza lands. That second half only binds the popup that follows the
+## street, where two throws land in the same place; the parked one has the rider to
+## itself and is set longer in pizza_game.tscn on purpose.
+@export_range(0.1, 6.0, 0.05) var linger: float = 0.85
 ## How long it takes to swell in on arrival. The pop is what makes a bullseye feel
 ## like an event rather than a caption.
 @export_range(0.0, 0.6, 0.01) var pop_duration: float = 0.14
@@ -39,41 +47,63 @@ extends Control
 @onready var _streak: Label = %Streak
 
 var _tween: Tween
+## Where the scene put it, read once, because playing moves it and it has to be able
+## to come back. Only the parked popup uses this; the one that follows the street is
+## told a new place every time.
+var _home: Vector2
 
 
 func _ready() -> void:
+	_home = position
 	hide()
 
 
 ## Show what a delivery earned, at the point on screen where it landed.
 func show_tip(at: Vector2, heading: String, tip: String, streak: String,
 		colour: Color) -> void:
-	_tier.text = heading
-	_tier.add_theme_color_override(&"font_color", colour)
-	_tip.text = tip
-	_tip.visible = not tip.is_empty()
-	_streak.text = streak
-	_streak.visible = not streak.is_empty()
-	_play(at)
+	_fill(heading, tip, streak, colour)
+	_play(at - size * 0.5)
 
 
 ## Show a plain word with no tip attached, for a run coming to an end.
 func show_message(at: Vector2, message: String, colour: Color) -> void:
 	if message.is_empty():
 		return
-	_tier.text = message
+	_fill(message, "", "", colour)
+	_play(at - size * 0.5)
+
+
+## Say something where the scene parked this popup, rather than out on the street.
+##
+## For a verdict on an order, which is not about any one throw and so has nowhere on
+## the street to belong. It used to be written across the ticket, in the top corner,
+## which is not where anyone is looking when a pizza is coming down; parked over the
+## rider it is read without looking away from her. Where exactly that is belongs to
+## pizza_game.tscn, not here.
+func show_here(heading: String, tip: String, streak: String, colour: Color) -> void:
+	if heading.is_empty():
+		return
+	_fill(heading, tip, streak, colour)
+	_play(_home)
+
+
+func _fill(heading: String, tip: String, streak: String, colour: Color) -> void:
+	_tier.text = heading
 	_tier.add_theme_color_override(&"font_color", colour)
-	_tip.visible = false
-	_streak.visible = false
-	_play(at)
+	_tip.text = tip
+	_tip.visible = not tip.is_empty()
+	_streak.text = streak
+	_streak.visible = not streak.is_empty()
 
 
-func _play(at: Vector2) -> void:
+## `top_left` rather than a centre, so the parked popup floats from the corner the
+## scene shows in the editor instead of half a card away from it.
+func _play(top_left: Vector2) -> void:
 	# A throw landing while the last one is still floating takes the popup over
 	# rather than the two fighting over it.
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
-	position = at - size * 0.5
+	position = top_left
 	modulate.a = 1.0
 	scale = Vector2.ONE * pop_scale
 	pivot_offset = size * 0.5

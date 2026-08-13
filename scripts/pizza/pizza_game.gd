@@ -146,6 +146,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _strikes: StrikeDots = %StrikeDots
 @onready var _tips: Label = %Tips
 @onready var _tip_popup: TipPopup = %TipPopup
+@onready var _order_popup: TipPopup = %OrderPopup
 @onready var _money: MoneyBurst = %MoneyBurst
 @onready var _splatter: SplatBurst = %SplatBurst
 @onready var _handoff: Handoff = %Handoff
@@ -508,8 +509,10 @@ func _resolve_landing(struck: House = null,
 		var award := _state.note_delivery(tier)
 		_show_tip(landed_at, tier, award, _state.streak)
 		_audio.play(&"delivered")
-		# After the tip, so an order being filled has the last word on screen rather
-		# than arriving underneath what the throw itself paid.
+		# After the tip, and the two no longer compete for the same spot: the tip
+		# floats where the pizza landed, the order verdict over the rider. Still in
+		# this order because a filled order is the bigger news of the two and should
+		# be the one that arrives last.
 		_orders.note_delivery(_flight_flavour)
 	else:
 		_drop_splat(landed_side, landed_distance)
@@ -559,12 +562,17 @@ func _on_order_progressed(order: PizzaOrder) -> void:
 ## Filling one pays, and on the harder streets hands a spent chance back. The money
 ## bursts where the last pizza landed rather than over the ticket: that is where the
 ## player is looking, and it is the throw that earned it.
+##
+## The words go over the rider for the same reason. On the ticket they were in the top
+## corner while the player was watching a pizza come down at the far end of the
+## street, so an order quietly filled itself and slid away unread.
 func _on_order_filled(order: PizzaOrder) -> void:
 	_state.award_bonus(order.pays)
 	var gave_one_back := order.gives_strike_back and _state.restore_strike()
 	_ticket.update_order(order)
-	_ticket.close_order(_ticket.filled_wording, _ticket.line_filled, order.pays,
-		gave_one_back)
+	_ticket.close_order()
+	_order_popup.show_here(_ticket.filled_wording, _ticket.paid_line(order.pays),
+		_ticket.strike_back_wording if gave_one_back else "", _ticket.line_filled)
 	_money.burst(_last_landing, _money.bills_for(ScoreRules.ThrowTier.WINDOW))
 	_audio.play(&"delivered")
 
@@ -572,7 +580,8 @@ func _on_order_filled(order: PizzaOrder) -> void:
 ## Losing one costs nothing but the bonus, so it is said quietly and with no sound.
 ## A noise here would be indistinguishable from a strike.
 func _on_order_lost(_order: PizzaOrder) -> void:
-	_ticket.close_order(_ticket.expired_wording, _ticket.line_owed, 0, false)
+	_ticket.close_order()
+	_order_popup.show_here(_ticket.expired_wording, "", "", _ticket.line_owed)
 
 
 # --- tips --------------------------------------------------------------------
@@ -896,8 +905,8 @@ func _on_strikes_changed(left: int) -> void:
 func _on_round_ended(won: bool, delivered: int) -> void:
 	_clear_flight()
 	# Silently, verdict and all. A street ending under an open ticket is not the
-	# player having failed that ticket, and "order gone" over the result card would
-	# say it was.
+	# player having failed that ticket, and "order gone" floating up as the result
+	# card arrives would say it was.
 	_orders.close()
 	_ticket.clear()
 	_audio.play(&"round_won" if won else &"round_lost")
