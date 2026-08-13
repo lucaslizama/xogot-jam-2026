@@ -134,6 +134,21 @@ commit; the hook can be stepped past once with `git commit --no-verify`.
 including blanking the Android Java SDK path. Close it before editing that file,
 and prefer setting such values in the GUI.
 
+**In a `canvas_item` shader, `COLOR` already holds the texel when `fragment()`
+starts.** It arrives as the texture sample multiplied by the node's modulate. Write
+`COLOR = texture(TEXTURE, UV) * COLOR` — which reads like the obvious way to tint a
+sprite, and is what the default material looks like written out — and the texture goes
+in twice, squaring every channel. Nothing errors and the hue barely moves, so the art
+does not look wrong, only darker: the rider's `#8fde5d` hair came out `#50c122`, which
+is 0.871 squared and 0.561 squared to the integer. Because she is the largest sprite on
+screen it read as the whole game having dimmed, and a frame-wide brightness measurement
+missed it, since her pixels are a small share of a mostly sky-and-road frame. Take the
+source from `COLOR.rgb`, write back `vec4(rgb, COLOR.a)`, and leave `TEXTURE` alone
+unless you actually want a second sample. To check one of these, render the same frame
+with the material and with `material = null`, `get_tree().paused = true` so the street
+cannot scroll between the two, and compare pixels: identical is the only acceptable
+answer when the shader is set to change nothing.
+
 **A `;` comment in a `.tscn` or `.tres` does not survive the file being saved.**
 The format accepts them on the way in, so a hand-written note sits there looking
 like documentation and reads fine in a diff; but Godot regenerates the whole file
