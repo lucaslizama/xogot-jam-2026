@@ -74,14 +74,14 @@ standing in the exact space their pictures will occupy.
   the last drag actually measured. Also a button that clears a street outright. It appears only
   in a build run locally, never in the one on itch.
 
-Still to build: art for the houses and the skyline, an iOS export preset, and somewhere on the
-order ticket for the flavour icons, which are drawn and assigned but not yet shown.
+Still to build: art for the houses and the skyline, and somewhere on the order ticket for the
+flavour icons, which are drawn and assigned but not yet shown.
 
 ## Project structure
 
 ```
 xogot-jam-2026/
-├── project.godot           # Engine + iOS/display/input configuration
+├── project.godot           # Engine + display/input configuration
 ├── icon.svg                # App icon
 ├── scenes/                 # Scene files (.tscn): layout, values, arrangement
 │   └── ui/                 #   Menu, pages, cards, HUD
@@ -132,10 +132,9 @@ sizes.
 
 ## Requirements
 
-- **Godot / Xogot 4.6** (Mobile renderer)
-- For iOS export: macOS + Xcode, an Apple Developer account, and the iOS export template
-
-Everything else a machine needs is installed by one script:
+**Godot / Xogot 4.6**, Mobile renderer. The game ships as a browser build played on a phone, so
+the engine is all it takes to work on it. Putting a test build on an Android handset also wants
+the SDK, which the script below installs along with everything else:
 
 ```
 bash tools/setup-dev-env.sh
@@ -191,7 +190,6 @@ remote that starts the build.
 - [x] Art for the rider and the pizzas
 - [ ] Art for the houses and the skyline
 - [ ] Flavour icons shown on the order ticket
-- [ ] iOS export preset (bundle ID, icons, launch screen)
 
 ## Team
 

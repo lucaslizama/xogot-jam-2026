@@ -1,7 +1,8 @@
 # Working on this project
 
-A pizza delivery game for Xogot Jam 2026. Portrait, touch only, targeting iOS,
-authored in Xogot on an iPad and built with Godot 4.6 on desktop. See
+A pizza delivery game for Xogot Jam 2026. Portrait, touch only, played in a
+browser on a phone, authored in Xogot on an iPad and built with Godot 4.6 on
+desktop. There is no native build and none is planned. See
 `docs/design/pizza-delivery.md` for what the game is.
 
 ## Setting up a new machine

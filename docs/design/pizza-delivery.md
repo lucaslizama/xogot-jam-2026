@@ -1,6 +1,7 @@
 # Pizza delivery
 
-The jam entry for Xogot Jam 2026, theme Handoff. Portrait, touch only, built for iPhone.
+The jam entry for Xogot Jam 2026, theme Handoff. Portrait, touch only, played in a browser on a
+phone.
 
 ## The loop
 
