@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="PizzaFlavour" format=3 uid="uid://4rrkhnsoekk6"]
 
-[ext_resource type="Texture2D" uid="uid://rgkub7bu3yj6" path="res://sprites/pizzabox_idle.png" id="1_4saqe"]
 [ext_resource type="Script" uid="uid://dvqdtis2nlijv" path="res://scripts/pizza/rules/pizza_flavour.gd" id="1_flavour"]
+[ext_resource type="Texture2D" uid="uid://cm7ely4kneaon" path="res://sprites/pizzabox_margherita_idle.png" id="1_jxopk"]
+[ext_resource type="Texture2D" uid="uid://bwetfmon2cyy8" path="res://sprites/pizza_margherita_icon.png" id="2_q8gdi"]
 
 [resource]
 script = ExtResource("1_flavour")
 display_name = "Margherita"
-art = ExtResource("1_4saqe")
+art = ExtResource("1_jxopk")
+icon = ExtResource("2_q8gdi")
 base = Color(1, 0.894118, 0.470588, 1)
 topping = Color(0.235294, 0.639216, 0.439216, 1)
 toppings = 5
