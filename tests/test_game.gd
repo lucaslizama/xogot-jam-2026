@@ -31,6 +31,7 @@ func _ready() -> void:
 	await _test_a_tap_near_the_pizza_leaves_the_flavour_alone()
 	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
 	await _test_only_the_pizza_you_can_grab_is_animated()
+	await _test_the_strike_row_shows_the_chances_this_street_dealt()
 	_test_a_sheet_is_cut_into_frames()
 	await _test_every_street_asks_for_orders()
 	await _test_the_order_ticket_clears_the_strike_dots()
@@ -988,6 +989,52 @@ func _test_a_sheet_is_cut_into_frames() -> void:
 	flavour.animation_length = 99
 	_check("asking for more frames than the grid holds is clamped to the grid",
 		flavour.frame_count() == 8)
+
+
+## The row must show the chances this street dealt and no more.
+##
+## It used to show all five dots whatever the street granted, so the spares sat there
+## as crosses and every street opened by telling the player they had already missed:
+## four and a cross on the first street, three and two crosses on the others. The
+## count was right and the picture was wrong, which no test looking at LevelState
+## could see.
+func _test_the_strike_row_shows_the_chances_this_street_dealt() -> void:
+	var game := await _spawn()
+	var dots: StrikeDots = game.get_node("Ui/StrikeDots")
+	var row: Control = dots.get_node("Dots")
+	var granted: int = game._state.strike_budget()
+
+	_check("the street dealt some chances (got %d)" % granted, granted > 0)
+	_check("the scene carries spares to deal from (%d dots for %d strikes)"
+		% [dots.slot_count(), granted], dots.slot_count() >= granted)
+	_check("as many dots on screen as chances dealt (%d shown, %d dealt)"
+		% [_visible_dots(row), granted], _visible_dots(row) == granted)
+
+	# And none of them a cross, because nothing has been thrown yet. A spare drawn as
+	# spent is exactly what this test exists to catch.
+	var spent := 0
+	for dot in row.get_children():
+		if (dot as Control).visible and (dot as StrikeDot).is_spent():
+			spent += 1
+	_check("and not one of them spent before a throw (%d looked spent)" % spent, spent == 0)
+
+	# A miss turns one into a cross without changing how many dots there are.
+	game._state.note_miss()
+	await get_tree().process_frame
+	_check("a miss spends one (%d left of %d)" % [game._state.strikes_left, granted],
+		game._state.strikes_left == granted - 1)
+	_check("the row still shows %d dots, one of them now a cross" % granted,
+		_visible_dots(row) == granted)
+	game.queue_free()
+	await get_tree().process_frame
+
+
+func _visible_dots(row: Control) -> int:
+	var shown := 0
+	for dot in row.get_children():
+		if (dot as Control).visible:
+			shown += 1
+	return shown
 
 
 func _flick(game: Node, travel: float) -> void:

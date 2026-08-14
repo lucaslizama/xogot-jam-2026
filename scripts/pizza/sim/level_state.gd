@@ -44,6 +44,18 @@ func bind_strike_capacity(slots: int) -> void:
 	_max_strikes = maxi(1, slots)
 
 
+## How many strikes this street dealt, after the clamp: the chances that were ever
+## in play. Three numbers are easy to confuse here, so to be plain about it. This is
+## what the street granted; [member strikes_left] is how many of them are unspent;
+## and the count of dots in the scene is only the ceiling on what a street may ask
+## for. Anything drawing the row needs this one, because a slot past it was never
+## dealt and must not be shown as a chance already lost.
+func strike_budget() -> int:
+	if _config == null:
+		return 0
+	return clampi(_config.strikes, 1, _max_strikes)
+
+
 func begin(config: LevelConfig) -> void:
 	_config = config
 	_over = false
@@ -113,8 +125,7 @@ func award_bonus(amount: int) -> void:
 func restore_strike() -> bool:
 	if _over or _config == null:
 		return false
-	var budget := clampi(_config.strikes, 1, _max_strikes)
-	if strikes_left >= budget:
+	if strikes_left >= strike_budget():
 		return false
 	strikes_left += 1
 	strikes_changed.emit(strikes_left)

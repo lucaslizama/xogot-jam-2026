@@ -40,6 +40,13 @@ func show_spent(spent: bool) -> void:
 	queue_redraw()
 
 
+## Whether this one is drawn as a cross. Asked by the tests: whether the row is
+## honest is a question about what is on the screen, and counting how many strikes
+## the state has left cannot answer it.
+func is_spent() -> bool:
+	return _spent
+
+
 func _draw() -> void:
 	var art := art_spent if _spent else art_clean
 	if art != null:

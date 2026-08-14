@@ -8,6 +8,11 @@ extends Control
 ## spacing belong to whoever is looking at the screen. That also makes the scene
 ## the authority on how many strikes a level can ask for.
 ##
+## The scene carries more dots than any street asks for, as headroom, so a street
+## has to say how many it dealt before the row means anything: see
+## [method show_granted]. The spares are hidden rather than drawn as spent, the same
+## way the pizza stack hides the boxes a level is not carrying.
+##
 ## Each dot draws itself; see StrikeDot for why they are shapes and not glyphs.
 
 @onready var _dots: Control = %Dots
@@ -16,6 +21,23 @@ extends Control
 ## How many strikes the scene can actually draw. LevelState clamps to this.
 func slot_count() -> int:
 	return _dots.get_child_count()
+
+
+## How many chances this street dealt. Slots past it are hidden, because they were
+## never dealt and a cross means a miss the player has had.
+##
+## Without this the row read as though the street had already been half lost before
+## the first throw: the scene carries five dots as headroom, no street asks for more
+## than four, and every spare one sat there as a cross. Which strikes are spent is a
+## question about this street, so the answer arrives when a street begins rather
+## than being read off the scene once.
+func show_granted(granted: int) -> void:
+	var dealt := clampi(granted, 0, slot_count())
+	var slots := _dots.get_children()
+	for i in slots.size():
+		var dot := slots[i] as CanvasItem
+		if dot != null:
+			dot.visible = i < dealt
 
 
 ## The y below which nothing else may sit, in this layer's own coordinates.

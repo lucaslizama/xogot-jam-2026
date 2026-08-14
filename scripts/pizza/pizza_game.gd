@@ -316,6 +316,10 @@ func start_level() -> void:
 	_result.hide()
 	_strikes_seen = -1
 	_state.begin(_config)
+	# After begin, which is what settles how many strikes the street actually dealt:
+	# a level asking for more than the scene can draw is clamped in there, and the row
+	# has to hide the spares against the clamped number rather than the asked-for one.
+	_strikes.show_granted(_state.strike_budget())
 	_ticket.clear()
 	_orders.begin(_orders_for(_config), menu, street_seed + _level_index * 7919)
 
