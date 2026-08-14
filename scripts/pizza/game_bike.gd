@@ -53,7 +53,17 @@ extends AudioStreamPlayer
 ## Where the engine settles. Kept apart from [member AudioStreamPlayer.volume_db] so
 ## a fade has somewhere to climb to and this stays the authored level. The balance
 ## against other effects belongs on the bus; this is the clip's own level.
-@export_range(-60.0, 6.0, 0.5) var level_db: float = -4.0
+##
+## Low, and it has to be. An engine loop is dense: it holds a steady RMS a long way
+## under its peak, where an impact is a spike with nothing either side of it, so a
+## clip normalised the way the effects are normalised arrives far louder than any of
+## them. Set against the music instead, which is the only other thing here that plays
+## continuously: the bed is a -22.6 dBFS recording at -16, so about -38.6 dB, and this
+## with a -17.0 dBFS loop at -22 through the bus's -6 comes to about -45. Six decibels
+## under the bed, which is where something the player hears for a whole run belongs.
+## The first attempt at -4 put it 11.6 dB over the music and was rightly called too
+## loud.
+@export_range(-60.0, 6.0, 0.5) var level_db: float = -22.0
 ## An engine that arrives at full level announces itself. A moment of fade lets it
 ## start as though it had been running all along.
 @export_range(0.0, 4.0, 0.1) var fade_in: float = 0.8

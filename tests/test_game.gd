@@ -1059,9 +1059,24 @@ func _test_the_scooter_has_a_bus_of_its_own() -> void:
 	AudioServer.set_bus_volume_db(index, authored)
 	GameVolume.set_level(GameVolume.SFX, 1.0)
 
-	# And with no clip in the repository yet it must be silent rather than broken.
-	_check("no engine clip is assigned yet", bike.engine == null)
-	_check("so nothing is playing, and nothing errored", not bike.playing)
+	_check("no engine clip is committed yet", bike.engine == null)
+
+	# Whether anything is actually running depends on whether somebody has dropped an
+	# audition file in, which is local and ignored by git, so asserting either way
+	# would pass here and fail on the next machine. What must hold in both cases is
+	# that it never plays nothing and never plays off the wrong bus.
+	if bike.playing:
+		_check("an audition is running, looped and on its own bus",
+			bike.stream != null and bool(bike.stream.get(&"loop")) and bike.bus == GameVolume.BIKE)
+	else:
+		_check("with no clip to play it is silent rather than broken", bike.stream == null)
+
+	# The engine runs for a whole street while the music is the only other thing that
+	# does, so it has to sit under the bed rather than over it. A clip normalised like
+	# a one-shot impact arrives far louder than one, which is how this was wrong once.
+	var music: GameMusic = game.get_node("Music")
+	_check("and it is authored quieter than the music bed (%.1f against %.1f dB)"
+		% [bike.level_db, music.level_db], bike.level_db <= music.level_db)
 	game.queue_free()
 	await get_tree().process_frame
 
