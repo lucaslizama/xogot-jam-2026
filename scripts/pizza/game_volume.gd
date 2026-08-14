@@ -3,8 +3,9 @@ extends RefCounted
 
 ## How loud each bus is, and remembering it between runs.
 ##
-## The mixer has two buses under Master, [constant MUSIC] and [constant SFX], so
-## either can be turned down without the other. They live in
+## The mixer has two buses under Master a player can set, [constant MUSIC] and
+## [constant SFX], so either can be turned down without the other, and one more under
+## SFX that only we set: see [constant BIKE]. They live in
 ## `res://default_bus_layout.tres`, which is the path Godot loads a layout from on
 ## its own: naming it in the project settings as well would be a setting a running
 ## editor could quietly write back out, and this project has lost settings that way
@@ -27,6 +28,22 @@ extends RefCounted
 
 const MUSIC := &"Music"
 const SFX := &"SFX"
+
+## The scooter's own bus, which sends to SFX rather than to Master. Named here so
+## anything looking for it finds it beside the others, and pointedly absent from
+## [constant BUSES] below.
+const BIKE := &"Bike"
+
+## The buses a player sets and the game remembers. Only these two: they are what the
+## settings page has a slider for.
+##
+## [constant BIKE] must stay out of it. It is a trim we set, authored on the bus in
+## default_bus_layout.tres, and the saving here works by reading whatever a bus is at
+## and writing that down. Include it and the first time a player touched any slider
+## the engine's authored level would be copied into their config file, after which
+## changing the authored figure would do nothing for them and the reason would be
+## nowhere on screen. It needs no slider of its own regardless, because it sends
+## through SFX and the effects slider already turns it down with everything else.
 const BUSES: Array[StringName] = [MUSIC, SFX]
 
 ## Where the choice is kept. `user://` rather than the project, because it is this

@@ -40,6 +40,7 @@
 [ext_resource type="Script" path="res://scripts/pizza/view/splat_burst.gd" id="38_splatter"]
 [ext_resource type="PackedScene" path="res://scenes/rider.tscn" id="39_riderscene"]
 [ext_resource type="Shader" path="res://shaders/rider_recolour.gdshader" id="40_recolour"]
+[ext_resource type="Script" path="res://scripts/pizza/game_bike.gd" id="41_bike"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rider"]
 shader = ExtResource("40_recolour")
@@ -87,6 +88,10 @@ script = ExtResource("26_audio")
 bank = ExtResource("27_bank")
 
 [node name="Music" parent="." instance=ExtResource("37_music")]
+
+[node name="Bike" type="AudioStreamPlayer" parent="."]
+bus = &"Bike"
+script = ExtResource("41_bike")
 
 [node name="LevelState" type="Node" parent="."]
 script = ExtResource("2_state")
