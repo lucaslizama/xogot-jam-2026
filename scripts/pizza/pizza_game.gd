@@ -154,7 +154,6 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _state: LevelState = $LevelState
 @onready var _audio: GameAudio = $Audio
 @onready var _music: GameMusic = $Music
-@onready var _bike: GameBike = $Bike
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: PizzaView = $Pizza
@@ -306,9 +305,6 @@ func start_level() -> void:
 	# The street's own music, at the street's own speed. Told here rather than in
 	# _ready because a run crosses three streets without the scene being rebuilt.
 	_music.play_for_level(_level_index, _config.music_speed)
-	# The scooter takes the street's speed too, if it has been told to care about it,
-	# so one figure on the level moves the music and the engine together.
-	_bike.ride_at(_config.music_speed)
 	# And whoever you are by now. Same reason: one scene, several riders through it.
 	_rider.set_hue(rider_hue(_rider_index))
 	_debug.bind_to(physics, _config)
@@ -949,9 +945,6 @@ func _on_round_ended(won: bool, delivered: int) -> void:
 	_orders.close()
 	_ticket.clear()
 	_audio.play(&"round_won" if won else &"round_lost")
-	# And the engine winds down. It is the one sound that runs the whole street, so
-	# it is the one that would still be running under the result card.
-	_bike.pull_up()
 	# A street cleared is passed on to the next rider before the card says what it
 	# paid. A street lost has nothing to hand over, so it goes straight to the
 	# card: making somebody watch a triumphant relay after being fired would be a

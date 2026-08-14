@@ -32,7 +32,6 @@ func _ready() -> void:
 	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
 	await _test_only_the_pizza_you_can_grab_is_animated()
 	await _test_the_strike_row_shows_the_chances_this_street_dealt()
-	await _test_the_scooter_has_a_bus_of_its_own()
 	_test_a_sheet_is_cut_into_frames()
 	await _test_every_street_asks_for_orders()
 	await _test_the_order_ticket_clears_the_strike_dots()
@@ -1026,57 +1025,6 @@ func _test_the_strike_row_shows_the_chances_this_street_dealt() -> void:
 		game._state.strikes_left == granted - 1)
 	_check("the row still shows %d dots, one of them now a cross" % granted,
 		_visible_dots(row) == granted)
-	game.queue_free()
-	await get_tree().process_frame
-
-
-## The scooter's bus, and the two things about it that are easy to undo by accident.
-##
-## It has to send through SFX, or the effects slider stops turning the engine down and
-## a player who wanted quiet still has an engine. And it has to stay out of the levels
-## the game saves, or the trim we authored gets copied into a player's config the
-## first time they touch a slider and can never be changed for them again.
-func _test_the_scooter_has_a_bus_of_its_own() -> void:
-	var game := await _spawn()
-	var bike: GameBike = game.get_node("Bike")
-	var index := AudioServer.get_bus_index(GameVolume.BIKE)
-	_check("there is a bus called %s" % GameVolume.BIKE, index >= 0)
-	_check("the scooter plays on it (plays on %s)" % bike.bus, bike.bus == GameVolume.BIKE)
-	_check("and it sends through SFX, so the effects slider still governs it (sends to %s)"
-		% AudioServer.get_bus_send(index), AudioServer.get_bus_send(index) == GameVolume.SFX)
-	_check("it is not one of the buses a player sets", not GameVolume.BUSES.has(GameVolume.BIKE))
-
-	# The freeze this design exists to avoid: save the player's levels with the engine
-	# trimmed, then load them back, and the trim must be exactly where it was authored
-	# rather than whatever a config file remembers.
-	var authored := AudioServer.get_bus_volume_db(index)
-	GameVolume.set_level(GameVolume.SFX, 0.5)
-	AudioServer.set_bus_volume_db(index, authored - 9.0)
-	GameVolume.load_saved()
-	_check("loading a player's levels leaves the engine trim alone (%.1f dB, not %.1f)"
-		% [AudioServer.get_bus_volume_db(index), authored],
-		is_equal_approx(AudioServer.get_bus_volume_db(index), authored - 9.0))
-	AudioServer.set_bus_volume_db(index, authored)
-	GameVolume.set_level(GameVolume.SFX, 1.0)
-
-	_check("no engine clip is committed yet", bike.engine == null)
-
-	# Whether anything is actually running depends on whether somebody has dropped an
-	# audition file in, which is local and ignored by git, so asserting either way
-	# would pass here and fail on the next machine. What must hold in both cases is
-	# that it never plays nothing and never plays off the wrong bus.
-	if bike.playing:
-		_check("an audition is running, looped and on its own bus",
-			bike.stream != null and bool(bike.stream.get(&"loop")) and bike.bus == GameVolume.BIKE)
-	else:
-		_check("with no clip to play it is silent rather than broken", bike.stream == null)
-
-	# The engine runs for a whole street while the music is the only other thing that
-	# does, so it has to sit under the bed rather than over it. A clip normalised like
-	# a one-shot impact arrives far louder than one, which is how this was wrong once.
-	var music: GameMusic = game.get_node("Music")
-	_check("and it is authored quieter than the music bed (%.1f against %.1f dB)"
-		% [bike.level_db, music.level_db], bike.level_db <= music.level_db)
 	game.queue_free()
 	await get_tree().process_frame
 
