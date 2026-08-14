@@ -138,7 +138,7 @@ size = Vector2(96, 122)
 anchor = Vector2(0.5, 1)
 
 [node name="ReadyPizza" parent="." instance=ExtResource("33_pizzascene")]
-position = Vector2(585, 2470)
+position = Vector2(585, 2370)
 z_index = 10
 size = Vector2(420, 420)
 animated = true
