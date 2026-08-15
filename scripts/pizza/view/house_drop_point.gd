@@ -4,19 +4,15 @@ extends Node2D
 
 ## The landing ring at a house's feet: where a pizza is meant to go.
 ##
-## Roughly half the houses that go by are scenery, so the eye has to find the ones
-## that want a pizza among them. A drop point that breathes is found faster than a
-## still one, and unlike anything drawn it keeps working whatever art turns up.
+## Half the houses that go by are scenery, so the eye has to pick the ones that
+## want a pizza out of them. A ring that breathes is found faster than a still one,
+## and it keeps working whatever art turns up.
 ##
-## The pulse is applied as this node's own scale rather than to the drawing, so a
-## sprite or a sub-scene parented here breathes with the placeholder instead of
-## sitting still on top of it. The same scale carries the ring's real radius: art
-## is authored at [member art_radius] pixels across the middle and stretched to
-## whatever the street's ring turns out to be.
-##
-## The squash is on the scale too, because the ring lies flat on the ground and has
-## to read as flat rather than as a disc facing the camera. Anything parented here
-## is therefore squashed as well, which is what a ground decal wants.
+## The pulse, the ring's real radius and the flat-on-the-ground squash are all
+## applied to this node's scale rather than to the drawing, so anything parented
+## here breathes, resizes and lies flat with it. Art is authored at [member
+## art_radius] pixels across the middle and stretched to whatever the street's ring
+## turns out to be.
 
 ## How flat the ring lies. 1.0 is a full circle facing the camera; the default is
 ## the street's own foreshortening.

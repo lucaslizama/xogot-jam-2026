@@ -2,31 +2,24 @@
 class_name HouseView
 extends Node2D
 
-## One house on the street. This node draws nothing itself: it owns the parts and
-## decides which of them is showing.
+## One house on the street. Draws nothing itself: it owns the parts and decides
+## which is showing.
 ##
-## Every state of the house is a real child node, so art arrives by editing the
-## scene rather than by filling in a property. Drop a Sprite2D, an
-## AnimatedSprite2D or a whole sub-scene under [code]Waiting[/code], put a shader
-## or a script on it, delete the placeholder underneath, and this node keeps
-## working: it only ever sets [code]visible[/code] on the three of them. The state
-## nodes need be nothing more than a CanvasItem. A node that happens to have
-## [code]show_shape[/code] is additionally handed the measurements, for art that
-## wants to draw itself to them; nothing in the scene does today, and a plain
-## sprite is left alone.
+## Each state is a real child node, so art arrives by editing the scene rather than
+## filling in a property. Drop a Sprite2D or a whole sub-scene under
+## [code]Waiting[/code], shader and script and all, and this node keeps working: it
+## only ever sets [code]visible[/code] on the three of them, and a state need be no
+## more than a CanvasItem. One that happens to have [code]show_shape[/code] is also
+## handed the measurements; nothing in the scene takes them up today.
 ##
-## The measurements live in the [HouseHitbox] child, which draws itself on the
-## canvas so it can be dragged to fit new art and turned off for a screenshot. It
-## is the one place the size of a house is written down, and [PizzaGame] reads it
-## when it stocks a street, so what a player can hit is exactly what they can see.
+## The measurements live in the [HouseHitbox] child, the one place a house's size is
+## written down, which [PizzaGame] reads when it stocks a street.
 ##
-## The node's origin is the point where the house meets the ground, because that is
-## the point the street projects. Scale comes from the parent, which knows how far
-## away this house is.
+## The origin is where the house meets the ground, the point the street projects.
+## Scale comes from the parent, which knows how far away this house is.
 ##
-## A tool script, so the house shows itself on the editor canvas. Opening
-## house.tscn shows the house rather than an empty node, and nudging a wall or a
-## colour is answered on the spot instead of after a run.
+## A tool script, so opening house.tscn shows a house rather than an empty node and
+## nudging a wall is answered on the spot.
 
 ## Which of the three state nodes is showing.
 enum State {
@@ -34,16 +27,14 @@ enum State {
 	WAITING,
 	## It has had one. Still a house, no longer a target.
 	SERVED,
-	## Scenery. Roughly half the street, and what the waiting houses have to be
-	## picked out from.
+	## Scenery. Half the street, and what a waiting house has to stand out from.
 	SCENERY,
 }
 
 @export_group("Parts")
-## The three state nodes, shown one at a time, and the two nodes that carry the
-## shape and the ring. Paths rather than node references, because a typed node
-## export does not reliably survive being written into a .tscn. Repoint any of
-## them at a replacement and nothing else has to change.
+## The three state nodes, shown one at a time, plus the shape and the ring. Paths
+## rather than node references, because a typed node export does not reliably
+## survive being written into a .tscn. Repoint one and nothing else changes.
 @export var waiting_path: NodePath = ^"Waiting":
 	set(value):
 		waiting_path = value
@@ -74,10 +65,8 @@ enum State {
 		_apply_drop_point()
 
 @export_group("Editor preview")
-## What the house shows on the canvas when no street is driving it. The game
-## overrides it the moment it runs, so this costs nothing at play time and lets
-## the scene be opened on a house that is waiting, one that has been served or a
-## piece of scenery, without running anything.
+## What the canvas shows when no street is driving it, so the scene can be opened
+## on any of the three. The game overrides it the moment it runs.
 @export var preview_state: State = State.WAITING:
 	set(value):
 		preview_state = value
@@ -88,9 +77,8 @@ enum State {
 	set(value):
 		preview_drop_radius = value
 		_apply_preview()
-## Which of the sheet's buildings the canvas shows, and which way round, until a
-## street says otherwise. Handy for checking a window outline against the building
-## it belongs to without running anything.
+## Which building the canvas shows, and which way round, until a street says
+## otherwise. For checking a window outline against the building it belongs to.
 @export_range(0, 15, 1) var preview_look: int = 0:
 	set(value):
 		preview_look = value
@@ -104,9 +92,8 @@ var _state: State = State.WAITING
 var _waiting: bool = true
 var _served: bool = false
 var _drop_radius: float = 3.2
-## Whether a street has ever spoken. Until it has, the preview values stand, and
-## the first thing the street says is always applied however much it looks like
-## what is already there.
+## Whether a street has ever spoken. Until it has the preview stands, and the first
+## word from the street is always acted on, however much it matches.
 var _stated: bool = false
 
 var _parts_found: bool = false
@@ -116,23 +103,19 @@ var _drop: Node2D = null
 ## So a house with a part missing says so once rather than every frame.
 var _complained: bool = false
 
-## Which of the sheet's buildings this house is, and whether it is drawn mirrored.
-##
-## Decided by the street rather than here, because the window a pizza can go
-## through is painted into one particular building and the throw is judged against
-## it. A house that chose its own picture would put the glass somewhere the target
-## is not.
+## Which building this house is, and whether it is drawn mirrored. The street
+## decides, not this node: the window a pizza goes through is painted into one
+## particular building, and a house that chose its own picture would leave the
+## glass somewhere the target is not.
 var _look: int = 0
 var _flipped: bool = false
 ## Whether a street has said which building this is. Until it has, the preview
 ## stands, the same way the state does.
 var _look_stated: bool = false
-## What colour this house is painted, as one number handed to every state.
-##
-## Each state is drawn by its own node, and art that picks a colour for itself
-## picks a different one per state: a house would be repainted the moment it was
-## served. One seed for the house is what keeps the three of them agreeing. Unlike
-## the building it is nobody else's business, so it is still chosen here.
+## What colour this house is painted, as one number handed to every state. Each
+## state is its own node, and art picking its own colour would repaint the house the
+## moment it was served. Unlike the building, the colour is nobody else's business,
+## so it is chosen here.
 var _tint_seed: int = randi()
 
 
@@ -184,9 +167,8 @@ func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 	_apply_all()
 
 
-## Told by the street which of the sheet's buildings this house turned out to be.
-## The street decides it because it also has to place the window a pizza can go
-## through, and the two are the same window.
+## Told by the street which building this house is. The street decides because it
+## also places the window a pizza goes through, and they are the same window.
 func show_look(look: int, flipped: bool) -> void:
 	if _look_stated and look == _look and flipped == _flipped:
 		return
@@ -231,9 +213,9 @@ func _apply_drop_point() -> void:
 
 #region the parts
 
-## Look the parts up once. Resolving by path rather than holding node references
-## means this works on a scene that has been instantiated but not added to a tree,
-## which is how [PizzaGame] asks a house its size before a street exists.
+## Look the parts up once. By path rather than by held reference, so it works on a
+## scene instantiated but not in a tree, which is how [PizzaGame] asks a house its
+## size before a street exists.
 func _find_parts() -> void:
 	if _parts_found:
 		return

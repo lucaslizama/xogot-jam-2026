@@ -2,54 +2,43 @@
 class_name HouseHitbox
 extends Node2D
 
-## The measurements of one house, and the only place they live.
+## The measurements of one house, and the only place they live. [PizzaGame] reads
+## them when it stocks a street, so what a player can hit is what they can see.
 ##
-## Every other part of the house reads its size from here, and [PizzaGame] reads
-## it when it stocks a street, so what a player can hit is exactly what they can
-## see. Change a number here and the collision moves with the drawing; there is no
-## second copy to forget.
+## Body and windows both differ per building, so both come from [member looks];
+## [member shown_look] says which building this house is. The exports below are the
+## fallback for a house with no table, which is a plain house with no art.
 ##
-## Both the body and the windows differ from building to building, so both come
-## from [member looks], a table with one entry per building. [member shown_look]
-## says which building this house turned out to be. The exports below are what a
-## house falls back on when there is no table: a plain house with no art on it.
+## It draws its own outline so the shape can be dragged against real art rather
+## than guessed at. That is an editor tool, never part of the game: see [member
+## outline].
 ##
-## It draws itself as an outline so the shape can be dragged into place against
-## real art rather than guessed at. The outline is an editor tool, not part of the
-## game: [member outline] decides when it is drawn, and the default draws it on the
-## canvas only.
-##
-## The node's origin is where the house meets the ground, matching its parent,
-## because that is the point the street projects.
+## The origin is where the house meets the ground, the point the street projects.
 
-## Emitted whenever a measurement changes, so anything drawing to this shape can
-## redraw. The parent [HouseView] listens and passes the news on; nothing here
-## reaches sideways to a sibling.
+## Emitted when a measurement changes, so anything drawing to this shape can
+## redraw. [HouseView] listens and passes it on; nothing here reaches for a
+## sibling.
 signal shape_changed
 
 ## When the outline is drawn.
 enum Outline {
-	## On the editor canvas only. What you want almost always: the shape is there
-	## to be edited, and the running game never shows it.
+	## On the editor canvas only, which is almost always what you want.
 	EDITOR_ONLY,
-	## In the editor and in the running game. For checking a throw against the
-	## shape it was judged by.
+	## Both, for checking a throw against the shape it was judged by.
 	ALWAYS,
 	## Never. For a screenshot.
 	NEVER,
 }
 
-## When the outline is drawn. Editor-only by default; nothing here ever affects
-## what a throw hits.
+## When the outline is drawn. Nothing here affects what a throw hits.
 @export var outline: Outline = Outline.EDITOR_ONLY:
 	set(value):
 		outline = value
 		queue_redraw()
 
 @export_group("Shape, in world units")
-## How wide the facade stands, for a house with no [member looks] table to read a
-## building's own width from. A pizza inside this width, above the doorstep and
-## below the roof, has hit the house.
+## How wide the facade stands, for a house with no [member looks] table of its own.
+## A pizza inside this width, above the doorstep and below the roof, hit the house.
 @export_range(1.0, 30.0, 0.1) var width: float = 21.5:
 	set(value):
 		width = value
@@ -59,9 +48,9 @@ enum Outline {
 	set(value):
 		wall_height = value
 		_changed()
-## How much the roof adds on top, again only when there is no table. The throw
-## squares the roof off rather than following its slope, so the two top corners are
-## a little kinder than they look.
+## How much the roof adds on top, again only without a table. The throw squares the
+## roof off rather than following its slope, so the top corners are a little kinder
+## than they look.
 @export_range(0.0, 15.0, 0.1) var roof_height: float = 6.7:
 	set(value):
 		roof_height = value
@@ -76,11 +65,10 @@ enum Outline {
 @export_group("The windows")
 ## Where the lit windows sit on each building the sheet holds.
 ##
-## A lit window is a target in its own right, and the hardest one: smaller than the
-## drop point, higher up, and needing a throw that is both well aimed and a little
-## long. It pays the most because of it. Every window on a building counts, so one
-## drawn with three panes is three chances rather than one. Leave this empty and
-## houses have nothing to aim at but wall and the ring at their feet.
+## The hardest target and the best paid: smaller than the drop point, higher up,
+## and wanting a throw both well aimed and a little long. Every window on a
+## building counts. Leave this empty and there is nothing to aim at but wall and
+## the ring.
 @export var looks: HouseLooks:
 	set(value):
 		looks = value
@@ -101,13 +89,11 @@ enum Outline {
 		queue_redraw()
 
 @export_group("Editor preview")
-## How high the wall starts counting, drawn as a line across the facade. Below it
-## a pizza is arriving at the door rather than hitting the house, and the drop
-## point at its feet decides.
+## How high the wall starts counting, drawn as a line across the facade. Below it a
+## pizza is at the door, and the ring at the house's feet decides.
 ##
-## Preview only: the real value is [member PizzaGame.wall_doorstep], because it is
-## a rule of the round rather than a property of one house. Set it to the same
-## number to see where the line falls.
+## Preview only. The real value is [member PizzaGame.wall_doorstep], a rule of the
+## round rather than a property of one house; match it to see where the line falls.
 @export_range(0.0, 15.0, 0.5) var doorstep_preview: float = 4.0:
 	set(value):
 		doorstep_preview = value
@@ -117,11 +103,10 @@ enum Outline {
 		doorstep_outline = value
 		queue_redraw()
 
-## Which building this house turned out to be, and whether it is drawn mirrored.
-##
-## Set by [HouseView], from the street in the game and from its preview on the
-## canvas. There is deliberately no preview of its own here: two knobs both called
-## preview_look, one of which quietly loses, is worse than one that always wins.
+## Which building this house is, and whether it is drawn mirrored. Set by
+## [HouseView], from the street in the game and from its preview on the canvas. No
+## preview of its own here: two knobs of the same name, one quietly losing, is
+## worse than one.
 var shown_look: int = 0
 var shown_flipped: bool = false
 

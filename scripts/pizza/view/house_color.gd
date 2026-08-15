@@ -1,26 +1,18 @@
 @tool
 extends Sprite2D
 
-## Draws one house: which building it is, which way round it faces, and what
-## colour its masked channels are tinted.
+## Draws one house: which building it is, which way round, and what colour its
+## masked channels are tinted.
 ##
-## Nothing here is decided on the spot. The building and the flip come from the
-## street, because the window a pizza can go through is painted into one particular
-## building and the throw is judged against it: a sprite that picked its own
-## picture would put the glass somewhere the target is not. The colour comes from a
-## seed the house hands out, which is nobody else's business but has to be the same
-## for every state, or delivering a pizza would repaint the house.
+## Nothing is decided here. The building and the flip come from the street, because
+## the window a pizza goes through is painted into one particular building and the
+## throw is judged against it. The colour comes from a seed [HouseView] hands out,
+## the same one to every state, or delivering a pizza would repaint the house. A
+## sprite standing alone picks for itself in [method _ready] and is superseded the
+## moment a house speaks.
 ##
-## [HouseView] is what does the handing out. A sprite standing on its own picks
-## for itself in [method _ready] and is superseded the moment a house speaks.
-##
-## A tool script, so that the House node's preview_look actually shows the
-## building it names on the editor canvas. Without it the editor holds this as a
-## placeholder that answers no calls, the preview reached the hitbox outline and
-## stopped, and the sprite sat on whatever frame it was last saved with.
-##
-## What it does at edit time is deliberately less than at run time: see
-## [method _apply_look].
+## A tool script, so the House node's preview_look shows the building it names on
+## the canvas. It does deliberately less at edit time: see [method _apply_look].
 
 @export_category("Sprite Settings")
 ## Whether this sprite shows the building the house turned out to be. Off, and it
