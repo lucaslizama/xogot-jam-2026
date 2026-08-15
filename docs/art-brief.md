@@ -113,9 +113,17 @@ land, each step draws a mock-up of itself out of the game's own placeholder
 pieces, which is a fine thing to draw over.
 
 **The skyline rows** are three bands of buildings behind the street, each
-further back than the last. One silhouette is drawn over and over across the
-row, so it should tile happily beside copies of itself. Detail is wasted here;
-these are behind everything and mostly dark.
+further back than the last. One silhouette is repeated across the row, so it
+should sit happily beside copies of itself. Detail is wasted here; these are
+behind everything and mostly dark.
+
+Each row takes a scene rather than a picture, so a building back there can carry
+a shader, an animation, or a light coming on in a window, the same way the houses
+on the street can. Build it bottom-centred on its origin at the size the row gives
+it, and the row handles the rest: it repeats the building across the screen,
+scales it for how far back the band sits, varies the heights a little so the
+skyline is not flat, and tints it into the haze. A row with no scene yet stands as
+the plain dark boxes that are there now.
 
 ## What is not needed yet
 

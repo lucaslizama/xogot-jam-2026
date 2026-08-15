@@ -15,6 +15,15 @@ extends Resource
 ## How much the heights vary from one silhouette to the next, 0 for a flat row.
 @export_range(0.0, 1.0, 0.05) var height_variation: float = 0.35
 @export var colour: Color = Color(0.152941, 0.152941, 0.211765)
-## One silhouette, drawn bottom-centred at the width and height above. Leave
-## empty and a plain rectangle stands in.
-@export var art: Texture2D
+## One silhouette, as a scene. Leave it empty and a plain rectangle stands in.
+##
+## A scene rather than a texture, because a building in this row is a thing rather
+## than a picture: it can carry a shader, an animation, a light in a window, a
+## script of its own. [Backdrop] instances one per silhouette across the row and
+## places them; five a row are on screen at once, so there is room for them to be
+## nodes.
+##
+## Author it bottom-centred on its origin, [member width] by [member height] world
+## units at the projection's pixels per unit, which is the space it is given. The
+## row's own scale and haze are applied on top by whatever places it.
+@export var art: PackedScene

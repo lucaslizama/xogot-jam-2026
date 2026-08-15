@@ -20,6 +20,7 @@ func _ready() -> void:
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
+	await _test_the_skyline_stands_as_nodes()
 	await _test_the_scenes_show_on_the_canvas_what_the_game_shows()
 	await _test_the_house_previews_a_building_without_a_street()
 	await _test_the_stack_rides_with_the_rider()
@@ -538,6 +539,48 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 				and is_equal_approx(fresh.wall_height, hitbox.wall_height)
 				and fresh.looks == hitbox.looks)
 	fresh.queue_free()
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The rows of silhouettes behind the street are nodes rather than rectangles drawn
+## in a loop, so a building can carry a shader or an animation. Three things have to
+## hold for that to be worth having: a row must stand its buildings up, it must not
+## keep making them as the street rolls on, and a row handed a scene must use it.
+func _test_the_skyline_stands_as_nodes() -> void:
+	var game := await _spawn()
+	var backdrop: Backdrop = game.get_node("Backdrop")
+	var rows: int = backdrop.layers.size()
+
+	_check("every row has a holder, in the order the rows are listed (%d of %d)"
+		% [backdrop.get_child_count(), rows], backdrop.get_child_count() == rows)
+	var standing: int = backdrop._standing.size()
+	_check("and the rows are standing buildings up (%d)" % standing, standing > rows)
+
+	# The street is endless. A row that made a building and never dropped it would
+	# grow without bound, and nothing on screen would say so for a long while.
+	backdrop.set_travelled(4000.0)
+	await get_tree().process_frame
+	var later: int = backdrop._standing.size()
+	_check("and drops them again as the street rolls on (%d, was %d)" % [later, standing],
+		later <= standing + rows)
+
+	# A row given a scene uses it. Any Node2D scene will do; this is about the
+	# wiring, not about what a silhouette looks like.
+	var swapped: BackdropLayer = backdrop.layers[0].duplicate()
+	swapped.art = load("res://scenes/pizza.tscn")
+	var original: BackdropLayer = backdrop.layers[0]
+	backdrop.layers[0] = swapped
+	backdrop.set_travelled(0.0)
+	await get_tree().process_frame
+	var made_from_art := 0
+	for building in backdrop.get_child(0).get_children():
+		if building is PizzaView:
+			made_from_art += 1
+	_check("a row handed a scene stands that scene up (%d buildings)" % made_from_art,
+		made_from_art > 0)
+	backdrop.layers[0] = original
+
 	game.queue_free()
 	await get_tree().process_frame
 
