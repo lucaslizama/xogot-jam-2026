@@ -1,3 +1,4 @@
+@tool
 extends Sprite2D
 
 ## Draws one house: which building it is, which way round it faces, and what
@@ -12,6 +13,14 @@ extends Sprite2D
 ##
 ## [HouseView] is what does the handing out. A sprite standing on its own picks
 ## for itself in [method _ready] and is superseded the moment a house speaks.
+##
+## A tool script, so that the House node's preview_look actually shows the
+## building it names on the editor canvas. Without it the editor holds this as a
+## placeholder that answers no calls, the preview reached the hitbox outline and
+## stopped, and the sprite sat on whatever frame it was last saved with.
+##
+## What it does at edit time is deliberately less than at run time: see
+## [method _apply_look].
 
 @export_category("Sprite Settings")
 ## Whether this sprite shows the building the house turned out to be. Off, and it
@@ -46,6 +55,11 @@ var _complained: bool = false
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		# Nothing to roll on the canvas. The House above says which building to
+		# show through its preview, and a sprite that picked its own would flicker
+		# to a different one every time the scene was opened.
+		return
 	# A look of this sprite's own, for a sprite standing on its own. Children are
 	# ready before their parents, so a HouseView always speaks after this.
 	set_house_look(randi(), -1, false, 0)
@@ -70,12 +84,22 @@ func set_house_look(tint_seed: int, frame_index: int, flip: bool, look_count: in
 	_apply_look()
 
 
+## The building and the way round are applied everywhere, including the editor
+## canvas, because showing them is the whole point of the House node's preview.
+##
+## The colour is not. Painting it means duplicating the material and putting the
+## copy back on this node, and at edit time that is a change to the scene: save it
+## once and every house is carrying its own copy of a material that was meant to be
+## shared. The canvas shows the building in the palette's stock colours instead,
+## which is the one thing about a preview worth giving up.
 func _apply_look() -> void:
 	if follow_house_mirror:
 		flip_h = _flip
 	if follow_house_look:
 		frame = _frame_index
 
+	if Engine.is_editor_hint():
+		return
 	if not (randomize_r or randomize_g or randomize_b):
 		return
 	if material == null:

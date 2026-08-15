@@ -107,13 +107,6 @@ enum Outline {
 		queue_redraw()
 
 @export_group("Editor preview")
-## Which building the canvas draws the window of, until a house says otherwise.
-@export_range(0, 15, 1) var preview_look: int = 0:
-	set(value):
-		preview_look = value
-		if not _told:
-			shown_look = value
-			queue_redraw()
 ## How high the wall starts counting, drawn as a line across the facade. Below it
 ## a pizza is arriving at the door rather than hitting the house, and the drop
 ## point at its feet decides.
@@ -131,12 +124,12 @@ enum Outline {
 		queue_redraw()
 
 ## Which building this house turned out to be, and whether it is drawn mirrored.
-## Set by [HouseView] from what the street decided, so the outline shows the window
-## this house is really judged against rather than a stand-in.
+##
+## Set by [HouseView], from the street in the game and from its preview on the
+## canvas. There is deliberately no preview of its own here: two knobs both called
+## preview_look, one of which quietly loses, is worse than one that always wins.
 var shown_look: int = 0
 var shown_flipped: bool = false
-## Whether a house has said which building it is. Until it has, the preview stands.
-var _told: bool = false
 
 
 func _changed() -> void:
@@ -146,9 +139,8 @@ func _changed() -> void:
 
 ## Told by [HouseView] once the street has decided what this house is.
 func show_look(look: int, flipped: bool) -> void:
-	if _told and look == shown_look and flipped == shown_flipped:
+	if look == shown_look and flipped == shown_flipped:
 		return
-	_told = true
 	shown_look = look
 	shown_flipped = flipped
 	queue_redraw()

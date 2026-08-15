@@ -20,6 +20,7 @@ func _ready() -> void:
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
+	await _test_the_house_previews_a_building_without_a_street()
 	await _test_the_stack_rides_with_the_rider()
 	await _test_a_house_shows_the_street_and_not_its_preview()
 	await _test_a_house_is_the_same_building_in_every_state()
@@ -528,6 +529,51 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 				and fresh.looks == hitbox.looks)
 	fresh.queue_free()
 	game.queue_free()
+	await get_tree().process_frame
+
+
+## The House node offers a preview of which state it shows and which of the
+## sheet's buildings it is, so the scene can be opened on any of them without
+## running anything. The state half worked because it only toggles visibility; the
+## building half reached the hitbox's window outline and stopped, because the
+## sprite's script was not a tool script and the editor holds one of those as a
+## placeholder that answers no calls.
+##
+## Nothing here runs in the editor, so this checks the wiring the preview uses and
+## then checks the one property that decides whether the editor may use it at all.
+func _test_the_house_previews_a_building_without_a_street() -> void:
+	var house: HouseView = (load("res://scenes/house.tscn") as PackedScene).instantiate()
+	add_child(house)
+	await get_tree().process_frame
+
+	var drew := {}
+	for look in [2, 1, 3, 0]:
+		house.preview_look = look
+		house.preview_flipped = look % 2 == 1
+		await get_tree().process_frame
+		var sprites := _sprites_under(house.state_node(HouseView.State.WAITING))
+		if sprites.is_empty():
+			continue
+		var sprite: Sprite2D = sprites[0]
+		drew[look] = sprite.frame == look and sprite.flip_h == (look % 2 == 1)
+		_check("previewing building %d draws building %d%s (drew %d%s)"
+			% [look, look, "mirrored" if look % 2 == 1 else "", sprite.frame,
+				"mirrored" if sprite.flip_h else ""],
+			sprite.frame == look and sprite.flip_h == (look % 2 == 1))
+
+	_check("the preview reached the sprite at all", drew.size() > 0)
+	var hitbox: HouseHitbox = house.hitbox()
+	_check("and the window outline follows the same building (%d, want 0)"
+		% hitbox.shown_look, hitbox.shown_look == 0)
+
+	# The wiring above runs outside the editor, where every script is live. On the
+	# canvas only a tool script can be spoken to, so this is what decides whether
+	# any of it is visible while the scene is open.
+	var painter := load("res://scripts/house/house_color.gd") as Script
+	_check("and the sprite's script is a tool script, so the canvas sees it too",
+		painter.is_tool())
+
+	house.queue_free()
 	await get_tree().process_frame
 
 
