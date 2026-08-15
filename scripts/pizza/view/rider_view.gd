@@ -132,6 +132,14 @@ func _ready() -> void:
 	_refresh()
 
 func _process(delta: float) -> void:
+	# Never on the editor canvas. This animates the node's own transform, and the
+	# editor saves what the node says: one import wrote the bob's position and the
+	# lean into pizza_game.tscn as if somebody had placed her that way. Worse, it
+	# compounds, because _ready takes whatever was saved as the new base to bob
+	# around. She had already drifted two pixels down the screen and picked up a
+	# permanent lean before anyone noticed.
+	if Engine.is_editor_hint():
+		return
 	# Accumulate time
 	_time_passed += delta
 	
