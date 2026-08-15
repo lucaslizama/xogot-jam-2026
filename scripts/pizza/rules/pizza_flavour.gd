@@ -1,3 +1,4 @@
+@tool
 class_name PizzaFlavour
 extends Resource
 
@@ -12,6 +13,11 @@ extends Resource
 ## would turn the swap into a panic in the worst possible second. Orders are a
 ## bonus laid over the game rather than a gate in front of it, so a player who
 ## never swaps at all plays exactly the game that was there before.
+##
+## A tool script for the same reason [StreetProjection] is: [PizzaView] draws the
+## pizza on the editor canvas and asks a flavour how many frames it has and where
+## they sit. In the editor a resource without @tool answers no calls at all, so
+## the drawing gave up part way through with nothing on screen to say why.
 
 ## How an order names it.
 @export var display_name: String = "Cheese"
@@ -28,6 +34,7 @@ extends Resource
 ## detail. Nothing reads it yet; it is here so the slot exists next to the art it
 ## belongs with.
 @export var icon: Texture2D
+
 
 @export_group("Animation", "animation_")
 ## The pizza while it is alive in your hand: a grid of frames of the same box,

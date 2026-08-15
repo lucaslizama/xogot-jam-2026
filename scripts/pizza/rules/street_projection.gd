@@ -1,3 +1,4 @@
+@tool
 class_name StreetProjection
 extends Resource
 
@@ -6,6 +7,13 @@ extends Resource
 ## Kept apart from the flight maths so the camera can be reframed, the horizon
 ## moved or the whole scene made shallower or deeper, without any of that
 ## touching how a pizza flies.
+##
+## A tool script, because [Backdrop] draws the skyline on the editor canvas and
+## asks this where each row of buildings goes. A resource whose script is not
+## @tool is a placeholder in the editor: it keeps its properties but answers no
+## calls, so [method scale_at] errored and the skyline came out unplaced. Nothing
+## in here reaches for the scene tree or the clock, so running in the editor costs
+## it nothing.
 
 @export_group("Camera")
 ## Screen row the street converges to. Everything infinitely far away sits here.
