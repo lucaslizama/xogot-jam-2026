@@ -5,7 +5,7 @@
 [ext_resource type="Shader" uid="uid://cj2mkqth4bvpb" path="res://shaders/house.gdshader" id="3_3bgk5"]
 [ext_resource type="Texture2D" uid="uid://bn0wtnsv0v8tp" path="res://sprites/houses.png" id="3_se78b"]
 [ext_resource type="Script" uid="uid://55syobf3n7yk" path="res://scripts/pizza/view/house_drop_point.gd" id="4_drop"]
-[ext_resource type="Texture2D" uid="uid://mwutnnrpp1s7" path="res://sprites/houses_rgb.png" id="4_ptc3g"]
+[ext_resource type="Texture2D" uid="uid://mwutnnrpp1s7" path="res://sprites/houses_RGB.png" id="4_ptc3g"]
 [ext_resource type="Script" uid="uid://v8k2g3m2efor" path="res://scripts/house/house_color.gd" id="5_f74lx"]
 [ext_resource type="Resource" uid="uid://dolx1r1fbkeqc" path="res://data/house_looks.tres" id="6_looks"]
 
