@@ -16,9 +16,13 @@ extends Sprite2D
 @export_category("Sprite Settings")
 ## Whether this sprite shows the building the house turned out to be. Off, and it
 ## always draws frame 0 whatever the street said.
-@export var randomize_frame: bool = false
+##
+## Not a randomizer, despite where the value comes from: the street picks the
+## building, because it also has to place the windows a pizza can go through and
+## those have to be the same building.
+@export var follow_house_look: bool = false
 ## Whether this sprite is mirrored when the house is.
-@export var randomize_flip_h: bool = false
+@export var follow_house_mirror: bool = false
 
 @export_category("Palette Settings")
 @export var palette: Array[Color]
@@ -67,9 +71,9 @@ func set_house_look(tint_seed: int, frame_index: int, flip: bool, look_count: in
 
 
 func _apply_look() -> void:
-	if randomize_flip_h:
+	if follow_house_mirror:
 		flip_h = _flip
-	if randomize_frame:
+	if follow_house_look:
 		frame = _frame_index
 
 	if not (randomize_r or randomize_g or randomize_b):
@@ -99,7 +103,7 @@ func _apply_look() -> void:
 ## window of. Worth saying, because the symptom is a building quietly missing from
 ## the game rather than anything going wrong.
 func _warn_if_sheet_disagrees(total: int, look_count: int) -> void:
-	if _complained or look_count <= 0 or not randomize_frame or total == look_count:
+	if _complained or look_count <= 0 or not follow_house_look or total == look_count:
 		return
 	_complained = true
 	push_warning(("%s: the sheet has %d frames but the window table describes %d. "

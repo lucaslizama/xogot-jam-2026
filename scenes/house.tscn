@@ -56,8 +56,8 @@ texture = ExtResource("3_se78b")
 offset = Vector2(0, -512)
 hframes = 4
 script = ExtResource("5_f74lx")
-randomize_frame = true
-randomize_flip_h = true
+follow_house_look = true
+follow_house_mirror = true
 
 [node name="Served" type="Node2D" parent="." unique_id=1940587593]
 visible = false
@@ -69,8 +69,8 @@ texture = ExtResource("3_se78b")
 offset = Vector2(0, -512)
 hframes = 4
 script = ExtResource("5_f74lx")
-randomize_frame = true
-randomize_flip_h = true
+follow_house_look = true
+follow_house_mirror = true
 palette = Array[Color]([Color(0.29411766, 0.35686275, 0.67058825, 1), Color(1, 0.5686275, 0.4, 1), Color(0.6901961, 0.1882353, 0.36078432, 1), Color(0.23529412, 0.6392157, 0.4392157, 1)])
 randomize_r = true
 
@@ -83,8 +83,8 @@ texture = ExtResource("3_se78b")
 offset = Vector2(0, -512)
 hframes = 4
 script = ExtResource("5_f74lx")
-randomize_frame = true
-randomize_flip_h = true
+follow_house_look = true
+follow_house_mirror = true
 palette = Array[Color]([Color(0.29411766, 0.35686275, 0.67058825, 1), Color(1, 0.5686275, 0.4, 1), Color(0.6901961, 0.1882353, 0.36078432, 1), Color(0.23529412, 0.6392157, 0.4392157, 1)])
 randomize_r = true
 

@@ -541,6 +541,7 @@ func _test_a_house_is_the_same_building_in_every_state() -> void:
 	var agreed := 0
 	var compared := 0
 	var drawn := {}
+	var mirrored := {}
 	for trial in 12:
 		var house: HouseView = scene.instantiate()
 		add_child(house)
@@ -560,6 +561,7 @@ func _test_a_house_is_the_same_building_in_every_state() -> void:
 				if a.frame != b.frame or a.flip_h != b.flip_h:
 					same = false
 				drawn[a.frame] = true
+				mirrored[a.flip_h] = true
 			if same:
 				agreed += 1
 		house.queue_free()
@@ -572,6 +574,11 @@ func _test_a_house_is_the_same_building_in_every_state() -> void:
 	# frame 0 whatever it was told, which is the other way to break the same thing.
 	_check("and the building it draws is the one it was told (%d drawn)"
 		% drawn.size(), drawn.size() > 1)
+	# Mirroring is a separate binding from the building, and a house told to mirror
+	# that quietly does not would still agree with itself across its states. Only
+	# seeing it both ways round proves the wire is connected.
+	_check("and a house told to face the other way does (%d ways round)"
+		% mirrored.size(), mirrored.size() > 1)
 
 
 ## Every Sprite2D under a state node, in tree order. Art can be nested, so this
