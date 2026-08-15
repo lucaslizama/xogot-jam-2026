@@ -13,6 +13,14 @@ desktop.ini
 *.swp
 *~
 
+# Rider's project folder. It carries its own .gitignore excluding workspace.xml,
+# which is where everything worth sharing actually lives: the run configurations,
+# the path to the Godot binary, the debug adapter port. What is left is four files
+# of scaffolding, one of them naming a Godot version this project does not use.
+# The game is edited in the Godot editor and in Xogot, so nobody else here has a
+# use for it either.
+.idea/
+
 # Music being tried out. Anything here is played by GameMusic when its track slot
 # is empty, and is never committed — which is also what keeps it out of a release,
 # since the published build is exported from a clean checkout of this repository.
