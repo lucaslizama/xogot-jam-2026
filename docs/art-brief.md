@@ -132,19 +132,19 @@ rather than everything having to land at once.
 
 The house works a little differently, because it has three faces and they are
 worth building separately. Open the house scene and there is a node for each one,
-named Waiting, Served and Scenery. Put the picture inside the node it belongs to,
-delete the coloured rectangle underneath, and the game shows that node whenever
-the house is in that state. Because each state is a node in its own right it can
-carry anything a node can: a shader, an animation, a script of its own. The three
-do not have to be built the same way, and a served house that lights up for a
-moment is entirely possible without touching the other two.
+named Waiting, Served and Scenery. Put the picture inside the node it belongs to
+and the game shows that node whenever the house is in that state. Because each
+state is a node in its own right it can carry anything a node can: a shader, an
+animation, a script of its own. The three do not have to be built the same way,
+and a served house that lights up for a moment is entirely possible without
+touching the other two.
 
 The drop point is a node as well. Anything placed inside it is stretched to
 whatever size the ring is that round and squashed flat onto the ground, so draw
 the marker as a circle seen face on and let the game do the rest.
 
 The same scene holds a node called Hitbox. That is the part of the house a pizza
-can actually hit: the outline of the body, the lit window inside it, and the line
+can actually hit: the outline of the body, the lit windows inside it, and the line
 below which a throw is arriving at the door rather than striking the wall. It
 draws itself on the canvas while the scene is open, never in the running game, so
 the shape can be dragged to fit a new drawing and then forgotten about. It is

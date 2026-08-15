@@ -11,14 +11,14 @@ extends Node2D
 ## or a script on it, delete the placeholder underneath, and this node keeps
 ## working: it only ever sets [code]visible[/code] on the three of them. The state
 ## nodes need be nothing more than a CanvasItem. A node that happens to have
-## [code]show_shape[/code] is additionally told the measurements, which is how the
-## placeholder facades draw themselves to the hitbox.
+## [code]show_shape[/code] is additionally handed the measurements, for art that
+## wants to draw itself to them; nothing in the scene does today, and a plain
+## sprite is left alone.
 ##
 ## The measurements live in the [HouseHitbox] child, which draws itself on the
 ## canvas so it can be dragged to fit new art and turned off for a screenshot. It
-## is the one place the size of a house is written down: the placeholders draw to
-## it and [PizzaGame] reads it when it stocks a street, so what a player can hit is
-## exactly what they can see.
+## is the one place the size of a house is written down, and [PizzaGame] reads it
+## when it stocks a street, so what a player can hit is exactly what they can see.
 ##
 ## The node's origin is the point where the house meets the ground, because that is
 ## the point the street projects. Scale comes from the parent, which knows how far
@@ -268,8 +268,8 @@ func _find_parts() -> void:
 
 
 ## Hand the measurements to every state node that wants them. Real art does not,
-## and is left untouched; anything drawing its own placeholder draws to whatever
-## arrives.
+## and is left untouched. Nothing in the scene takes them up at the moment; the
+## hook is here for art that wants to be drawn to the shape it is judged by.
 func _push_shape() -> void:
 	_tell_states(&"show_shape", [_hitbox])
 
