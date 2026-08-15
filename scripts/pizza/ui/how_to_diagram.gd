@@ -178,17 +178,19 @@ func _draw_lane(y: float, dash: float, thick: float) -> void:
 
 ## A house standing along the far pavement, positioned by the point where it meets
 ## the ground, as the street positions them. A waiting one is lit and has a drop
-## point on the road in front of it; scenery is dark and has none. [param scale]
-## sets how far back it is: the street sends them past at different distances.
-func _draw_house(foot: Vector2, waiting: bool, scale: float) -> void:
+## point on the road in front of it; scenery is dark and has none. [param shrink]
+## sets how far back it is: the street sends them past at different distances, and
+## a smaller number is a house further away. Named as it is because `scale` is a
+## Control's own property, and a parameter called that shadows it.
+func _draw_house(foot: Vector2, waiting: bool, shrink: float) -> void:
 	var base := _at(foot.x, foot.y)
-	var px := size.x * 0.18 * scale
-	var wall_h := size.y * 0.24 * scale
+	var px := size.x * 0.18 * shrink
+	var wall_h := size.y * 0.24 * shrink
 	var wall_rect := Rect2(base - Vector2(px * 0.5, wall_h), Vector2(px, wall_h))
 	if waiting:
 		_draw_ring(DROP)
 	draw_rect(wall_rect, wall if waiting else wall.darkened(0.5))
-	var apex := Vector2(base.x, wall_rect.position.y - size.y * 0.09 * scale)
+	var apex := Vector2(base.x, wall_rect.position.y - size.y * 0.09 * shrink)
 	draw_colored_polygon(PackedVector2Array([
 		Vector2(wall_rect.position.x, wall_rect.position.y),
 		Vector2(wall_rect.end.x, wall_rect.position.y), apex,
@@ -211,20 +213,21 @@ func _draw_ring(centre: Vector2) -> void:
 
 ## The boxes still on the bike, counted off up the corner of the screen where they
 ## are out of the throw's way. This is the only pizza counter the game has.
-## [param scale] draws them bigger, which the stack step wants: there they are the
-## subject rather than the corner of the picture.
-func _draw_counter(left: int, thrown: int = 0, scale: float = 1.0) -> void:
+## [param zoom] draws them bigger, which the stack step wants: there they are the
+## subject rather than the corner of the picture. Not called `scale`, which is a
+## Control's own property and would be shadowed by a parameter of that name.
+func _draw_counter(left: int, thrown: int = 0, zoom: float = 1.0) -> void:
 	for i in left:
-		_draw_box(_box_slot(i, scale), 1.0)
+		_draw_box(_box_slot(i, zoom), 1.0)
 	# The ones already thrown, ghosted in the slots they came out of, so the counter
 	# reads as something going down rather than a fixed pile of boxes.
 	for i in thrown:
-		_draw_box(_box_slot(left + i, scale), 0.22)
+		_draw_box(_box_slot(left + i, zoom), 0.22)
 
 
 ## Where the [param i]th box up the stack sits, counting from the bottom.
-func _box_slot(i: int, scale: float) -> Rect2:
-	var bar := Vector2(size.x * 0.13 * scale, maxf(4.0, size.y * 0.026 * scale))
+func _box_slot(i: int, zoom: float) -> Rect2:
+	var bar := Vector2(size.x * 0.13 * zoom, maxf(4.0, size.y * 0.026 * zoom))
 	var corner := _at(STACK_CORNER.x, STACK_CORNER.y)
 	return Rect2(Vector2(corner.x, corner.y - bar.y * (i + 1) * 1.5), bar)
 

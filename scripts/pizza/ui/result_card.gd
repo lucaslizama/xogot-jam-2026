@@ -96,7 +96,6 @@ func _show_orders(filled: int, written: int) -> void:
 ## authored style, so the scene the designer opens is left untouched.
 func _apply_accent(won: bool) -> void:
 	var accent := won_accent if won else lost_accent
-	var button := won_button_colour if won else lost_button_colour
 
 	_heading.add_theme_color_override("font_color", accent)
 
