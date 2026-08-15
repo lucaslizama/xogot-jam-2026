@@ -31,7 +31,6 @@ var physics: PizzaPhysics
 ## Used to report the finger speed each part of the street asks for.
 var level: LevelConfig
 
-@onready var _rows: Control = %Rows
 @onready var _readout: Label = %Readout
 @onready var _reach: Label = %Reach
 @onready var _panel: Control = %Panel

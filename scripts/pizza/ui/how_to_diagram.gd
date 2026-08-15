@@ -129,8 +129,8 @@ func _draw() -> void:
 			_draw_orders()
 		DiagramKind.FLAVOURS:
 			_draw_flavours()
-
-
+		DiagramKind.NONE:
+			pass
 ## The scene every step shares: a night sky with a skyline behind it, the houses
 ## along the top with the pavement under them, and the road across the middle.
 ## Nothing converges, because you are not looking down the street but across it.

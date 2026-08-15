@@ -82,12 +82,15 @@ func current_spin() -> float:
 static func trace(tuning: PizzaPhysics, launch: Dictionary, samples: int = 26) -> PackedVector3Array:
 	var path := PackedVector3Array()
 	var flight := PizzaFlight.new(tuning, launch)
-	var step := 1.0 / 120.0
+	# Named for what it is rather than for what it is passed to. `step` would
+	# shadow this class's own step(), and the line below would read as a variable
+	# calling itself.
+	var tick := 1.0 / 120.0
 	var guard := 0
 	var taken := 0
 	while guard < 20000:
 		guard += 1
-		var landed := flight.step(step)
+		var landed := flight.step(tick)
 		taken += 1
 		# Thin the samples out so a long throw is not a thousand points.
 		if landed or taken % 5 == 0:
