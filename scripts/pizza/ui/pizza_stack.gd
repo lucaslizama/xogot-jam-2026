@@ -1,26 +1,22 @@
 class_name PizzaStack
 extends Control
 
-## The stack of boxes on the back of the bike. This is the pizza counter and the
-## level's progress bar at the same time, which is why neither exists as a
-## number anywhere on screen.
+## The stack of boxes on the back of the bike: the pizza counter and the level's
+## progress bar at once, which is why neither exists as a number on screen. Boxes
+## are authored in the scene and hidden as they are thrown, so the stack shrinks
+## from the top the way a real one would.
 ##
-## Boxes are authored in the scene and hidden as they are thrown, so the stack
-## shrinks from the top exactly the way a real one would.
+## Two things the scene cannot say itself, because Godot drops every comment in a
+## .tscn when it saves.
 ##
-## Two things about the scene that the scene itself cannot say, because Godot
-## rewrites a .tscn whenever it is saved and drops any comment in it:
+## Neither this node nor Boxes is anchored. This one sits at the top-left on purpose
+## and claims the viewport in [method _fit_to_screen]. Boxes is placed by [method
+## place_on] from the rider's rack, and the size authored on it is one box, only so
+## the editor has something to show.
 ##
-## Neither this node nor Boxes is anchored. This one is left at the top-left
-## corner on purpose and claims the viewport in [method _fit_to_screen] below.
-## Boxes is placed by [method place_on] from the rider's rack; the size authored
-## on it is one box, only so the editor has something to show, and the boxes place
-## themselves off that origin.
-##
-## The stack's z_index in pizza_game.tscn is below the rider's, and has to stay
-## there. The rack is further up the street than she is, so she occludes it, and
-## in the aiming pose she holds a box out over the rack — drawn the other way
-## round, the stack paints across her hand.
+## The stack's z_index in pizza_game.tscn is below the rider's and has to stay
+## there: in the aiming pose she holds a box out over the rack, and drawn the other
+## way round the stack paints across her hand.
 
 @onready var _boxes: Control = %Boxes
 
@@ -44,11 +40,10 @@ func _fit_to_screen() -> void:
 
 ## Sit the stack on the bike's rack, given where the rack is.
 ##
-## The boxes are authored at whatever size suited the screen; here they are resized
-## to the width of the rack, so making the rider bigger or smaller carries the boxes
-## with her and nothing in the scene has to be retyped to match. Before there was a
-## bike the stack was pinned to the bottom-right of the viewport, which put it in a
-## different place relative to her on every screen shape.
+## The boxes are resized to the rack's width, so making the rider bigger carries
+## them with her and nothing in the scene is retyped to match. Before there was a
+## bike the stack was pinned to the corner of the viewport, which put it somewhere
+## different relative to her on every screen shape.
 func place_on(rack: Rect2) -> void:
 	var first := _boxes.get_child(0) as Control
 	if first == null or first.size.x <= 0.0 or rack.size.x <= 0.0:

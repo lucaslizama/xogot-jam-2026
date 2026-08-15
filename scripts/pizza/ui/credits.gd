@@ -3,17 +3,14 @@ extends Control
 
 ## The credits page: who made the game, and for what.
 ##
-## The page owns nothing but its Back button. Every name and role is authored in
-## the scene as a plain label, so a credit is added by duplicating one and typing
-## into it. Nothing here has to change for that.
+## It owns nothing but its Back button. Names and roles are authored in the scene as
+## plain labels, so a credit is added by duplicating one and typing into it.
 ##
-## In the game the street and its scrim are drawn once by the main menu and left
-## up while the pages come and go, so this page draws no background of its own.
-## Opened on its own that left an empty canvas, with no way to see the credits
-## against what they will actually sit on. [code]EditorPreview[/code] is a second
-## copy of that background for the editor only: this script is not a [code]@tool[/code]
-## script, so it never runs there and the preview stays visible, and at run time
-## the first thing done here is to free it. Nothing of it survives into the game.
+## The menu draws the street and its scrim once and leaves them up while pages come
+## and go, so this page has no background of its own and opened alone showed an
+## empty canvas. [code]EditorPreview[/code] is a second copy of that background for
+## the canvas only: this is not a tool script, so it never runs in the editor and
+## the preview stays; at run time the first thing here is to free it.
 
 signal back_pressed
 

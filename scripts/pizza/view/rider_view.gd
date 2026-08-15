@@ -8,41 +8,33 @@ extends Placeholder2D
 ## thing on the ground; this only chooses which picture is showing. Leave both
 ## textures empty and it is still the box, so the scene works before the art does.
 ##
-## Her place in the street is not free-hand, though nothing here enforces it, and it
-## is a depth rather than a screen row. The street runs left to right across the
-## screen and she rides along it; up the screen is across the road, towards the
-## houses she throws at. So the road's two lanes are stacked up the screen, divided
-## by the dashed line the street shader puts at depth 7, with the tarmac ending at
-## depth 18. She rides the bottom lane, which runs from depth 0 to that line.
+## Her place is a depth, not a screen row, and it is not free-hand. Up the screen is
+## across the road: the two lanes are stacked, divided by the dashed line at depth
+## 7, tarmac ending at 18. She rides the near lane, depth 0 to that line.
 ##
-## Her depth in it is 1.0, not the 3.5 that halves the lane, because the lane is not
-## halved on screen where it is halved in the world. Perspective squeezes the far
-## part of it: the line sits on row 1860 and depth 0 on row 2100, so the depth-3.5
-## midpoint draws at 1966.7, only a hundred pixels below the line and two hundred
-## above the near edge. She read as riding the line with a wide empty stretch of
-## tarmac beneath her. Depth 1.0 lands on 2058.6, which is about the middle of the
-## band as drawn, and that is the one a player sees.
+## Her depth in it is 1.0, not the 3.5 that halves the lane, because perspective
+## squeezes the far part: the line draws on row 1860 and depth 0 on row 2100, so
+## depth 3.5 lands at 1966.7, a hundred pixels under the line and two hundred above
+## the near edge. She read as riding the line with empty tarmac beneath her. Depth
+## 1.0 lands on 2058.6, the middle of the band as drawn.
 ##
-## The bottom lane is also the honest one. A throw does not leave from wherever she
-## is drawn: PizzaGame launches it at depth 0, the rider's own distance, taking only
-## its side and height from where the pizza was let go. Standing her in the near
-## lane puts her within a few units of the plane the pizza actually flies out of,
-## instead of a dozen behind it.
+## The near lane is also the honest one: PizzaGame launches a throw at depth 0
+## whatever she is drawn at, so standing her there puts her within a unit of the
+## plane the pizza really leaves from rather than a dozen behind it.
 ##
-## That depth is what fixes both numbers in the scene: y=2058.6 is the row the
-## projection puts the ground on there, and 0.9655 is scale_at(1.0). The two have
-## to agree. Move her up or down and the scale must be recomputed from
+## That depth fixes both numbers in the scene, and they have to agree: y = 2058.6 is
+## the row the projection puts the ground on at depth 1.0, and 0.9655 is
+## scale_at(1.0). Move her and the scale must be recomputed from
 ## StreetProjection.scale_at for the depth the new row implies, or she is drawn at
 ## one distance and standing at another.
 ##
-## Her size is not part of that bargain and can be set to taste; at 650 she is about
-## fourteen world units tall, against a house wall of 12.8.
+## Her size is free of that bargain: at 650 she is about fourteen world units tall,
+## against a house wall of 12.8.
 ##
-## The two poses are drawn on one shared canvas, registered against each other, so
-## both are stretched into the same rect and she does not jump when the pose
-## changes. That is why there is no per-pose offset here and must not be one: if a
-## future pose is trimmed differently, re-export it on the same canvas rather than
-## nudging it back into place from code.
+## Both poses are drawn on one shared canvas, registered against each other, so
+## neither jumps when the pose changes. That is why there is no per-pose offset and
+## must not be one: trim a future pose differently and re-export it on the same
+## canvas rather than nudging it back from code.
 
 ## Standing there, which is every moment you are not dragging the pizza.
 @export var idle_art: Texture2D:
