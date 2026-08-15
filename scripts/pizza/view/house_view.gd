@@ -237,7 +237,7 @@ func _apply_drop_point() -> void:
 func _find_parts() -> void:
 	if _parts_found:
 		return
-	var hitbox := get_node_or_null(hitbox_path) as HouseHitbox
+	var shape := get_node_or_null(hitbox_path) as HouseHitbox
 	var waiting := get_node_or_null(waiting_path) as CanvasItem
 	var served := get_node_or_null(served_path) as CanvasItem
 	var scenery := get_node_or_null(scenery_path) as CanvasItem
@@ -248,12 +248,12 @@ func _find_parts() -> void:
 	# that would leave the house permanently empty and shouting about it. Nothing
 	# at all, on a node that has not finished readying, means too early rather
 	# than misconfigured: come back next time.
-	if not is_node_ready() and hitbox == null and waiting == null \
+	if not is_node_ready() and shape == null and waiting == null \
 			and served == null and scenery == null and drop == null:
 		return
 
 	_parts_found = true
-	_hitbox = hitbox
+	_hitbox = shape
 	_states[State.WAITING] = waiting
 	_states[State.SERVED] = served
 	_states[State.SCENERY] = scenery
