@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="BackdropLayer" format=3]
+[gd_resource type="Resource" script_class="BackdropLayer" format=3 uid="uid://fjctyj5bioko"]
 
-[ext_resource type="Script" path="res://scripts/pizza/rules/backdrop_layer.gd" id="1_tpg53"]
+[ext_resource type="Script" uid="uid://bv0v342pqsobx" path="res://scripts/pizza/rules/backdrop_layer.gd" id="1_tpg53"]
 
 [resource]
 script = ExtResource("1_tpg53")
@@ -9,4 +9,3 @@ height = 142.0
 width = 105.0
 gap = 37.0
 height_variation = 0.45
-colour = Color(0.152941, 0.152941, 0.211765, 1)
