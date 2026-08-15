@@ -45,7 +45,7 @@ gives room to spare and costs nothing.
 
 | Piece | Biggest on screen | Draw at |
 | --- | --- | --- |
-| House | 318 x 303 | 636 x 606 |
+| House, one building | 380 x 380 | 760 x 760 |
 | Drop point | 419 x 419 | 838 x 838 |
 | Rider and bike | 160 x 233 | 320 x 466 |
 | Pizza held in hand | 420 x 420 | 840 x 840 |
@@ -75,6 +75,14 @@ has been served, and one that is only scenery. The player has to tell the three
 apart in a glance from across the street, and roughly half the houses that go by
 are scenery, so this is the single most important read in the game. A lit window
 does the job at the moment, which is a low bar to clear.
+
+**The houses in now are one sheet of four buildings**, laid out left to right, and
+the size above is one of those buildings rather than the whole strip. A house
+picks one when the street places it, and may be mirrored, so a building has to
+read both ways round. The size and the lit windows of each one are measured off
+the sheet and written down, because a throw is judged against them: draw a
+building differently, or add a window to it, and those numbers want taking again.
+Say so when a new sheet lands and it can be measured in a couple of minutes.
 
 **The drop point lies flat on the ground at the foot of the house**, not out on
 the road: the house is what is being aimed at, so the target belongs under it.

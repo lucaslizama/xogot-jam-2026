@@ -606,7 +606,7 @@ func _test_the_house_previews_a_building_without_a_street() -> void:
 	# The wiring above runs outside the editor, where every script is live. On the
 	# canvas only a tool script can be spoken to, so this is what decides whether
 	# any of it is visible while the scene is open.
-	var painter := load("res://scripts/house/house_color.gd") as Script
+	var painter := load("res://scripts/pizza/view/house_color.gd") as Script
 	_check("and the sprite's script is a tool script, so the canvas sees it too",
 		painter.is_tool())
 
