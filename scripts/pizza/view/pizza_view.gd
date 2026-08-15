@@ -17,6 +17,15 @@ extends Placeholder2D
 ## art at all, and failing everything a coloured box with toppings on it. Each step
 ## down is a flavour with less art assigned, which is how the game looked while the
 ## art was still being drawn.
+##
+## pizza.tscn assigns a flavour, and that is on purpose rather than left over.
+## [PizzaGame] overwrites it the moment a round starts, so it changes nothing that
+## a player sees; what it changes is the editor. Without it, every pizza in every
+## scene was a grey box on the canvas, and a scene that shows something the game
+## never shows is a scene you cannot judge anything by: not whether the pizza in
+## hand is too big, not whether it clears the bottom of the screen. The flavour it
+## carries is the first one on the shop's menu, so the canvas shows what a player
+## sees at the start of a run.
 
 @export var flavour: PizzaFlavour:
 	set(value):

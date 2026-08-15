@@ -20,6 +20,7 @@ func _ready() -> void:
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
+	await _test_the_scenes_show_on_the_canvas_what_the_game_shows()
 	await _test_the_house_previews_a_building_without_a_street()
 	await _test_the_stack_rides_with_the_rider()
 	await _test_a_house_shows_the_street_and_not_its_preview()
@@ -537,6 +538,33 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 				and is_equal_approx(fresh.wall_height, hitbox.wall_height)
 				and fresh.looks == hitbox.looks)
 	fresh.queue_free()
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## A scene that draws one thing on the canvas and another in the game cannot be
+## judged by opening it, and judging it by opening it is what the editor is for.
+##
+## The pizza is the case that kept catching people out: PizzaGame assigns a
+## flavour the moment a round starts, so every pizza looked right in play and was a
+## grey placeholder box in the editor. Nobody could see whether the one in hand was
+## too big or whether it cleared the bottom of the screen. The scene carries a
+## flavour now, and the game overwrites it exactly as before.
+func _test_the_scenes_show_on_the_canvas_what_the_game_shows() -> void:
+	var pizza: PizzaView = (load("res://scenes/pizza.tscn") as PackedScene).instantiate()
+	_check("the pizza scene carries a flavour, so the canvas draws a pizza "
+		+ "rather than a placeholder box", pizza.flavour != null)
+	if pizza.flavour != null:
+		_check("and that flavour has art on it (%s)" % pizza.flavour.display_name,
+			pizza.flavour.art != null or pizza.flavour.animation != null)
+	pizza.free()
+
+	# And the game still says what it wants, so nothing a player sees moved.
+	var game := await _spawn()
+	var wanted: PizzaFlavour = game.current_flavour()
+	if wanted != null:
+		_check("the game still sets the waiting pizza's flavour itself (%s)"
+			% wanted.display_name, game._ready_pizza.flavour == wanted)
 	game.queue_free()
 	await get_tree().process_frame
 

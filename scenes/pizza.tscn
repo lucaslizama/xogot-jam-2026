@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/view/pizza_view.gd" id="1_pizza"]
+[ext_resource type="Resource" uid="uid://bwa3vku0dqpjr" path="res://data/flavours/pepperoni.tres" id="2_flavour"]
 
 [node name="Pizza" type="Node2D"]
 script = ExtResource("1_pizza")
+flavour = ExtResource("2_flavour")
 size = Vector2(74, 74)
 corner_mark = true
