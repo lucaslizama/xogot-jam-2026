@@ -21,6 +21,7 @@ func _ready() -> void:
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
 	await _test_a_house_shows_the_street_and_not_its_preview()
+	await _test_a_house_is_the_same_building_in_every_state()
 	await _test_the_menu_says_which_build_it_is()
 	await _test_a_throw_starts_from_where_the_pizza_was()
 	await _test_a_street_cleared_is_handed_on()
@@ -489,6 +490,59 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 	fresh.queue_free()
 	game.queue_free()
 	await get_tree().process_frame
+
+
+## A house is drawn by a different node in each state, and art that rolls its own
+## look rolls a different one per node. Left alone, that turned a house into
+## another building the moment it was served: new shape, mirrored, repainted. The
+## look is chosen once for the house and handed to every state, and this is the
+## only thing that would notice it stopping, since a served house is normally seen
+## for a moment and never beside the one it used to be.
+func _test_a_house_is_the_same_building_in_every_state() -> void:
+	var scene: PackedScene = load("res://scenes/house.tscn")
+	var agreed := 0
+	var compared := 0
+	var frames_seen := {}
+	for trial in 12:
+		var house: HouseView = scene.instantiate()
+		add_child(house)
+		await get_tree().process_frame
+		var waiting := _sprites_under(house.state_node(HouseView.State.WAITING))
+		var served := _sprites_under(house.state_node(HouseView.State.SERVED))
+		if not waiting.is_empty() and waiting.size() == served.size():
+			compared += 1
+			var same := true
+			for i in waiting.size():
+				var a: Sprite2D = waiting[i]
+				var b: Sprite2D = served[i]
+				if a.frame != b.frame or a.flip_h != b.flip_h:
+					same = false
+				frames_seen[a.frame] = true
+			if same:
+				agreed += 1
+		house.queue_free()
+		await get_tree().process_frame
+
+	_check("the house scene has sprites to compare between its states", compared > 0)
+	_check("a served house is the building it was while waiting (%d of %d)"
+		% [agreed, compared], compared > 0 and agreed == compared)
+	# Without this the test above would pass just as happily on a house that had
+	# stopped varying at all, which is the other way to break the same feature.
+	_check("and houses are still not all the same one (%d frames seen)"
+		% frames_seen.size(), frames_seen.size() > 1)
+
+
+## Every Sprite2D under a state node, in tree order. Art can be nested, so this
+## looks at the whole subtree rather than the node's own children.
+func _sprites_under(node: Node) -> Array:
+	var found := []
+	if node == null:
+		return found
+	if node is Sprite2D:
+		found.append(node)
+	for child in node.get_children():
+		found.append_array(_sprites_under(child))
+	return found
 
 
 ## Which of a house's state nodes are showing, in order. Exactly one should be.

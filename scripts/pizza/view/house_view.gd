@@ -105,6 +105,15 @@ var _drop: Node2D = null
 ## So a house with a part missing says so once rather than every frame.
 var _complained: bool = false
 
+## Which building this house is, which way round it faces, and what colour it is
+## painted, as one number handed to every state.
+##
+## Each state is drawn by its own node, and art that picks a look for itself picks
+## a different one per state: a house would become another building the moment it
+## was served, flipped the other way and repainted. One seed for the house, chosen
+## when it is built, is what keeps the three of them agreeing.
+var _look_seed: int = randi()
+
 
 func _ready() -> void:
 	_find_parts()
@@ -207,15 +216,48 @@ func _find_parts() -> void:
 		if not _hitbox.shape_changed.is_connected(_push_shape):
 			_hitbox.shape_changed.connect(_push_shape)
 		_push_shape()
+	_push_look()
 	_warn_about_missing_parts()
 
 
 ## Hand the measurements to every state node that wants them. Real art does not,
 ## and is left untouched; the placeholder facades draw to whatever arrives.
 func _push_shape() -> void:
+	_tell_states(&"show_shape", _hitbox)
+
+
+## Hand every state the same look, so the house is the same building whichever of
+## them is showing.
+func _push_look() -> void:
+	_tell_states(&"set_house_look", _look_seed)
+
+
+## Say one thing to each state node and to everything under it.
+##
+## The sprite that wants telling is usually a child of the state rather than the
+## state itself, since a state is a holder and art arrives inside it. Walking the
+## subtree means an artist can nest whatever they like without rewiring anything
+## here; a node without the method never hears about it.
+func _tell_states(method: StringName, arg: Variant) -> void:
 	for part in _states:
-		if part != null and part.has_method("show_shape"):
-			part.show_shape(_hitbox)
+		if part != null:
+			_tell_subtree(part, method, arg)
+
+
+func _tell_subtree(node: Node, method: StringName, arg: Variant) -> void:
+	# On the editor canvas a node whose script is not @tool is a placeholder: it
+	# answers has_method, and calling one errors out instead of doing anything.
+	# Only a tool script can be spoken to there.
+	if node.has_method(method) \
+			and (not Engine.is_editor_hint() or _is_tool_scripted(node)):
+		node.callv(method, [arg])
+	for child in node.get_children():
+		_tell_subtree(child, method, arg)
+
+
+func _is_tool_scripted(node: Node) -> bool:
+	var script := node.get_script() as Script
+	return script != null and script.is_tool()
 
 
 func _warn_about_missing_parts() -> void:

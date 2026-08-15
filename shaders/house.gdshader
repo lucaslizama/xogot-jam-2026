@@ -11,9 +11,17 @@ uniform float desaturation : hint_range(0.0, 1.0) = 0.0;
 uniform float darken : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
-    // Sample the base sprite texture
-    vec4 base_color = texture(TEXTURE, UV);
-    
+    // The base sprite, taken from COLOR rather than sampled again.
+    //
+    // COLOR already holds the texel multiplied by this node's modulate and every
+    // modulate above it, which is how the street's distance haze and the hour's
+    // world tint reach a house at all. Sampling TEXTURE here instead drops both:
+    // far houses stay as bright as near ones while the ring at their feet still
+    // fades, and midnight looks like noon. Multiplying a fresh TEXTURE sample by
+    // COLOR is not the fix either, since that puts the texture in twice and
+    // squares every channel.
+    vec4 base_color = COLOR;
+
     // Sample the RGB mask texture
     vec4 mask = texture(mask_texture, UV);
     
