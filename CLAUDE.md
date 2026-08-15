@@ -208,6 +208,17 @@ worth opening. Where the count is variable, author the maximum in the scene and
 have code hide the surplus, then clamp to what the scene can actually draw and
 warn if a value exceeds it.
 
+Sections of a script are `#region name` … `#endregion`, which the script editor
+folds. They replaced a row of `# --- name ---` dashes that marked the same
+boundaries and could not be collapsed; a file here carries a lot of explanation,
+and being able to shut a section you are not working in is the difference between
+scrolling and reading. Name a region for what the section does, not for what kind
+of thing is in it. Godot has had these since 4.2.
+
+Leave the `##` documentation blocks outside any region. The class doc has to sit
+directly under `extends` to be picked up as class documentation, and nothing has
+established what a `#region` line in the middle of that does.
+
 ## Commits
 
 No Claude, Anthropic or AI attribution anywhere: no `Co-Authored-By` trailer, no

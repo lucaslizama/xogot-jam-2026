@@ -229,7 +229,7 @@ func _apply_drop_point() -> void:
 			wanted and not _served)
 
 
-# --- the parts ---------------------------------------------------------------
+#region the parts
 
 ## Look the parts up once. Resolving by path rather than holding node references
 ## means this works on a scene that has been instantiated but not added to a tree,
@@ -365,8 +365,9 @@ func state_node(state: State) -> CanvasItem:
 	_find_parts()
 	return _states[int(state)]
 
+#endregion
 
-# --- the shape, read off the hitbox ------------------------------------------
+#region the shape, read off the hitbox
 #
 # The house is asked its size by PizzaGame and by the tests, and it answers from
 # the hitbox rather than keeping a second copy. A house with no hitbox answers
@@ -407,3 +408,5 @@ var pixels_per_unit: float:
 func window_rects() -> Array[Rect2]:
 	_find_parts()
 	return _hitbox.window_rects() if _hitbox != null else ([] as Array[Rect2])
+
+#endregion

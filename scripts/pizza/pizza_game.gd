@@ -8,6 +8,8 @@ extends Node2D
 ## bookkeeping. This node's job is only to move numbers between them and put
 ## the result on the display.
 
+#region what the scene brings
+
 signal round_ended(won: bool, delivered: int)
 ## Which flavour is now in hand. Nothing about the round changes with it; it is
 ## here for whatever comes to keep score of orders.
@@ -238,6 +240,8 @@ var _orders := OrderBoard.new()
 ## throw and the order would be credited to the wrong flavour.
 var _flight_flavour: PizzaFlavour
 
+#endregion
+
 
 func _ready() -> void:
 	_state.bind_strike_capacity(_strikes.slot_count())
@@ -344,7 +348,7 @@ func _process(delta: float) -> void:
 	_update_ready_pizza(delta)
 
 
-# --- throwing ---------------------------------------------------------------
+#region throwing
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _street == null or _state.is_over():
@@ -409,8 +413,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.position.distance_to(_swap_from) > swap_tap_slop:
 			_swap_index = -1
 
+#endregion
 
-# --- what is on the next one -------------------------------------------------
+#region what is on the next one
 
 ## Whether a touch is far enough from the waiting pizza to be about the menu
 ## rather than about the throw. Everything inside the grab ring plus its clearance
@@ -565,8 +570,9 @@ func _resolve_landing(struck: House = null,
 	# Only now can the round be won: the last throw still had to land.
 	_state.note_flight_settled()
 
+#endregion
 
-# --- orders ------------------------------------------------------------------
+#region orders
 
 ## Which rules a street takes its orders from, clamped to what the ticket can draw.
 ##
@@ -621,8 +627,9 @@ func _on_order_lost(_order: PizzaOrder) -> void:
 	_ticket.close_order()
 	_order_popup.show_here(_ticket.expired_wording, "", "", _ticket.line_owed)
 
+#endregion
 
-# --- tips --------------------------------------------------------------------
+#region tips
 
 ## Say what the throw earned, where it landed. A tip nobody sees is only a number
 ## going up in the corner, and the corner is not where anyone is looking.
@@ -661,8 +668,9 @@ func _show_total(total: int) -> void:
 		return
 	_tips.text = _state.scoring.label_total % total
 
+#endregion
 
-# --- the pizza that did not make it -----------------------------------------
+#region the pizza that did not make it
 
 ## Leave the dropped pizza on the road where the throw ended. The only thing on
 ## screen that says where a miss went: the flying pizza is hidden the instant it
@@ -830,8 +838,9 @@ func _return_ready_pizza() -> void:
 	await tween.finished
 	_returning = false
 
+#endregion
 
-# --- houses -----------------------------------------------------------------
+#region houses
 
 ## How big a house's body is, in world units, taken from the house scene itself.
 ## Nobody types these numbers twice: whatever the scene is drawn at is what a
@@ -928,8 +937,9 @@ func _clear_flight() -> void:
 	_aim.clear()
 	_rider.set_aiming(false)
 
+#endregion
 
-# --- the round ---------------------------------------------------------------
+#region the round
 
 func _on_strikes_changed(left: int) -> void:
 	# Only a strike being spent makes a noise; the first count of a fresh round
@@ -996,3 +1006,5 @@ func _level_at(index: int) -> LevelConfig:
 	if levels.is_empty():
 		return null
 	return levels[clampi(index, 0, levels.size() - 1)]
+
+#endregion

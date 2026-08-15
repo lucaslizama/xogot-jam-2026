@@ -84,7 +84,7 @@ func _enter_level(index: int) -> void:
 	_clear_views()
 
 
-# --- daylight, as in the game ------------------------------------------------
+#region daylight, as in the game
 
 func _begin_hour(hour: TimeOfDay) -> void:
 	if hour == null:
@@ -126,8 +126,9 @@ func _apply_hour(hour: TimeOfDay) -> void:
 	_backdrop.modulate = hour.world_tint
 	_backdrop.queue_redraw()
 
+#endregion
 
-# --- houses, as in the game, but without a landing ring ----------------------
+#region houses, as in the game, but without a landing ring
 
 func _sync_views() -> void:
 	var live := {}
@@ -183,3 +184,5 @@ func _clear_views() -> void:
 	for view in _views.values():
 		(view as Node).queue_free()
 	_views.clear()
+
+#endregion
