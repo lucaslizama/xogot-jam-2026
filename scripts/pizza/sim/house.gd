@@ -22,11 +22,20 @@ var body: Vector2 = Vector2.ZERO
 ## accurate enough to reach the drop point has to cross the facade to get there,
 ## so the wall took them all and a dead centre landing was impossible.
 var doorstep: float = 0.0
-## The lit window on the front, in world units: x wide by y tall. Zero means no
-## window, and the whole facade is plain wall.
-var window: Vector2 = Vector2.ZERO
-## How high the middle of that window sits above the ground.
-var window_centre: float = 0.0
+## Which of the buildings on the sheet this house is, and whether it is drawn
+## mirrored. Decided when the street stocks the house, because the window below has
+## to match the one painted into that particular picture; the scene that draws it
+## is told, rather than choosing for itself and leaving the target somewhere else.
+var look: int = 0
+var flipped: bool = false
+## Every lit window on the front, in world units: x measured across from the middle
+## of the house, y up from the ground, each given by its lower-left corner. Empty
+## means no window at all, and the whole facade is plain wall.
+##
+## A list rather than one window, because the buildings are drawn with however many
+## windows they were drawn with. Any of them counts: a player aiming at glass they
+## can see should not have to know which pane the rules happened to pick.
+var windows: Array[Rect2] = []
 ## False for scenery. Only waiting houses are worth throwing at.
 var waiting: bool = true
 ## Set once a pizza lands in the drop point, so it cannot be served twice.
@@ -35,15 +44,20 @@ var served: bool = false
 
 func _init(p_side: float, p_distance: float, p_drop_radius: float, p_waiting: bool,
 		p_body: Vector2 = Vector2.ZERO, p_doorstep: float = 0.0,
-		p_window: Vector2 = Vector2.ZERO, p_window_centre: float = 0.0) -> void:
+		p_window: Vector2 = Vector2.ZERO, p_window_centre: float = 0.0,
+		p_window_offset: float = 0.0) -> void:
 	side = p_side
 	distance = p_distance
 	drop_radius = p_drop_radius
 	waiting = p_waiting
 	body = p_body
 	doorstep = p_doorstep
-	window = p_window
-	window_centre = p_window_centre
+	# One window, given the easy way. The street hands over a whole list when it has
+	# a table of buildings to read them off; this is for a plain house and for tests
+	# that want a single pane and no table to set up.
+	if p_window.x > 0.0 and p_window.y > 0.0:
+		windows.append(Rect2(p_window_offset - p_window.x * 0.5,
+			p_window_centre - p_window.y * 0.5, p_window.x, p_window.y))
 
 
 ## True when this house still wants a pizza.
@@ -95,14 +109,20 @@ func hit_by(from: Vector3, to: Vector3) -> HouseHit:
 	if span <= 0.0 or from.z > distance or to.z < distance:
 		return HouseHit.NONE
 	var t: float = (distance - from.z) / span
-	var across: float = absf(lerpf(from.x, to.x, t) - side)
+	# Signed, because the window is not in the middle of the facade and knowing
+	# only how far off centre a pizza was cannot tell the glass from the wall on
+	# the other side of the door.
+	var across_signed: float = lerpf(from.x, to.x, t) - side
+	var across: float = absf(across_signed)
 	var at_height: float = lerpf(from.y, to.y, t)
 
-	# The window is asked about first, since it sits within the wall and a pizza
-	# through it should not merely be a pizza against the house.
-	if window.x > 0.0 and window.y > 0.0:
-		if (across <= window.x * 0.5
-				and absf(at_height - window_centre) <= window.y * 0.5):
+	# The windows are asked about first, since they sit within the wall and a pizza
+	# through one should not merely be a pizza against the house. Any of them
+	# counts, so a building drawn with three panes is three chances at the good
+	# throw rather than one and two decorations.
+	var at := Vector2(across_signed, at_height)
+	for pane in windows:
+		if pane.has_point(at):
 			return HouseHit.WINDOW
 
 	if across <= body.x * 0.5 and at_height > doorstep and at_height <= body.y:

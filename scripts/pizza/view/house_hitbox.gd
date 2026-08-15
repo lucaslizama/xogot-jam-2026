@@ -4,22 +4,26 @@ extends Node2D
 
 ## The measurements of one house, and the only place they live.
 ##
-## Every other part of the house reads its size from here: the placeholder
-## facades draw to it, and [PizzaGame] asks the house scene for it when it
-## stocks a street, so what a player can hit is exactly what they can see. Change
-## a number here and the drawing and the collision move together; there is no
+## Every other part of the house reads its size from here, and [PizzaGame] reads
+## it when it stocks a street, so what a player can hit is exactly what they can
+## see. Change a number here and the collision moves with the drawing; there is no
 ## second copy to forget.
 ##
+## The body is one shape for every building on the sheet, because they differ by
+## only a unit or so across and up. The windows are not: each building is drawn
+## with its own, in its own places and its own number of them, so they come from
+## [member looks]. [member shown_look] says which building this house is.
+##
 ## It draws itself as an outline so the shape can be dragged into place against
-## real art rather than guessed at. The outline is an editor tool, not part of
-## the game: [member outline] decides when it is drawn, and the default draws it
-## on the canvas only.
+## real art rather than guessed at. The outline is an editor tool, not part of the
+## game: [member outline] decides when it is drawn, and the default draws it on the
+## canvas only.
 ##
 ## The node's origin is where the house meets the ground, matching its parent,
 ## because that is the point the street projects.
 
-## Emitted whenever a measurement changes, so the facades that draw to this shape
-## can redraw. The parent [HouseView] listens and passes the news on; nothing here
+## Emitted whenever a measurement changes, so anything drawing to this shape can
+## redraw. The parent [HouseView] listens and passes the news on; nothing here
 ## reaches sideways to a sibling.
 signal shape_changed
 
@@ -45,17 +49,25 @@ enum Outline {
 @export_group("Shape, in world units")
 ## How wide the facade stands. A pizza inside this width, above the doorstep and
 ## below the roof, has hit the house.
-@export_range(1.0, 30.0, 0.1) var width: float = 20.5:
+##
+## Measured off the art: the walls are about 19.6 across and the eaves reach about
+## 22.6, so this sits between them and a throw that clips the overhang counts. That
+## is the right way round for a throw already committed to.
+@export_range(1.0, 30.0, 0.1) var width: float = 21.5:
 	set(value):
 		width = value
 		_changed()
 ## How tall the wall stands before the roof starts.
-@export_range(1.0, 30.0, 0.1) var wall_height: float = 12.8:
+@export_range(1.0, 30.0, 0.1) var wall_height: float = 13.3:
 	set(value):
 		wall_height = value
 		_changed()
 ## How much the roof adds on top. The throw squares the roof off rather than
 ## following its slope, so the two top corners are a little kinder than they look.
+##
+## Wall plus roof is the roofline of the drawn houses, which runs from 18.5 to 21.6
+## across the sheet and averages about 20. The chimney stands above it deliberately:
+## a pizza passing beside a chimney should not count as hitting a house.
 @export_range(0.0, 15.0, 0.1) var roof_height: float = 6.7:
 	set(value):
 		roof_height = value
@@ -67,20 +79,17 @@ enum Outline {
 		pixels_per_unit = value
 		_changed()
 
-@export_group("The window, in world units")
-## The lit window is a target in its own right, and the hardest one: smaller than
-## the drop point, higher up, and needing a throw that is both well aimed and a
-## little long. It pays the most because of it.
+@export_group("The windows")
+## Where the lit windows sit on each building the sheet holds.
 ##
-## Zero on either axis means no window, and the whole facade is plain wall.
-@export var window_size: Vector2 = Vector2(4.3, 4.4):
+## A lit window is a target in its own right, and the hardest one: smaller than the
+## drop point, higher up, and needing a throw that is both well aimed and a little
+## long. It pays the most because of it. Every window on a building counts, so one
+## drawn with three panes is three chances rather than one. Leave this empty and
+## houses have nothing to aim at but wall and the ring at their feet.
+@export var looks: HouseLooks:
 	set(value):
-		window_size = value
-		_changed()
-## How high the middle of the window sits above the ground.
-@export_range(0.0, 30.0, 0.1) var window_centre: float = 7.0:
-	set(value):
-		window_centre = value
+		looks = value
 		_changed()
 
 @export_group("Outline")
@@ -98,6 +107,13 @@ enum Outline {
 		queue_redraw()
 
 @export_group("Editor preview")
+## Which building the canvas draws the window of, until a house says otherwise.
+@export_range(0, 15, 1) var preview_look: int = 0:
+	set(value):
+		preview_look = value
+		if not _told:
+			shown_look = value
+			queue_redraw()
 ## How high the wall starts counting, drawn as a line across the facade. Below it
 ## a pizza is arriving at the door rather than hitting the house, and the drop
 ## point at its feet decides.
@@ -114,10 +130,28 @@ enum Outline {
 		doorstep_outline = value
 		queue_redraw()
 
+## Which building this house turned out to be, and whether it is drawn mirrored.
+## Set by [HouseView] from what the street decided, so the outline shows the window
+## this house is really judged against rather than a stand-in.
+var shown_look: int = 0
+var shown_flipped: bool = false
+## Whether a house has said which building it is. Until it has, the preview stands.
+var _told: bool = false
+
 
 func _changed() -> void:
 	queue_redraw()
 	shape_changed.emit()
+
+
+## Told by [HouseView] once the street has decided what this house is.
+func show_look(look: int, flipped: bool) -> void:
+	if _told and look == shown_look and flipped == shown_flipped:
+		return
+	_told = true
+	shown_look = look
+	shown_flipped = flipped
+	queue_redraw()
 
 
 ## The facade in world units: x how wide, y how tall including the roof. This is
@@ -127,13 +161,20 @@ func body_size() -> Vector2:
 	return Vector2(width, wall_height + roof_height)
 
 
-## Where the window sits on the wall, in world units, with the house's feet at the
-## origin and up being negative as it is on screen. Multiply by
-## [member pixels_per_unit] to draw it; the throw uses the same numbers the other
-## way round.
-func window_rect() -> Rect2:
-	return Rect2(-window_size.x * 0.5, -(window_centre + window_size.y * 0.5),
-		window_size.x, window_size.y)
+## Where the windows of the building now showing sit, in world units, with the
+## house's feet at the origin and up being negative as it is on screen. Multiply by
+## [member pixels_per_unit] to draw them; the throw uses the same numbers with y
+## the other way up.
+func window_rects() -> Array[Rect2]:
+	var panes: Array[Rect2] = []
+	if looks == null:
+		return panes
+	for pane in looks.rects_for(shown_look, shown_flipped):
+		# The table speaks in the sim's terms, where up is positive. Screen space
+		# turns that over, and this is the one place it happens.
+		panes.append(Rect2(pane.position.x, -(pane.position.y + pane.size.y),
+			pane.size.x, pane.size.y))
+	return panes
 
 
 func _draw() -> void:
@@ -150,7 +191,6 @@ func _draw() -> void:
 		var y := -doorstep_preview * pixels_per_unit
 		draw_line(Vector2(-half, y), Vector2(half, y), doorstep_outline, outline_width)
 
-	if window_size.x > 0.0 and window_size.y > 0.0:
-		var pane := window_rect()
+	for pane in window_rects():
 		draw_rect(Rect2(pane.position * pixels_per_unit, pane.size * pixels_per_unit),
 			window_outline, false, outline_width)

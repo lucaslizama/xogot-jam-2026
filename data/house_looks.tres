@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="HouseLooks" format=3]
+
+[ext_resource type="Script" path="res://scripts/pizza/rules/house_looks.gd" id="1_n6tpt"]
+[ext_resource type="Script" path="res://scripts/pizza/rules/house_window.gd" id="2_d77r6"]
+
+[sub_resource type="Resource" id="Resource_mlfgi"]
+script = ExtResource("2_d77r6")
+size = Vector2(3.49, 4.11)
+centre = Vector2(-3.13, 5.5)
+
+[sub_resource type="Resource" id="Resource_sssir"]
+script = ExtResource("2_d77r6")
+look = 1
+size = Vector2(3.04, 3.28)
+centre = Vector2(-5.11, 12.88)
+
+[sub_resource type="Resource" id="Resource_sqgky"]
+script = ExtResource("2_d77r6")
+look = 1
+size = Vector2(2.87, 3.08)
+centre = Vector2(1.98, 12.66)
+
+[sub_resource type="Resource" id="Resource_edt87"]
+script = ExtResource("2_d77r6")
+look = 2
+size = Vector2(3.68, 4.47)
+centre = Vector2(-4.45, 6.42)
+
+[sub_resource type="Resource" id="Resource_2uj2w"]
+script = ExtResource("2_d77r6")
+look = 3
+size = Vector2(4.47, 4.9)
+centre = Vector2(-3.43, 6.47)
+
+[resource]
+script = ExtResource("1_n6tpt")
+windows = Array[ExtResource("2_d77r6")]([SubResource("Resource_mlfgi"), SubResource("Resource_sssir"), SubResource("Resource_sqgky"), SubResource("Resource_edt87"), SubResource("Resource_2uj2w")])

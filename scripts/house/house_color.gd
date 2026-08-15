@@ -1,19 +1,23 @@
 extends Sprite2D
 
-## Picks which building this sprite is, which way round it faces, and what colour
-## its masked channels are tinted, from one seed.
+## Draws one house: which building it is, which way round it faces, and what
+## colour its masked channels are tinted.
 ##
-## Everything is derived from [method set_house_look]'s seed rather than drawn
-## fresh, because a house is drawn by more than one node: [HouseView] holds a
-## separate node for waiting, served and scenery, and each has its own sprite. If
-## each rolled its own dice, delivering a pizza would turn the house into a
-## different building, flipped the other way and painted another colour. The house
-## hands every state the same seed, so they agree.
+## Nothing here is decided on the spot. The building and the flip come from the
+## street, because the window a pizza can go through is painted into one particular
+## building and the throw is judged against it: a sprite that picked its own
+## picture would put the glass somewhere the target is not. The colour comes from a
+## seed the house hands out, which is nobody else's business but has to be the same
+## for every state, or delivering a pizza would repaint the house.
+##
+## [HouseView] is what does the handing out. A sprite standing on its own picks
+## for itself in [method _ready] and is superseded the moment a house speaks.
 
 @export_category("Sprite Settings")
-## Toggle randomization of the sprite's starting frame
+## Whether this sprite shows the building the house turned out to be. Off, and it
+## always draws frame 0 whatever the street said.
 @export var randomize_frame: bool = false
-## Toggle randomization of flipping the sprite horizontally (X axis)
+## Whether this sprite is mirrored when the house is.
 @export var randomize_flip_h: bool = false
 
 @export_category("Palette Settings")
@@ -27,33 +31,46 @@ extends Sprite2D
 ## Toggle randomization for the Blue channel mask
 @export var randomize_b: bool = false
 
-var _look_seed: int = 0
-## The copy of the material this sprite owns, made once. Re-picking a look must
-## not stack another duplicate on top of the last one.
+var _tint_seed: int = 0
+var _frame_index: int = 0
+var _flip: bool = false
+## The copy of the material this sprite owns, made once. Being told a look again
+## must not stack another duplicate on top of the last one.
 var _own_material: ShaderMaterial = null
+## So a sheet that does not match the window table says so once, not every house.
+var _complained: bool = false
 
 
 func _ready() -> void:
 	# A look of this sprite's own, for a sprite standing on its own. Children are
-	# ready before their parents, so a HouseView always speaks after this and
-	# always replaces it with the seed shared across the house's states.
-	set_house_look(randi())
+	# ready before their parents, so a HouseView always speaks after this.
+	set_house_look(randi(), -1, false, 0)
 
 
-## Told by [HouseView], with the same seed given to every state of the house.
-func set_house_look(look_seed: int) -> void:
-	_look_seed = look_seed
+## Told by [HouseView].
+##
+## `frame_index` below zero means nobody has decided, so pick from the seed; that
+## is the standing-alone case and never happens in the game. `look_count` is how
+## many buildings the window table describes, and is only used to notice a sheet
+## that does not match it.
+func set_house_look(tint_seed: int, frame_index: int, flip: bool, look_count: int) -> void:
+	_tint_seed = tint_seed
+	var total: int = maxi(1, hframes * vframes)
+	_warn_if_sheet_disagrees(total, look_count)
+	if frame_index < 0:
+		_frame_index = _pick(1, total)
+		_flip = _pick(0, 2) == 0
+	else:
+		_frame_index = clampi(frame_index, 0, total - 1)
+		_flip = flip
 	_apply_look()
 
 
 func _apply_look() -> void:
 	if randomize_flip_h:
-		flip_h = _pick(0, 2) == 0
-
+		flip_h = _flip
 	if randomize_frame:
-		var total_frames: int = hframes * vframes
-		if total_frames > 1:
-			frame = _pick(1, total_frames)
+		frame = _frame_index
 
 	if not (randomize_r or randomize_g or randomize_b):
 		return
@@ -77,15 +94,28 @@ func _apply_look() -> void:
 		_own_material.set_shader_parameter("color_b", palette[_pick(4, palette.size())])
 
 
+## A sheet with more buildings on it than the window table describes will never
+## show the extra ones, since the street only ever picks a building it knows the
+## window of. Worth saying, because the symptom is a building quietly missing from
+## the game rather than anything going wrong.
+func _warn_if_sheet_disagrees(total: int, look_count: int) -> void:
+	if _complained or look_count <= 0 or not randomize_frame or total == look_count:
+		return
+	_complained = true
+	push_warning(("%s: the sheet has %d frames but the window table describes %d. "
+		+ "Only the first %d will ever be drawn, and any window past them is unused.")
+		% [name, total, look_count, mini(total, look_count)])
+
+
 ## One choice out of `count`, decided by the seed and by which choice it is.
 ##
 ## A stream of numbers taken in order would do, until two sprites given the same
 ## seed have different toggles set: the one not tinting its red channel would take
 ## one fewer number and every later choice would slide. Salting per choice keeps
-## the waiting and served sprites on the same building whatever else differs.
+## the waiting and served sprites painted the same colour whatever else differs.
 func _pick(salt: int, count: int) -> int:
 	if count <= 1:
 		return 0
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(Vector2i(_look_seed, salt))
+	rng.seed = hash(Vector2i(_tint_seed, salt))
 	return rng.randi_range(0, count - 1)

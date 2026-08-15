@@ -39,6 +39,8 @@ var _hour: TimeOfDay
 var _hour_from: TimeOfDay
 var _hour_to: TimeOfDay
 var _hour_blend: float = 1.0
+var _looks: HouseLooks = null
+var _looks_measured: bool = false
 
 
 func _ready() -> void:
@@ -73,7 +75,11 @@ func _enter_level(index: int) -> void:
 	_time_on_level = 0.0
 	# Keep travelling: the world does not jolt when one street becomes the next,
 	# only its houses, speed and hour change.
-	_street = StreetModel.new(_config, street_seed + index)
+	# The looks table is passed for the variety, not for the targets: nothing here
+	# can be thrown at. Without it every house on the menu street would be the same
+	# building, since the street is what decides which one a house is.
+	_street = StreetModel.new(_config, street_seed + index, Vector2.ZERO, 0.0,
+		Vector2.ZERO, 0.0, _house_looks())
 	_begin_hour(_config.time_of_day)
 	_clear_views()
 
@@ -152,6 +158,21 @@ func _place_house(view: HouseView, house: House) -> void:
 	view.z_index = clampi(int(-house.distance), -4000, 4000)
 	view.modulate = projection.haze_tint(house.distance) * _world_tint()
 	view.show_state(house.waiting, house.served, house.drop_radius)
+	view.show_look(house.look, house.flipped)
+
+
+## Which buildings the house scene can draw, read off it once.
+func _house_looks() -> HouseLooks:
+	if _looks_measured:
+		return _looks
+	_looks_measured = true
+	var probe := house_scene.instantiate() as HouseView
+	if probe == null:
+		# The error for this is already raised where the views are made.
+		return null
+	_looks = probe.looks
+	probe.free()
+	return _looks
 
 
 func _world_tint() -> Color:

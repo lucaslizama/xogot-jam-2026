@@ -205,8 +205,7 @@ var _hour_blend: float = 1.0
 var _strikes_seen: int = -1
 ## Read off the house scene once by _measure_house.
 var _house_body: Vector2 = Vector2.ZERO
-var _house_window: Vector2 = Vector2.ZERO
-var _house_window_centre_value: float = 0.0
+var _house_looks_table: HouseLooks = null
 var _measured: bool = false
 ## Held between the round ending and the card appearing, since the handoff sits
 ## between the two.
@@ -309,7 +308,7 @@ func start_level() -> void:
 	_rider.set_hue(rider_hue(_rider_index))
 	_debug.bind_to(physics, _config)
 	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size(),
-		wall_doorstep, _house_window_size(), _house_window_centre())
+		wall_doorstep, Vector2.ZERO, 0.0, _house_looks())
 	_travelled = 0.0
 	_clear_flight()
 	_clear_views()
@@ -844,18 +843,14 @@ func _house_body_size() -> Vector2:
 	return _house_body
 
 
-## The window a pizza can go through, read off the same scene that draws it. Zero
-## while the houses are not solid, since a window in thin air is not a target.
-func _house_window_size() -> Vector2:
+## Where the window a pizza can go through sits on each of the buildings the house
+## scene can draw, read off that same scene. Null while the houses are not solid,
+## since a window in thin air is not a target.
+func _house_looks() -> HouseLooks:
 	if not houses_are_solid:
-		return Vector2.ZERO
+		return null
 	_measure_house()
-	return _house_window
-
-
-func _house_window_centre() -> float:
-	_measure_house()
-	return _house_window_centre_value
+	return _house_looks_table
 
 
 ## Ask the house scene its measurements, once. Instancing a scene to ask it its
@@ -869,8 +864,7 @@ func _measure_house() -> void:
 		return
 	_measured = true
 	_house_body = Vector2(probe.width, probe.wall_height + probe.roof_height)
-	_house_window = probe.window_size
-	_house_window_centre_value = probe.window_centre
+	_house_looks_table = probe.looks
 	probe.free()
 
 
@@ -903,6 +897,10 @@ func _place_house(view: HouseView, house: House) -> void:
 	view.z_index = clampi(int(-house.distance), -4000, 4000)
 	view.modulate = projection.haze_tint(house.distance) * _world_tint()
 	view.show_state(house.waiting, house.served, house.drop_radius)
+	# Which building it is comes from the street, not from the scene: the street
+	# put this house's window where that building's window is painted, and a scene
+	# that chose its own picture would leave the target on somebody else's wall.
+	view.show_look(house.look, house.flipped)
 
 
 func _world_tint() -> Color:

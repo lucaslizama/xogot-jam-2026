@@ -81,9 +81,10 @@ func _draw() -> void:
 		]), roof)
 
 	# Drawn from the same measurements the throw is judged against rather than
-	# from fractions of the wall that only happened to look right.
-	if show_window and _shape.window_size.x > 0.0 and _shape.window_size.y > 0.0:
-		var pane := _shape.window_rect()
-		pane = Rect2(pane.position * unit, pane.size * unit)
-		draw_rect(pane, window_lit)
-		draw_rect(pane, window_frame, false, window_frame_width)
+	# from fractions of the wall that only happened to look right. However many
+	# windows the building it is standing in for was drawn with.
+	if show_window:
+		for pane in _shape.window_rects():
+			var lit := Rect2(pane.position * unit, pane.size * unit)
+			draw_rect(lit, window_lit)
+			draw_rect(lit, window_frame, false, window_frame_width)

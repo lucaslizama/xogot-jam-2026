@@ -349,6 +349,42 @@ func _test_the_window_is_its_own_target() -> void:
 	_check("a pizza through the window is still a delivery",
 		street.struck_house(Vector3(12.0, centre, 18.0), Vector3(12.0, centre, 26.0)) == house)
 
+	# Windows are painted where the artist put them, which is rarely the middle of
+	# the front, and mirrored when the house is. A target that assumed the middle
+	# scored on blank wall while the glass a player could plainly see counted for
+	# nothing, so the offset has to survive.
+	var off := House.new(12.0, 22.0, 3.2, true, body, 4.0, window, centre, -4.0)
+	var through_off := func(side: float, height: float) -> int:
+		return off.hit_by(Vector3(side, height, 18.0), Vector3(side, height, 26.0))
+	_check("a window off to one side is hit where it is drawn",
+		through_off.call(12.0 - 4.0, centre) == House.HouseHit.WINDOW)
+	_check("and the middle of the house is only wall",
+		through_off.call(12.0, centre) == House.HouseHit.WALL)
+	_check("and so is the mirror image of it on the other side",
+		through_off.call(12.0 + 4.0, centre) == House.HouseHit.WALL)
+
+	var mirrored := House.new(12.0, 22.0, 3.2, true, body, 4.0, window, centre, 4.0)
+	_check("a mirrored house has its window on the other side",
+		mirrored.hit_by(Vector3(12.0 + 4.0, centre, 18.0),
+			Vector3(12.0 + 4.0, centre, 26.0)) == House.HouseHit.WINDOW)
+
+	# Buildings are drawn with however many windows they were drawn with, and a
+	# player aiming at glass they can see should not have to know which pane the
+	# rules happened to pick. All of them count.
+	var pair := House.new(12.0, 22.0, 3.2, true, body, 4.0)
+	pair.windows = [
+		Rect2(-6.0 - window.x * 0.5, centre - window.y * 0.5, window.x, window.y),
+		Rect2(3.0 - window.x * 0.5, centre + 3.0 - window.y * 0.5, window.x, window.y),
+	]
+	var through_pair := func(side: float, height: float) -> int:
+		return pair.hit_by(Vector3(side, height, 18.0), Vector3(side, height, 26.0))
+	_check("the first of two windows counts",
+		through_pair.call(12.0 - 6.0, centre) == House.HouseHit.WINDOW)
+	_check("and so does the second, at its own height",
+		through_pair.call(12.0 + 3.0, centre + 3.0) == House.HouseHit.WINDOW)
+	_check("and the wall between them is still only wall",
+		through_pair.call(12.0 - 1.0, centre) == House.HouseHit.WALL)
+
 	var rules := ScoreRules.new()
 	_check("and it pays better than a bullseye, which pays better than a scrape",
 		rules.tip_for(ScoreRules.ThrowTier.WINDOW)

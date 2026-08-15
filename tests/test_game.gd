@@ -211,9 +211,7 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 	# about numbers rather than about the node they came from.
 	var drawn: HouseView = (game.house_scene.instantiate() as HouseView)
 	var expected := Vector2(drawn.width, drawn.wall_height + drawn.roof_height)
-	var drawn_window: Vector2 = drawn.window_size
-	var drawn_window_centre: float = drawn.window_centre
-	var drawn_wall: float = drawn.wall_height
+	var drawn_looks: HouseLooks = drawn.looks
 	var drawn_width: float = drawn.width
 	drawn.free()
 
@@ -230,17 +228,57 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		% [solid, game._street.houses().size()],
 		solid == game._street.houses().size() and solid > 0)
 
-	# The window has to be the one that is drawn, or a player would be aiming at a
-	# lit rectangle with the target somewhere else on the wall.
-	_check("the street was told about the window (%s, want %s)"
-			% [game._street.house_window, drawn_window],
-		game._street.house_window.is_equal_approx(drawn_window))
-	_check("at the height it is drawn at (%.1f, want %.1f)"
-			% [game._street.house_window_centre, drawn_window_centre],
-		is_equal_approx(game._street.house_window_centre, drawn_window_centre))
-	_check("and the window sits inside the wall it is cut into",
-		drawn_window_centre + drawn_window.y * 0.5 < drawn_wall
-			and drawn_window.x < drawn_width)
+	# The window has to be the one drawn on the building this particular house
+	# turned out to be, or a player would be aiming at a lit rectangle with the
+	# target somewhere else on the wall. Every building on the sheet paints it
+	# somewhere different, so this is checked house by house rather than once.
+	_check("the street was given the table of windows", drawn_looks != null
+		and drawn_looks.rows() > 0)
+	if drawn_looks != null and drawn_looks.rows() > 0:
+		_check("and it is the one the house scene carries",
+			game._street.house_looks == drawn_looks)
+		var matched := 0
+		var inside := 0
+		var panes := 0
+		for house in game._street.houses():
+			var want := drawn_looks.rects_for(house.look, house.flipped)
+			panes += house.windows.size()
+			if house.windows.size() == want.size():
+				var same := true
+				for i in want.size():
+					if not house.windows[i].is_equal_approx(want[i]):
+						same = false
+				if same:
+					matched += 1
+			# A window standing above the roofline or hanging off the side of the
+			# facade would be a measurement typed in wrong, and unreachable. The
+			# roofline, not the top of the wall: one of the buildings on the sheet
+			# has its windows upstairs, in the gable.
+			var fits := true
+			for pane in house.windows:
+				if pane.position.y + pane.size.y >= expected.y \
+						or pane.position.x < -drawn_width * 0.5 \
+						or pane.position.x + pane.size.x > drawn_width * 0.5:
+					fits = false
+			if fits:
+				inside += 1
+		var total: int = game._street.houses().size()
+		_check("every house has the windows painted on its own building (%d of %d)"
+			% [matched, total], total > 0 and matched == total)
+		_check("and every one of them sits on the facade it is cut into (%d of %d)"
+			% [inside, total], total > 0 and inside == total)
+		# A building drawn with two windows should offer two targets, so the street
+		# ought to be carrying more panes than it has houses with a window.
+		_check("and a building with more than one window offers all of them (%d panes)"
+			% panes, panes > total)
+
+		# Half the point of a table of buildings is that a street is not one
+		# building over and over.
+		var dealt := {}
+		for house in game._street.houses():
+			dealt[house.look] = true
+		_check("and the street dealt more than one building (%d of %d)"
+			% [dealt.size(), drawn_looks.look_count], dealt.size() > 1)
 
 	# A pizza sent through the middle of an open house should be taken by it.
 	var open_house: House = null
@@ -486,7 +524,7 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 				% [Vector2(fresh.width, fresh.wall_height), Vector2(hitbox.width, hitbox.wall_height)],
 			is_equal_approx(fresh.width, hitbox.width)
 				and is_equal_approx(fresh.wall_height, hitbox.wall_height)
-				and fresh.window_size.is_equal_approx(hitbox.window_size))
+				and fresh.looks == hitbox.looks)
 	fresh.queue_free()
 	game.queue_free()
 	await get_tree().process_frame
@@ -502,10 +540,14 @@ func _test_a_house_is_the_same_building_in_every_state() -> void:
 	var scene: PackedScene = load("res://scenes/house.tscn")
 	var agreed := 0
 	var compared := 0
-	var frames_seen := {}
+	var drawn := {}
 	for trial in 12:
 		var house: HouseView = scene.instantiate()
 		add_child(house)
+		await get_tree().process_frame
+		# Told the same way the street tells it, since the building is the street's
+		# to decide and a house left alone shows whatever its preview says.
+		house.show_look(trial % 4, trial % 3 == 0)
 		await get_tree().process_frame
 		var waiting := _sprites_under(house.state_node(HouseView.State.WAITING))
 		var served := _sprites_under(house.state_node(HouseView.State.SERVED))
@@ -517,7 +559,7 @@ func _test_a_house_is_the_same_building_in_every_state() -> void:
 				var b: Sprite2D = served[i]
 				if a.frame != b.frame or a.flip_h != b.flip_h:
 					same = false
-				frames_seen[a.frame] = true
+				drawn[a.frame] = true
 			if same:
 				agreed += 1
 		house.queue_free()
@@ -526,10 +568,10 @@ func _test_a_house_is_the_same_building_in_every_state() -> void:
 	_check("the house scene has sprites to compare between its states", compared > 0)
 	_check("a served house is the building it was while waiting (%d of %d)"
 		% [agreed, compared], compared > 0 and agreed == compared)
-	# Without this the test above would pass just as happily on a house that had
-	# stopped varying at all, which is the other way to break the same feature.
-	_check("and houses are still not all the same one (%d frames seen)"
-		% frames_seen.size(), frames_seen.size() > 1)
+	# Without this the test above would pass just as happily on a house that drew
+	# frame 0 whatever it was told, which is the other way to break the same thing.
+	_check("and the building it draws is the one it was told (%d drawn)"
+		% drawn.size(), drawn.size() > 1)
 
 
 ## Every Sprite2D under a state node, in tree order. Art can be nested, so this

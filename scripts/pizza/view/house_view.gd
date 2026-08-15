@@ -88,6 +88,17 @@ enum State {
 	set(value):
 		preview_drop_radius = value
 		_apply_preview()
+## Which of the sheet's buildings the canvas shows, and which way round, until a
+## street says otherwise. Handy for checking a window outline against the building
+## it belongs to without running anything.
+@export_range(0, 15, 1) var preview_look: int = 0:
+	set(value):
+		preview_look = value
+		_apply_preview()
+@export var preview_flipped: bool = false:
+	set(value):
+		preview_flipped = value
+		_apply_preview()
 
 var _state: State = State.WAITING
 var _waiting: bool = true
@@ -105,14 +116,24 @@ var _drop: Node2D = null
 ## So a house with a part missing says so once rather than every frame.
 var _complained: bool = false
 
-## Which building this house is, which way round it faces, and what colour it is
-## painted, as one number handed to every state.
+## Which of the sheet's buildings this house is, and whether it is drawn mirrored.
 ##
-## Each state is drawn by its own node, and art that picks a look for itself picks
-## a different one per state: a house would become another building the moment it
-## was served, flipped the other way and repainted. One seed for the house, chosen
-## when it is built, is what keeps the three of them agreeing.
-var _look_seed: int = randi()
+## Decided by the street rather than here, because the window a pizza can go
+## through is painted into one particular building and the throw is judged against
+## it. A house that chose its own picture would put the glass somewhere the target
+## is not.
+var _look: int = 0
+var _flipped: bool = false
+## Whether a street has said which building this is. Until it has, the preview
+## stands, the same way the state does.
+var _look_stated: bool = false
+## What colour this house is painted, as one number handed to every state.
+##
+## Each state is drawn by its own node, and art that picks a colour for itself
+## picks a different one per state: a house would be repainted the moment it was
+## served. One seed for the house is what keeps the three of them agreeing. Unlike
+## the building it is nobody else's business, so it is still chosen here.
+var _tint_seed: int = randi()
 
 
 func _ready() -> void:
@@ -125,7 +146,13 @@ func _ready() -> void:
 
 ## Show what the exported preview says, for as long as nothing else has spoken.
 func _apply_preview() -> void:
+	if not _look_stated:
+		_look = preview_look
+		_flipped = preview_flipped
 	if _stated:
+		# The state has been spoken for even though the look has not: apply what
+		# changed and leave the rest alone.
+		_apply_look()
 		return
 	_state = preview_state
 	_waiting = preview_state != State.SCENERY
@@ -157,10 +184,30 @@ func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 	_apply_all()
 
 
+## Told by the street which of the sheet's buildings this house turned out to be.
+## The street decides it because it also has to place the window a pizza can go
+## through, and the two are the same window.
+func show_look(look: int, flipped: bool) -> void:
+	if _look_stated and look == _look and flipped == _flipped:
+		return
+	_look_stated = true
+	_look = look
+	_flipped = flipped
+	_apply_look()
+
+
 func _apply_all() -> void:
 	_find_parts()
 	_apply_state()
+	_apply_look()
 	_apply_drop_point()
+
+
+## Tell the art which building to draw, and the hitbox which window goes with it.
+func _apply_look() -> void:
+	if _hitbox != null:
+		_hitbox.show_look(_look, _flipped)
+	_push_look()
 
 
 ## Exactly one state node is visible. Anything else under this node — a shadow, a
@@ -221,15 +268,23 @@ func _find_parts() -> void:
 
 
 ## Hand the measurements to every state node that wants them. Real art does not,
-## and is left untouched; the placeholder facades draw to whatever arrives.
+## and is left untouched; anything drawing its own placeholder draws to whatever
+## arrives.
 func _push_shape() -> void:
-	_tell_states(&"show_shape", _hitbox)
+	_tell_states(&"show_shape", [_hitbox])
 
 
-## Hand every state the same look, so the house is the same building whichever of
-## them is showing.
+## Hand every state the same building, the same way round and the same colour, so
+## the house does not change identity when it is served.
+##
+## The number of buildings comes from the window table, so the art and the target
+## are counted from one place: art with more frames than the table has rows would
+## otherwise show a building nothing knows the window of.
 func _push_look() -> void:
-	_tell_states(&"set_house_look", _look_seed)
+	var count := 0
+	if _hitbox != null and _hitbox.looks != null:
+		count = _hitbox.looks.look_count
+	_tell_states(&"set_house_look", [_tint_seed, _look, _flipped, count])
 
 
 ## Say one thing to each state node and to everything under it.
@@ -238,21 +293,21 @@ func _push_look() -> void:
 ## state itself, since a state is a holder and art arrives inside it. Walking the
 ## subtree means an artist can nest whatever they like without rewiring anything
 ## here; a node without the method never hears about it.
-func _tell_states(method: StringName, arg: Variant) -> void:
+func _tell_states(method: StringName, args: Array) -> void:
 	for part in _states:
 		if part != null:
-			_tell_subtree(part, method, arg)
+			_tell_subtree(part, method, args)
 
 
-func _tell_subtree(node: Node, method: StringName, arg: Variant) -> void:
+func _tell_subtree(node: Node, method: StringName, args: Array) -> void:
 	# On the editor canvas a node whose script is not @tool is a placeholder: it
 	# answers has_method, and calling one errors out instead of doing anything.
 	# Only a tool script can be spoken to there.
 	if node.has_method(method) \
 			and (not Engine.is_editor_hint() or _is_tool_scripted(node)):
-		node.callv(method, [arg])
+		node.callv(method, args)
 	for child in node.get_children():
-		_tell_subtree(child, method, arg)
+		_tell_subtree(child, method, args)
 
 
 func _is_tool_scripted(node: Node) -> bool:
@@ -333,15 +388,13 @@ var roof_height: float:
 		_find_parts()
 		return _hitbox.roof_height if _hitbox != null else 0.0
 
-var window_size: Vector2:
+## The table of buildings and the window painted on each. The street reads this
+## when it stocks houses, so the window a throw is judged against is the one on the
+## building the house is drawn as.
+var looks: HouseLooks:
 	get:
 		_find_parts()
-		return _hitbox.window_size if _hitbox != null else Vector2.ZERO
-
-var window_centre: float:
-	get:
-		_find_parts()
-		return _hitbox.window_centre if _hitbox != null else 0.0
+		return _hitbox.looks if _hitbox != null else null
 
 var pixels_per_unit: float:
 	get:
@@ -349,8 +402,8 @@ var pixels_per_unit: float:
 		return _hitbox.pixels_per_unit if _hitbox != null else 0.0
 
 
-## Where the window sits on the wall, in world units, with the house's feet at the
+## Where the windows sit on the wall, in world units, with the house's feet at the
 ## origin and up being negative as it is on screen.
-func window_rect() -> Rect2:
+func window_rects() -> Array[Rect2]:
 	_find_parts()
-	return _hitbox.window_rect() if _hitbox != null else Rect2()
+	return _hitbox.window_rects() if _hitbox != null else ([] as Array[Rect2])
