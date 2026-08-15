@@ -153,9 +153,9 @@ func _sync_views() -> void:
 
 
 func _place_house(view: HouseView, house: House) -> void:
-	var scale := projection.scale_at(house.distance)
+	var shrink := projection.scale_at(house.distance)
 	view.position = projection.project(house.side, 0.0, house.distance)
-	view.scale = Vector2(scale, scale)
+	view.scale = Vector2(shrink, shrink)
 	view.z_index = clampi(int(-house.distance), -4000, 4000)
 	view.modulate = projection.haze_tint(house.distance) * _world_tint()
 	view.show_state(house.waiting, house.served, house.drop_radius)

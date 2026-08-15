@@ -57,14 +57,14 @@ func _draw() -> void:
 
 
 func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
-	var scale := projection.scale_at(layer.distance)
+	var shrink := projection.scale_at(layer.distance)
 	var stride: float = layer.width + layer.gap
 	if stride <= 0.001:
 		return
 
 	# Only the visible span is drawn, so a far row does not cost more than a
 	# near one just because more of the world fits on screen behind it.
-	var half_span: float = (view.x * 0.6) / maxf(0.001, projection.pixels_per_unit * scale)
+	var half_span: float = (view.x * 0.6) / maxf(0.001, projection.pixels_per_unit * shrink)
 	var first: int = int(floor((-half_span + _travelled) / stride))
 	var last: int = int(ceil((half_span + _travelled) / stride))
 
@@ -76,7 +76,7 @@ func _draw_layer(layer: BackdropLayer, view: Vector2) -> void:
 		var height: float = layer.height * (1.0 - layer.height_variation * wobble)
 		var base := projection.project(world_side, 0.0, layer.distance)
 		var top := projection.project(world_side, height, layer.distance)
-		var half: float = layer.width * 0.5 * projection.pixels_per_unit * scale
+		var half: float = layer.width * 0.5 * projection.pixels_per_unit * shrink
 		var box := Rect2(base.x - half, top.y, half * 2.0, base.y - top.y)
 		var tint := projection.haze_tint(layer.distance)
 		if layer.art != null:

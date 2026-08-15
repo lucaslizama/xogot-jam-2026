@@ -700,8 +700,8 @@ func _advance_splat(delta: float) -> void:
 	if not _state.is_over():
 		_splat_side -= _config.street_speed * delta
 	_splat.position = projection.project(_splat_side, 0.0, _splat_distance)
-	var scale := projection.scale_at(_splat_distance)
-	_splat.scale = Vector2(scale, scale)
+	var shrink := projection.scale_at(_splat_distance)
+	_splat.scale = Vector2(shrink, shrink)
 	_splat.z_index = clampi(int(-_splat_distance), -4000, 4000)
 	# Full strength through the hold, then down to nothing across the fade, which
 	# falls out of one countdown rather than needing two.
@@ -710,14 +710,14 @@ func _advance_splat(delta: float) -> void:
 
 func _place_pizza() -> void:
 	_pizza.position = projection.project(_flight.side, _flight.height, _flight.distance)
-	var scale := projection.scale_at(_flight.distance)
-	_pizza.scale = Vector2(scale, scale)
+	var shrink := projection.scale_at(_flight.distance)
+	_pizza.scale = Vector2(shrink, shrink)
 
 	# The shadow sits at the same spot on the ground, which is what tells the
 	# player how far out the throw actually is.
 	_shadow.visible = true
 	_shadow.position = projection.project(_flight.side, 0.0, _flight.distance)
-	_shadow.scale = Vector2(scale, scale)
+	_shadow.scale = Vector2(shrink, shrink)
 	_shadow.z_index = clampi(int(-_flight.distance), -4000, 4000)
 	# Draw order is by depth, so a pizza passing behind a near house is hidden
 	# by it. Negative because nearer means a smaller distance.
@@ -904,9 +904,9 @@ func _sync_views() -> void:
 
 
 func _place_house(view: HouseView, house: House) -> void:
-	var scale := projection.scale_at(house.distance)
+	var shrink := projection.scale_at(house.distance)
 	view.position = projection.project(house.side, 0.0, house.distance)
-	view.scale = Vector2(scale, scale)
+	view.scale = Vector2(shrink, shrink)
 	view.z_index = clampi(int(-house.distance), -4000, 4000)
 	view.modulate = projection.haze_tint(house.distance) * _world_tint()
 	view.show_state(house.waiting, house.served, house.drop_radius)
