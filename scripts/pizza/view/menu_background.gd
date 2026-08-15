@@ -79,7 +79,7 @@ func _enter_level(index: int) -> void:
 	# can be thrown at. Without it every house on the menu street would be the same
 	# building, since the street is what decides which one a house is.
 	_street = StreetModel.new(_config, street_seed + index, Vector2.ZERO, 0.0,
-		Vector2.ZERO, 0.0, _house_looks())
+		_house_looks())
 	_begin_hour(_config.time_of_day)
 	_clear_views()
 

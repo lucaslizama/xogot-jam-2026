@@ -17,17 +17,11 @@ var house_body: Vector2 = Vector2.ZERO
 ## How high off the ground a house's wall starts counting. See [member
 ## House.doorstep]: at zero the wall stands in its own drop point's doorway.
 var house_doorstep: float = 0.0
-## The lit window on a house's front, and how high its middle sits. Zero leaves
-## the facade plain, which is what a street with nothing to aim at wants.
-##
-## Used only when there is no [member house_looks] to read it from, which is the
-## case for a street of plain houses and for tests that want one window and no
-## table to set up.
-var house_window: Vector2 = Vector2.ZERO
-var house_window_centre: float = 0.0
-## The buildings a house can be, and where each one's window is painted. When this
-## is set, every house picks a building and takes its window from here, so the
-## target is on the glass whichever building the house turned out to be.
+## The buildings a house can be: how big each one stands, and where its windows
+## are painted. Every house picks one and takes both from here, so the target is on
+## the glass and the wall is where the wall is drawn, whichever building it turned
+## out to be. Leave it null and houses are plain: [member house_body] tall and wide,
+## with nothing to aim at but the ring at their feet.
 var house_looks: HouseLooks = null
 
 var _config: LevelConfig
@@ -46,13 +40,10 @@ var _frontier: float = 0.0
 ## `body` is passed in rather than set afterwards so that the first houses, which
 ## are placed here, are as solid as every one that follows.
 func _init(config: LevelConfig, seed_value: int = 0, body: Vector2 = Vector2.ZERO,
-		doorstep: float = 0.0, window: Vector2 = Vector2.ZERO,
-		window_centre: float = 0.0, looks: HouseLooks = null) -> void:
+		doorstep: float = 0.0, looks: HouseLooks = null) -> void:
 	_config = config
 	house_body = body
 	house_doorstep = doorstep
-	house_window = window
-	house_window_centre = window_centre
 	house_looks = looks
 	_rng.seed = seed_value
 	_look_rng.seed = hash(Vector2i(seed_value, 0x10075))
@@ -129,8 +120,6 @@ func _restock() -> void:
 			_rng.randf() < _config.waiting_chance,
 			house_body,
 			house_doorstep,
-			house_window,
-			house_window_centre,
 		)
 		_dress(house)
 		_houses.append(house)

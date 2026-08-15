@@ -308,7 +308,7 @@ func start_level() -> void:
 	_rider.set_hue(rider_hue(_rider_index))
 	_debug.bind_to(physics, _config)
 	_street = StreetModel.new(_config, street_seed + _level_index, _house_body_size(),
-		wall_doorstep, Vector2.ZERO, 0.0, _house_looks())
+		wall_doorstep, _house_looks())
 	_travelled = 0.0
 	_clear_flight()
 	_clear_views()

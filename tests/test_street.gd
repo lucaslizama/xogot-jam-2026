@@ -320,7 +320,9 @@ func _test_the_window_is_its_own_target() -> void:
 	var body := Vector2(20.0, 14.0)
 	var window := Vector2(4.0, 4.0)
 	var centre := 7.0
-	var street := StreetModel.new(_config(), 9, body, 4.0, window, centre)
+	# The street is only a container here: it is emptied and given one house built
+	# by hand, because what is being tested is the rule, not the stocking.
+	var street := StreetModel.new(_config(), 9, body, 4.0)
 	street.houses().clear()
 	street.houses().append(House.new(12.0, 22.0, 3.2, true, body, 4.0, window, centre))
 	var house: House = street.houses()[0]
