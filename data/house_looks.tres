@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HouseLooks" format=3 uid="uid://c0jepi4shoeb0"]
+[gd_resource type="Resource" script_class="HouseLooks" format=3 uid="uid://dolx1r1fbkeqc"]
 
 [ext_resource type="Script" uid="uid://ckntxoh3prnh3" path="res://scripts/pizza/rules/house_looks.gd" id="1_n6tpt"]
 [ext_resource type="Script" uid="uid://ls54rtqbxruc" path="res://scripts/pizza/rules/house_window.gd" id="2_d77r6"]
@@ -34,4 +34,5 @@ centre = Vector2(-3.43, 6.47)
 
 [resource]
 script = ExtResource("1_n6tpt")
+bodies = Array[Vector2]([Vector2(20.52, 20.18), Vector2(19.85, 21.57), Vector2(22.43, 20.13), Vector2(21.76, 18.51)])
 windows = Array[ExtResource("2_d77r6")]([SubResource("Resource_mlfgi"), SubResource("Resource_sssir"), SubResource("Resource_sqgky"), SubResource("Resource_edt87"), SubResource("Resource_2uj2w")])

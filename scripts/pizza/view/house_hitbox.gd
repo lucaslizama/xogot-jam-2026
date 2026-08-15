@@ -9,10 +9,10 @@ extends Node2D
 ## see. Change a number here and the collision moves with the drawing; there is no
 ## second copy to forget.
 ##
-## The body is one shape for every building on the sheet, because they differ by
-## only a unit or so across and up. The windows are not: each building is drawn
-## with its own, in its own places and its own number of them, so they come from
-## [member looks]. [member shown_look] says which building this house is.
+## Both the body and the windows differ from building to building, so both come
+## from [member looks], a table with one entry per building. [member shown_look]
+## says which building this house turned out to be. The exports below are what a
+## house falls back on when there is no table: a plain house with no art on it.
 ##
 ## It draws itself as an outline so the shape can be dragged into place against
 ## real art rather than guessed at. The outline is an editor tool, not part of the
@@ -47,12 +47,9 @@ enum Outline {
 		queue_redraw()
 
 @export_group("Shape, in world units")
-## How wide the facade stands. A pizza inside this width, above the doorstep and
+## How wide the facade stands, for a house with no [member looks] table to read a
+## building's own width from. A pizza inside this width, above the doorstep and
 ## below the roof, has hit the house.
-##
-## Measured off the art: the walls are about 19.6 across and the eaves reach about
-## 22.6, so this sits between them and a throw that clips the overhang counts. That
-## is the right way round for a throw already committed to.
 @export_range(1.0, 30.0, 0.1) var width: float = 21.5:
 	set(value):
 		width = value
@@ -62,12 +59,9 @@ enum Outline {
 	set(value):
 		wall_height = value
 		_changed()
-## How much the roof adds on top. The throw squares the roof off rather than
-## following its slope, so the two top corners are a little kinder than they look.
-##
-## Wall plus roof is the roofline of the drawn houses, which runs from 18.5 to 21.6
-## across the sheet and averages about 20. The chimney stands above it deliberately:
-## a pizza passing beside a chimney should not count as hitting a house.
+## How much the roof adds on top, again only when there is no table. The throw
+## squares the roof off rather than following its slope, so the two top corners are
+## a little kinder than they look.
 @export_range(0.0, 15.0, 0.1) var roof_height: float = 6.7:
 	set(value):
 		roof_height = value
@@ -146,10 +140,15 @@ func show_look(look: int, flipped: bool) -> void:
 	queue_redraw()
 
 
-## The facade in world units: x how wide, y how tall including the roof. This is
-## the pair [PizzaGame] hands the street, so a house is solid at the size it is
-## drawn.
+## The facade of the building now showing, in world units: x how wide, y how tall
+## including the roof. Taken from the table when there is one, so a house is solid
+## at the size that particular building is drawn, and from the exports above when
+## there is not.
 func body_size() -> Vector2:
+	if looks != null:
+		var listed := looks.body_of(shown_look)
+		if listed.x > 0.0 and listed.y > 0.0:
+			return listed
 	return Vector2(width, wall_height + roof_height)
 
 
@@ -175,8 +174,9 @@ func _draw() -> void:
 	if outline == Outline.EDITOR_ONLY and not Engine.is_editor_hint():
 		return
 
-	var half := width * 0.5 * pixels_per_unit
-	var tall := (wall_height + roof_height) * pixels_per_unit
+	var body := body_size()
+	var half := body.x * 0.5 * pixels_per_unit
+	var tall := body.y * pixels_per_unit
 	draw_rect(Rect2(-half, -tall, half * 2.0, tall), body_outline, false, outline_width)
 
 	if doorstep_preview > 0.0:

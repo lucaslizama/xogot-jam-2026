@@ -283,7 +283,7 @@ func _push_shape() -> void:
 func _push_look() -> void:
 	var count := 0
 	if _hitbox != null and _hitbox.looks != null:
-		count = _hitbox.looks.look_count
+		count = _hitbox.looks.count()
 	_tell_states(&"set_house_look", [_tint_seed, _look, _flipped, count])
 
 

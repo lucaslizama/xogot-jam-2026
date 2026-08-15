@@ -140,11 +140,17 @@ func _restock() -> void:
 ## window is painted. Done here rather than in the scene that draws it, because the
 ## throw is judged against the window and the two have to be the same one.
 func _dress(house: House) -> void:
-	if house_looks == null or house_looks.look_count <= 0:
+	if house_looks == null or house_looks.count() <= 0:
 		return
-	house.look = _look_rng.randi_range(0, house_looks.look_count - 1)
+	house.look = _look_rng.randi_range(0, house_looks.count() - 1)
 	house.flipped = _look_rng.randf() < 0.5
 	house.windows = house_looks.rects_for(house.look, house.flipped)
+	# The buildings are not all the same size either. Left on the one body every
+	# house shared, the short one had a strip of sky counting as house and the wide
+	# one had a foot of wall a pizza sailed straight through.
+	var listed := house_looks.body_of(house.look)
+	if listed.x > 0.0 and listed.y > 0.0:
+		house.body = listed
 
 
 func _prune() -> void:

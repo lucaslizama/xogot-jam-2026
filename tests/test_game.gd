@@ -218,17 +218,26 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 	drawn.free()
 
 	var body: Vector2 = game._street.house_body
-	_check("the street was given a house body (got %s)" % body, body != Vector2.ZERO)
-	_check("and it is the size the house scene draws (%s, want %s)" % [body, expected],
-		body.is_equal_approx(expected))
+	_check("the street was given a fallback house body (got %s)" % body,
+		body != Vector2.ZERO)
+	_check("and it is the size the house scene falls back to (%s, want %s)"
+		% [body, expected], body.is_equal_approx(expected))
 
+	# Not one size for the street any more. The buildings differ by a unit and a
+	# half across and up, and every house is solid at the size of the building it
+	# was actually drawn as.
 	var solid := 0
+	var sizes := {}
 	for house in game._street.houses():
-		if house.body.is_equal_approx(expected):
+		var want := drawn_looks.body_of(house.look) if drawn_looks != null else expected
+		if house.body.is_equal_approx(want):
 			solid += 1
-	_check("every house on the real street is solid (%d of %d)"
+		sizes[house.body] = true
+	_check("every house is solid at the size of its own building (%d of %d)"
 		% [solid, game._street.houses().size()],
 		solid == game._street.houses().size() and solid > 0)
+	_check("and the street is not one size over and over (%d sizes)" % sizes.size(),
+		sizes.size() > 1)
 
 	# The window has to be the one drawn on the building this particular house
 	# turned out to be, or a player would be aiming at a lit rectangle with the
@@ -280,7 +289,7 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 		for house in game._street.houses():
 			dealt[house.look] = true
 		_check("and the street dealt more than one building (%d of %d)"
-			% [dealt.size(), drawn_looks.look_count], dealt.size() > 1)
+			% [dealt.size(), drawn_looks.count()], dealt.size() > 1)
 
 	# A pizza sent through the middle of an open house should be taken by it.
 	var open_house: House = null
