@@ -116,7 +116,14 @@ func rack_rect() -> Rect2:
 	var left := art.position.x + rack_left * art.size.x
 	var right := art.position.x + rack_right * art.size.x
 	var top := art.position.y + rack_top * art.size.y
-	return Rect2(position + Vector2(left, top) * scale, Vector2((right - left) * scale.x, 0.0))
+	# Through the node's own transform rather than by hand from position and scale,
+	# so the rack goes wherever the rider goes. She is not still any more: she bobs
+	# and leans as she rides, and anything standing on the rack has to lean with
+	# her. Whatever is added to that animation next is followed for free, since a
+	# transform carries rotation and skew as well.
+	var placed := transform * Vector2(left, top)
+	var far := transform * Vector2(right, top)
+	return Rect2(placed, Vector2(far.x - placed.x, 0.0))
 
 
 func _ready() -> void:

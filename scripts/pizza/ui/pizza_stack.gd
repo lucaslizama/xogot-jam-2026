@@ -24,6 +24,9 @@ extends Control
 
 @onready var _boxes: Control = %Boxes
 
+## So a scene that cannot seat the stack says so once rather than every frame.
+var _complained: bool = false
+
 
 func _ready() -> void:
 	_fit_to_screen()
@@ -49,7 +52,11 @@ func _fit_to_screen() -> void:
 func place_on(rack: Rect2) -> void:
 	var first := _boxes.get_child(0) as Control
 	if first == null or first.size.x <= 0.0 or rack.size.x <= 0.0:
-		push_warning("PizzaStack: cannot sit on the rack; the scene needs at least one box with a width.")
+		# Once. This is asked every frame now that the rider moves, and a scene
+		# that cannot answer would otherwise say so sixty times a second.
+		if not _complained:
+			_complained = true
+			push_warning("PizzaStack: cannot sit on the rack; the scene needs at least one box with a width.")
 		return
 	var to_rack: float = rack.size.x / first.size.x
 	_boxes.scale = Vector2(to_rack, to_rack)

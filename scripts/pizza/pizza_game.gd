@@ -269,8 +269,8 @@ func _ready() -> void:
 	_aim.physics = physics
 	_place_ticket_below_strikes()
 	get_viewport().size_changed.connect(_place_ticket_below_strikes)
-	# The rider is placed in world space and never moves, so once is enough: unlike
-	# the ticket, the stack no longer depends on the shape of the screen at all.
+	# Once here so the stack is on the rack for the first frame drawn; _process
+	# keeps it there from then on, because the rider does not sit still any more.
 	_stack.place_on(_rider.rack_rect())
 
 	if start_automatically:
@@ -335,6 +335,10 @@ func _process(delta: float) -> void:
 	($Street as StreetSurface).set_travelled(_travelled)
 	_advance_hour(delta)
 	_sync_views()
+	# The rider bobs and leans as she rides, so where her rack is is a different
+	# answer every frame. This used to be asked once, at _ready, which was true
+	# only while she sat still: the stack stayed put and she rode out from under it.
+	_stack.place_on(_rider.rack_rect())
 	_advance_flight(delta)
 	_advance_splat(delta)
 	_update_ready_pizza(delta)

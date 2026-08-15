@@ -20,6 +20,7 @@ func _ready() -> void:
 	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
 	await _test_houses_are_solid_at_the_size_they_are_drawn()
 	await _test_a_delivery_pays_and_says_so()
+	await _test_the_stack_rides_with_the_rider()
 	await _test_a_house_shows_the_street_and_not_its_preview()
 	await _test_a_house_is_the_same_building_in_every_state()
 	await _test_the_menu_says_which_build_it_is()
@@ -526,6 +527,47 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 				and is_equal_approx(fresh.wall_height, hitbox.wall_height)
 				and fresh.looks == hitbox.looks)
 	fresh.queue_free()
+	game.queue_free()
+	await get_tree().process_frame
+
+
+## The stack of boxes sits on the rider's rack, and where the rack is was asked
+## once, at _ready, on the grounds that she never moved. She moves now: she bobs
+## and leans as she rides. Nothing failed when that changed, which is the problem
+## with it — she simply rode out from under her own pizzas while the stack hung in
+## the air, and only an eye on the screen would have said so.
+##
+## It also checks she is really moving, because a rider sitting still would pass
+## the tracking check without proving anything at all.
+func _test_the_stack_rides_with_the_rider() -> void:
+	var game := await _spawn()
+	var rider: RiderView = game.get_node("%Rider")
+	var stack: PizzaStack = game.get_node("%PizzaStack")
+	var boxes: Control = stack.get_node("%Boxes")
+
+	var rider_ys := {}
+	var worst := 0.0
+	var gap := 0.0
+	for frame in 10:
+		await get_tree().process_frame
+		var rack := rider.rack_rect()
+		rider_ys[snappedf(rider.position.y, 0.01)] = true
+		var this_gap: float = boxes.position.y - rack.position.y
+		if frame == 0:
+			gap = this_gap
+		worst = maxf(worst, absf(this_gap - gap))
+
+	_check("the rider is actually animating (%d positions in 10 frames)"
+		% rider_ys.size(), rider_ys.size() > 1)
+	_check("and the stack stays on her rack while she moves (drifts %.2f px)" % worst,
+		worst < 1.0)
+
+	# Behind her, and it has to stay behind her: in the aiming pose she holds a box
+	# out over the rack, and drawn the other way round the stack paints across her
+	# hand.
+	_check("the stack is drawn behind the rider (stack %d, rider %d)"
+		% [stack.z_index, rider.z_index], stack.z_index < rider.z_index)
+
 	game.queue_free()
 	await get_tree().process_frame
 
