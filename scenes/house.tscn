@@ -5,9 +5,9 @@
 [ext_resource type="Shader" uid="uid://cj2mkqth4bvpb" path="res://shaders/house.gdshader" id="3_3bgk5"]
 [ext_resource type="Texture2D" uid="uid://bn0wtnsv0v8tp" path="res://sprites/houses.png" id="3_se78b"]
 [ext_resource type="Script" uid="uid://55syobf3n7yk" path="res://scripts/pizza/view/house_drop_point.gd" id="4_drop"]
-[ext_resource type="Texture2D" uid="uid://cw2y7bbi0k02d" path="res://sprites/houses_RGB.png" id="4_ptc3g"]
+[ext_resource type="Texture2D" uid="uid://mwutnnrpp1s7" path="res://sprites/houses_rgb.png" id="4_ptc3g"]
 [ext_resource type="Script" uid="uid://v8k2g3m2efor" path="res://scripts/house/house_color.gd" id="5_f74lx"]
-[ext_resource type="Resource" path="res://data/house_looks.tres" id="6_looks"]
+[ext_resource type="Resource" uid="uid://c0jepi4shoeb0" path="res://data/house_looks.tres" id="6_looks"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wcu0q"]
 shader = ExtResource("3_3bgk5")
@@ -33,7 +33,7 @@ shader_parameter/darken = 0.50000002375
 shader = ExtResource("3_3bgk5")
 shader_parameter/mask_texture = ExtResource("4_ptc3g")
 shader_parameter/color_r = Color(1, 1, 1, 1)
-shader_parameter/color_g = Color(0.9490196, 0.6509804, 0.36862746, 1)
+shader_parameter/color_g = Color(1.286514, 0.88685185, 0.5129743, 1)
 shader_parameter/color_b = Color(1, 1, 1, 1)
 shader_parameter/global_tint = Color(1, 1, 1, 1)
 shader_parameter/desaturation = 0.0
@@ -51,9 +51,9 @@ visible = false
 
 [node name="Sprite" type="Sprite2D" parent="Scenery" unique_id=1949550382]
 material = SubResource("ShaderMaterial_wcu0q")
-scale = Vector2(1.1, 1.1)
+scale = Vector2(2.2, 2.2)
 texture = ExtResource("3_se78b")
-offset = Vector2(0, -512)
+offset = Vector2(0, -256)
 hframes = 4
 script = ExtResource("5_f74lx")
 follow_house_look = true
@@ -64,9 +64,9 @@ visible = false
 
 [node name="Sprite" type="Sprite2D" parent="Served" unique_id=240357042]
 material = SubResource("ShaderMaterial_bwc8c")
-scale = Vector2(1.1, 1.1)
+scale = Vector2(2.2, 2.2)
 texture = ExtResource("3_se78b")
-offset = Vector2(0, -512)
+offset = Vector2(0, -256)
 hframes = 4
 script = ExtResource("5_f74lx")
 follow_house_look = true
@@ -78,9 +78,9 @@ randomize_r = true
 
 [node name="Sprite" type="Sprite2D" parent="Waiting" unique_id=66355570]
 material = SubResource("ShaderMaterial_f74lx")
-scale = Vector2(1.1, 1.1)
+scale = Vector2(2.2, 2.2)
 texture = ExtResource("3_se78b")
-offset = Vector2(0, -512)
+offset = Vector2(0, -256)
 hframes = 4
 script = ExtResource("5_f74lx")
 follow_house_look = true

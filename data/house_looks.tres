@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="HouseLooks" format=3]
+[gd_resource type="Resource" script_class="HouseLooks" format=3 uid="uid://c0jepi4shoeb0"]
 
-[ext_resource type="Script" path="res://scripts/pizza/rules/house_looks.gd" id="1_n6tpt"]
-[ext_resource type="Script" path="res://scripts/pizza/rules/house_window.gd" id="2_d77r6"]
+[ext_resource type="Script" uid="uid://ckntxoh3prnh3" path="res://scripts/pizza/rules/house_looks.gd" id="1_n6tpt"]
+[ext_resource type="Script" uid="uid://ls54rtqbxruc" path="res://scripts/pizza/rules/house_window.gd" id="2_d77r6"]
 
 [sub_resource type="Resource" id="Resource_mlfgi"]
 script = ExtResource("2_d77r6")

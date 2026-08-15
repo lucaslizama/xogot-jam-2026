@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cw2y7bbi0k02d"
-path="res://.godot/imported/houses_RGB.png-9a6390b4bf20a8c46d8d765fd2522e33.ctex"
+uid="uid://mwutnnrpp1s7"
+path="res://.godot/imported/houses_rgb.png-705101663850f5889a4f0f87696ffa90.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/houses_RGB.png"
-dest_files=["res://.godot/imported/houses_RGB.png-9a6390b4bf20a8c46d8d765fd2522e33.ctex"]
+source_file="res://sprites/houses_rgb.png"
+dest_files=["res://.godot/imported/houses_rgb.png-705101663850f5889a4f0f87696ffa90.ctex"]
 
 [params]
 
@@ -25,7 +25,7 @@ compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
-roughness/mode=1
+roughness/mode=0
 roughness/src_normal=""
 process/channel_remap/red=0
 process/channel_remap/green=1
