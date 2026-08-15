@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" format=3 uid="uid://c3yps7gxa7ivf"]
+
+[ext_resource type="Texture2D" uid="uid://mnchrc7gt1bj" path="res://sprites/pizzabox_stack_1x8.png" id="1_qkj20"]
+
+[resource]
+atlas = ExtResource("1_qkj20")
+region = Rect2(0, 320, 512, 64)

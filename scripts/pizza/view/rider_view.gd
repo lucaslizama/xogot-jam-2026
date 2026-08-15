@@ -70,6 +70,16 @@ extends Placeholder2D
 
 var _aiming: bool = false
 
+@export_group("Sine Animations")
+@export var y_amplitude: float = 10.0
+@export var y_frequency: float = 1.0 # Cycles per second (Hz)
+@export var skew_amplitude: float = 0.1
+@export var skew_frequency: float = 2.0 # Cycles per second (Hz)
+
+# Internal variables to track the starting points and time
+var _base_y: float
+var _base_skew: float
+var _time_passed: float = 0.0
 
 ## Which rider this is, as a turn round the hue wheel. Zero is the art as drawn.
 ##
@@ -110,8 +120,18 @@ func rack_rect() -> Rect2:
 
 
 func _ready() -> void:
+	_base_y = position.y
+	_base_skew = skew
 	_refresh()
 
+func _process(delta: float) -> void:
+	# Accumulate time
+	_time_passed += delta
+	
+	# Apply the sine waves. 
+	# Note: TAU is 2*PI. Multiplying by TAU makes the frequency act as exact cycles-per-second.
+	position.y = _base_y + (sin(_time_passed * y_frequency * TAU) * y_amplitude)
+	skew = _base_skew + (sin(_time_passed * skew_frequency * TAU) * skew_amplitude)
 
 ## Called by the game as the throw is aimed and again when it is let go.
 func set_aiming(value: bool) -> void:
