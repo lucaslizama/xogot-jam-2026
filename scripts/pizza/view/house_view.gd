@@ -2,94 +2,94 @@
 class_name HouseView
 extends Node2D
 
-## Draws one house. Placeholder art: everything here is rectangles and a circle,
-## drawn from exported sizes so the shape can be nudged in the editor before any
-## real art exists.
+## One house on the street. This node draws nothing itself: it owns the parts and
+## decides which of them is showing.
 ##
-## Assign the art slots below and the drawing stops: a house becomes its picture,
-## with nothing to delete first. The exported sizes are the ones to hand an
-## artist, because they are the space each image will occupy.
+## Every state of the house is a real child node, so art arrives by editing the
+## scene rather than by filling in a property. Drop a Sprite2D, an
+## AnimatedSprite2D or a whole sub-scene under [code]Waiting[/code], put a shader
+## or a script on it, delete the placeholder underneath, and this node keeps
+## working: it only ever sets [code]visible[/code] on the three of them. The state
+## nodes need be nothing more than a CanvasItem. A node that happens to have
+## [code]show_shape[/code] is additionally told the measurements, which is how the
+## placeholder facades draw themselves to the hitbox.
 ##
-## The node's origin is the point where the house meets the ground, because that
-## is the point the street projects. Scale comes from the parent, which knows
-## how far away this house is.
+## The measurements live in the [HouseHitbox] child, which draws itself on the
+## canvas so it can be dragged to fit new art and turned off for a screenshot. It
+## is the one place the size of a house is written down: the placeholders draw to
+## it and [PizzaGame] reads it when it stocks a street, so what a player can hit is
+## exactly what they can see.
 ##
-## A tool script, so the house draws itself on the editor canvas. Opening
+## The node's origin is the point where the house meets the ground, because that is
+## the point the street projects. Scale comes from the parent, which knows how far
+## away this house is.
+##
+## A tool script, so the house shows itself on the editor canvas. Opening
 ## house.tscn shows the house rather than an empty node, and nudging a wall or a
 ## colour is answered on the spot instead of after a run.
 
-@export_group("Shape, in world units")
-@export_range(1.0, 30.0, 0.1) var width: float = 20.5
-@export_range(1.0, 30.0, 0.1) var wall_height: float = 12.8
-@export_range(0.0, 15.0, 0.1) var roof_height: float = 6.7
-## Pixels per world unit at the rider's distance. Must match the projection
-## resource, or houses will not sit at the size the street expects.
-@export_range(1.0, 400.0, 1.0) var pixels_per_unit: float = 46.0
+## Which of the three state nodes is showing.
+enum State {
+	## The house wants a pizza. The only state worth throwing at.
+	WAITING,
+	## It has had one. Still a house, no longer a target.
+	SERVED,
+	## Scenery. Roughly half the street, and what the waiting houses have to be
+	## picked out from.
+	SCENERY,
+}
 
-@export_group("The window, in world units")
-## The lit window is a target in its own right, and the hardest one: smaller than
-## the drop point, higher up, and needing a throw that is both well aimed and a
-## little long. It pays the most because of it.
-##
-## In world units like the body, and used both to draw the window and to decide
-## what went through it, so what a player can hit is exactly what they can see.
-@export var window_size: Vector2 = Vector2(4.3, 4.4)
-## How high the middle of the window sits above the ground.
-@export_range(0.0, 30.0, 0.1) var window_centre: float = 7.0
+@export_group("Parts")
+## The three state nodes, shown one at a time, and the two nodes that carry the
+## shape and the ring. Paths rather than node references, because a typed node
+## export does not reliably survive being written into a .tscn. Repoint any of
+## them at a replacement and nothing else has to change.
+@export var waiting_path: NodePath = ^"Waiting":
+	set(value):
+		waiting_path = value
+		_forget_parts()
+@export var served_path: NodePath = ^"Served":
+	set(value):
+		served_path = value
+		_forget_parts()
+@export var scenery_path: NodePath = ^"Scenery":
+	set(value):
+		scenery_path = value
+		_forget_parts()
+@export var hitbox_path: NodePath = ^"Hitbox":
+	set(value):
+		hitbox_path = value
+		_forget_parts()
+@export var drop_point_path: NodePath = ^"DropPoint":
+	set(value):
+		drop_point_path = value
+		_forget_parts()
 
 @export_group("Drop point")
-## Roughly half the houses that go by are scenery, so the eye has to find the
-## ones that want a pizza among them. A drop point that breathes is found
-## faster than a still one, and unlike anything drawn it keeps working whatever
-## art turns up.
-@export_range(0.0, 4.0, 0.05) var pulse_rate: float = 1.0
-## Whether the landing ring is drawn at all. The game wants it; a decorative
+## Whether the landing ring is shown at all. The game wants it; a decorative
 ## street with nothing to aim at, like the menu behind the title, does not.
-@export var show_drop_points: bool = true
-## How much it swells and brightens. Too much and the street starts throbbing.
-@export_range(0.0, 0.6, 0.01) var pulse_depth: float = 0.16
-
-@export_group("Art, when it arrives")
-## Drawn bottom-centred on the ground point, filling width by wall plus roof.
-## Leave empty and the placeholder shapes are drawn instead.
-@export var art_waiting: Texture2D
-@export var art_served: Texture2D
-@export var art_scenery: Texture2D
-## Lies flat on the ground, a square image the width of twice the drop radius.
-@export var art_drop_marker: Texture2D
-
-@export_group("Colours")
-@export var wall_waiting: Color = Color(0.729412, 0.380392, 0.337255)
-@export var wall_scenery: Color = Color(0.262745, 0.262745, 0.309804)
-@export var wall_served: Color = Color(0.239216, 0.431373, 0.439216)
-@export var roof: Color = Color(0.341176, 0.160784, 0.294118)
-@export var window_lit: Color = Color(1, 0.894118, 0.470588)
-## A frame around the window, so it reads as something to aim at rather than as a
-## patch of light on the wall.
-@export var window_frame: Color = Color(0.152941, 0.152941, 0.211765, 0.8)
-@export var drop_open: Color = Color(0.301961, 0.65098, 1, 0.55)
-@export var drop_served: Color = Color(0.560784, 0.870588, 0.364706, 0.5)
+@export var show_drop_points: bool = true:
+	set(value):
+		show_drop_points = value
+		_apply_drop_point()
 
 @export_group("Editor preview")
 ## What the house shows on the canvas when no street is driving it. The game
-## overrides all three the moment it runs, so these cost nothing at play time and
-## let the scene be opened on a house that is waiting, one that has been served or
-## a piece of scenery, without running anything.
-@export var preview_waiting: bool = true:
+## overrides it the moment it runs, so this costs nothing at play time and lets
+## the scene be opened on a house that is waiting, one that has been served or a
+## piece of scenery, without running anything.
+@export var preview_state: State = State.WAITING:
 	set(value):
-		preview_waiting = value
+		preview_state = value
 		_apply_preview()
-@export var preview_served: bool = false:
-	set(value):
-		preview_served = value
-		_apply_preview()
-## Matches street_1's drop radius, so the ring on the canvas is the size the ring
-## in the game will be rather than a stand-in.
+## Matches street_1's drop radius, in world units, so the ring on the canvas is
+## the size the ring in the game will be rather than a stand-in.
 @export_range(0.0, 30.0, 0.1) var preview_drop_radius: float = 13.5:
 	set(value):
 		preview_drop_radius = value
 		_apply_preview()
 
+var _state: State = State.WAITING
 var _waiting: bool = true
 var _served: bool = false
 var _drop_radius: float = 3.2
@@ -98,28 +98,35 @@ var _drop_radius: float = 3.2
 ## what is already there.
 var _stated: bool = false
 
+var _parts_found: bool = false
+var _hitbox: HouseHitbox = null
+var _states: Array[CanvasItem] = [null, null, null]
+var _drop: Node2D = null
+## So a house with a part missing says so once rather than every frame.
+var _complained: bool = false
+
 
 func _ready() -> void:
-	# Only a house still waiting has anything to animate, and on the editor canvas
-	# nothing does: a street of houses all pulsing would make the viewport work for
-	# no reason while somebody is trying to place a wall.
-	set_process(false)
+	_find_parts()
 	if not _stated:
 		_apply_preview()
+	else:
+		_apply_all()
 
 
 ## Show what the exported preview says, for as long as nothing else has spoken.
 func _apply_preview() -> void:
 	if _stated:
 		return
-	_waiting = preview_waiting
-	_served = preview_served
+	_state = preview_state
+	_waiting = preview_state != State.SCENERY
+	_served = preview_state == State.SERVED
 	_drop_radius = preview_drop_radius
-	queue_redraw()
+	_apply_all()
 
 
-## Told by the street each frame. Redraws only when something actually changed,
-## since most houses are static most of the time.
+## Told by the street each frame. Does the work only when something actually
+## changed, since most houses are static most of the time.
 func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 	# The first word from the street is always acted on. Skipping it because it
 	# happened to match the preview would leave the pulse switched off for the
@@ -132,84 +139,176 @@ func show_state(waiting: bool, served: bool, drop_radius: float) -> void:
 	_waiting = waiting
 	_served = served
 	_drop_radius = drop_radius
-	set_process(show_drop_points and pulse_depth > 0.0 and _waiting and not _served)
-	queue_redraw()
+	if not waiting:
+		_state = State.SCENERY
+	elif served:
+		_state = State.SERVED
+	else:
+		_state = State.WAITING
+	_apply_all()
 
 
-func _process(_delta: float) -> void:
-	queue_redraw()
+func _apply_all() -> void:
+	_find_parts()
+	_apply_state()
+	_apply_drop_point()
 
 
-func _draw() -> void:
-	_draw_drop_point()
-	_draw_body()
+## Exactly one state node is visible. Anything else under this node — a shadow, a
+## bush, a light — is left alone.
+func _apply_state() -> void:
+	for i in _states.size():
+		var part := _states[i]
+		if part != null:
+			part.visible = (i == int(_state))
 
 
-func _draw_body() -> void:
-	var art := art_scenery
-	if _waiting:
-		art = art_served if _served else art_waiting
-	if art != null:
-		var w := width * pixels_per_unit
-		var h := (wall_height + roof_height) * pixels_per_unit
-		draw_texture_rect(art, Rect2(-w * 0.5, -h, w, h), false)
+func _apply_drop_point() -> void:
+	if _drop == null:
 		return
-	_draw_placeholder_body()
+	var wanted := show_drop_points and _waiting
+	_drop.visible = wanted
+	if _drop.has_method("show_radius"):
+		_drop.show_radius(_drop_radius * pixels_per_unit, _served,
+			wanted and not _served)
 
 
-func _draw_placeholder_body() -> void:
-	var half := width * 0.5 * pixels_per_unit
-	var wall := wall_height * pixels_per_unit
-	var peak := roof_height * pixels_per_unit
-	var body := wall_scenery
-	if _waiting:
-		body = wall_served if _served else wall_waiting
-	draw_rect(Rect2(-half, -wall, half * 2.0, wall), body)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(-half, -wall), Vector2(half, -wall), Vector2(0.0, -wall - peak),
-	]), roof)
+# --- the parts ---------------------------------------------------------------
 
-	# A lit window is how a house says it is still waiting, without a HUD. It is
-	# also what a pizza can go through, so it is drawn from the same measurements
-	# the throw is judged against rather than from fractions of the wall that only
-	# happened to look right.
-	if _waiting and not _served:
-		var pane := window_rect()
-		pane = Rect2(pane.position * pixels_per_unit, pane.size * pixels_per_unit)
-		draw_rect(pane, window_lit)
-		draw_rect(pane, window_frame, false, 4.0)
+## Look the parts up once. Resolving by path rather than holding node references
+## means this works on a scene that has been instantiated but not added to a tree,
+## which is how [PizzaGame] asks a house its size before a street exists.
+func _find_parts() -> void:
+	if _parts_found:
+		return
+	var hitbox := get_node_or_null(hitbox_path) as HouseHitbox
+	var waiting := get_node_or_null(waiting_path) as CanvasItem
+	var served := get_node_or_null(served_path) as CanvasItem
+	var scenery := get_node_or_null(scenery_path) as CanvasItem
+	var drop := get_node_or_null(drop_point_path) as Node2D
+
+	# An exported setter fires while the scene is still being loaded, before any
+	# child has been parented, so everything looks missing for a moment. Caching
+	# that would leave the house permanently empty and shouting about it. Nothing
+	# at all, on a node that has not finished readying, means too early rather
+	# than misconfigured: come back next time.
+	if not is_node_ready() and hitbox == null and waiting == null \
+			and served == null and scenery == null and drop == null:
+		return
+
+	_parts_found = true
+	_hitbox = hitbox
+	_states[State.WAITING] = waiting
+	_states[State.SERVED] = served
+	_states[State.SCENERY] = scenery
+	_drop = drop
+
+	if _hitbox != null:
+		if not _hitbox.shape_changed.is_connected(_push_shape):
+			_hitbox.shape_changed.connect(_push_shape)
+		_push_shape()
+	_warn_about_missing_parts()
+
+
+## Hand the measurements to every state node that wants them. Real art does not,
+## and is left untouched; the placeholder facades draw to whatever arrives.
+func _push_shape() -> void:
+	for part in _states:
+		if part != null and part.has_method("show_shape"):
+			part.show_shape(_hitbox)
+
+
+func _warn_about_missing_parts() -> void:
+	if _complained:
+		return
+	var missing := PackedStringArray()
+	if _hitbox == null:
+		missing.append("Hitbox (%s)" % hitbox_path)
+	if _states[State.WAITING] == null:
+		missing.append("Waiting (%s)" % waiting_path)
+	if _states[State.SERVED] == null:
+		missing.append("Served (%s)" % served_path)
+	if _states[State.SCENERY] == null:
+		missing.append("Scenery (%s)" % scenery_path)
+	if _drop == null:
+		missing.append("DropPoint (%s)" % drop_point_path)
+	if missing.is_empty():
+		return
+	_complained = true
+	# A renamed or deleted part makes the house quieter, not broken: the state
+	# simply does not show and, with no hitbox, the street is told the house is
+	# thin air. Both are worth saying out loud.
+	push_warning("%s: no %s. Repoint the paths on the House node."
+		% [name, ", ".join(missing)])
+
+
+func _forget_parts() -> void:
+	if _hitbox != null and _hitbox.shape_changed.is_connected(_push_shape):
+		_hitbox.shape_changed.disconnect(_push_shape)
+	_parts_found = false
+	_complained = false
+	if is_inside_tree():
+		_apply_all()
+
+
+## The hitbox, for anything that wants to read or move the shape directly.
+func hitbox() -> HouseHitbox:
+	_find_parts()
+	return _hitbox
+
+
+## The landing ring, which owns its own pulse.
+func drop_point() -> Node2D:
+	_find_parts()
+	return _drop
+
+
+## The node showing for the given state, whatever the artist has put there.
+func state_node(state: State) -> CanvasItem:
+	_find_parts()
+	return _states[int(state)]
+
+
+# --- the shape, read off the hitbox ------------------------------------------
+#
+# The house is asked its size by PizzaGame and by the tests, and it answers from
+# the hitbox rather than keeping a second copy. A house with no hitbox answers
+# zero, which the street reads as a house that cannot be hit; the warning for it
+# is raised above.
+
+var width: float:
+	get:
+		_find_parts()
+		return _hitbox.width if _hitbox != null else 0.0
+
+var wall_height: float:
+	get:
+		_find_parts()
+		return _hitbox.wall_height if _hitbox != null else 0.0
+
+var roof_height: float:
+	get:
+		_find_parts()
+		return _hitbox.roof_height if _hitbox != null else 0.0
+
+var window_size: Vector2:
+	get:
+		_find_parts()
+		return _hitbox.window_size if _hitbox != null else Vector2.ZERO
+
+var window_centre: float:
+	get:
+		_find_parts()
+		return _hitbox.window_centre if _hitbox != null else 0.0
+
+var pixels_per_unit: float:
+	get:
+		_find_parts()
+		return _hitbox.pixels_per_unit if _hitbox != null else 0.0
 
 
 ## Where the window sits on the wall, in world units, with the house's feet at the
-## origin and up being negative as it is on screen. Multiply by pixels per unit to
-## draw it; the throw uses the same numbers the other way round.
+## origin and up being negative as it is on screen.
 func window_rect() -> Rect2:
-	return Rect2(-window_size.x * 0.5, -(window_centre + window_size.y * 0.5),
-		window_size.x, window_size.y)
-
-
-## The drop point lies on the ground, so it is squashed vertically to read as
-## flat rather than as a disc facing the camera.
-func _draw_drop_point() -> void:
-	if not show_drop_points or not _waiting:
-		return
-	# One clock for every house, so the street breathes together rather than
-	# each one flickering on its own beat.
-	#
-	# Never on the editor canvas. Nothing redraws it there, so the pulse would only
-	# be sampled when something else forced a redraw: zoom in and the ring jumps to
-	# whatever size the clock happened to be at, which makes the one measurement the
-	# preview exists to give a number you cannot trust. Still means true size.
-	var beat := 1.0
-	if pulse_depth > 0.0 and not _served and not Engine.is_editor_hint():
-		beat += sin(float(Time.get_ticks_msec()) / 1000.0 * TAU * pulse_rate) * pulse_depth
-	var radius := _drop_radius * pixels_per_unit * beat
-	if art_drop_marker != null:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
-		draw_texture_rect(art_drop_marker, Rect2(-radius, -radius, radius * 2.0, radius * 2.0), false)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		return
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.38))
-	draw_circle(Vector2.ZERO, radius, drop_served if _served else drop_open)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(1, 1, 0.921569, 0.5), 4.0)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_find_parts()
+	return _hitbox.window_rect() if _hitbox != null else Rect2()

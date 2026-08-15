@@ -1,6 +1,30 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/view/house_view.gd" id="1_house"]
+[ext_resource type="Script" path="res://scripts/pizza/view/house_hitbox.gd" id="2_hitbox"]
+[ext_resource type="Script" path="res://scripts/pizza/view/house_facade.gd" id="3_facade"]
+[ext_resource type="Script" path="res://scripts/pizza/view/house_drop_point.gd" id="4_drop"]
 
 [node name="House" type="Node2D"]
 script = ExtResource("1_house")
+
+[node name="DropPoint" type="Node2D" parent="."]
+script = ExtResource("4_drop")
+
+[node name="Scenery" type="Node2D" parent="."]
+visible = false
+script = ExtResource("3_facade")
+show_window = false
+wall = Color(0.262745, 0.262745, 0.309804, 1)
+
+[node name="Served" type="Node2D" parent="."]
+visible = false
+script = ExtResource("3_facade")
+show_window = false
+wall = Color(0.239216, 0.431373, 0.439216, 1)
+
+[node name="Waiting" type="Node2D" parent="."]
+script = ExtResource("3_facade")
+
+[node name="Hitbox" type="Node2D" parent="."]
+script = ExtResource("2_hitbox")

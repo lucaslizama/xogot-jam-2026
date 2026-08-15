@@ -445,9 +445,20 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 			% [waiting_view._drop_radius, game._config.drop_radius],
 		is_equal_approx(waiting_view._drop_radius, game._config.drop_radius))
 
-	# The pulse is the thing an early return would silently switch off.
+	# Each state is its own child now, so the thing to check is that exactly one of
+	# them is showing. A house wearing two states at once, or none, is the failure
+	# an artist would meet first.
+	_check("the waiting house shows its waiting node and nothing else",
+		_visible_states(waiting_view) == [HouseView.State.WAITING])
+	_check("and the scenery shows its scenery node and nothing else",
+		_visible_states(scenery_view) == [HouseView.State.SCENERY])
+
+	# The pulse is the thing an early return would silently switch off. It lives on
+	# the drop point, so anything the artist parents there breathes with it.
 	_check("a house that wants a pizza is animating its drop point",
-		waiting_view.is_processing())
+		waiting_view.drop_point().is_processing())
+	_check("and the scenery is not showing a drop point at all",
+		not scenery_view.drop_point().visible)
 
 	# A house nobody has spoken to shows its preview, which is the whole point of
 	# the exercise: that is what the editor canvas draws.
@@ -457,15 +468,38 @@ func _test_a_house_shows_the_street_and_not_its_preview() -> void:
 	_check("an undriven house shows its preview ring (%.1f, want %.1f)"
 			% [fresh._drop_radius, fresh.preview_drop_radius],
 		is_equal_approx(fresh._drop_radius, fresh.preview_drop_radius))
-	_check("and its preview state", fresh._waiting == fresh.preview_waiting)
+	_check("and its preview state", _visible_states(fresh) == [fresh.preview_state])
 
 	# And a house told exactly what its preview already said still wakes up.
-	fresh.show_state(fresh.preview_waiting, fresh.preview_served, fresh.preview_drop_radius)
+	fresh.show_state(fresh.preview_state != HouseView.State.SCENERY,
+		fresh.preview_state == HouseView.State.SERVED, fresh.preview_drop_radius)
 	_check("even one told exactly what it was already showing",
-		fresh.is_processing())
+		fresh.drop_point().is_processing())
+
+	# The house answers its size from the hitbox child, so an artist can drag the
+	# shape without the throw and the drawing drifting apart.
+	var hitbox: HouseHitbox = fresh.hitbox()
+	_check("the house scene carries a hitbox", hitbox != null)
+	if hitbox != null:
+		_check("and the size it reports is the hitbox's (%s, want %s)"
+				% [Vector2(fresh.width, fresh.wall_height), Vector2(hitbox.width, hitbox.wall_height)],
+			is_equal_approx(fresh.width, hitbox.width)
+				and is_equal_approx(fresh.wall_height, hitbox.wall_height)
+				and fresh.window_size.is_equal_approx(hitbox.window_size))
 	fresh.queue_free()
 	game.queue_free()
 	await get_tree().process_frame
+
+
+## Which of a house's state nodes are showing, in order. Exactly one should be.
+func _visible_states(view: HouseView) -> Array:
+	var showing := []
+	for state in [HouseView.State.WAITING, HouseView.State.SERVED,
+			HouseView.State.SCENERY]:
+		var node := view.state_node(state)
+		if node != null and node.visible:
+			showing.append(state)
+	return showing
 
 
 ## The rules can be perfect and pay nobody if the scene forgot to hand them over,
