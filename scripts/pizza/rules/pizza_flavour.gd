@@ -92,7 +92,17 @@ func frame_region(index: int) -> Rect2:
 	var frame: int = posmod(index, count)
 	var cell := Vector2(float(animation.get_width()) / float(animation_columns),
 		float(animation.get_height()) / float(animation_rows))
-	return Rect2(Vector2(frame % animation_columns, frame / animation_columns) * cell, cell)
+	var column: int = frame % animation_columns
+	# Whole rows along, so the truncation is the answer rather than a loss of one.
+	# Frame 5 of a four-wide sheet is row 1, 256 px down a 1024 px sheet. Dividing
+	# as floats makes it 1.25 rows, and every frame past the first row is then cut
+	# from two rows at once, half of each.
+	#
+	# The warning is switched off here rather than left to be tidied away later by
+	# somebody reading it as the mistake it looks like.
+	@warning_ignore("integer_division")
+	var row: int = frame / animation_columns
+	return Rect2(Vector2(column, row) * cell, cell)
 
 
 ## Where each topping sits, as a fraction of the pizza's radius from the middle.
