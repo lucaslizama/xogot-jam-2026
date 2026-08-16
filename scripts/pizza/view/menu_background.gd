@@ -23,11 +23,10 @@ extends Node2D
 @export var street_seed: int = 90210
 ## How long each level's street runs before crossing to the next, in seconds.
 @export_range(2.0, 60.0, 0.5) var seconds_per_level: float = 9.0
-## How long the sky takes to cross from one street's hour to the next.
-@export_range(0.0, 12.0, 0.1) var daylight_crossfade: float = 2.5
 
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
+@onready var _daylight: GameDaylight = $Daylight
 
 var _street: StreetModel
 var _config: LevelConfig
@@ -35,10 +34,6 @@ var _views: Dictionary = {}
 var _travelled: float = 0.0
 var _level_index: int = 0
 var _time_on_level: float = 0.0
-var _hour: TimeOfDay
-var _hour_from: TimeOfDay
-var _hour_to: TimeOfDay
-var _hour_blend: float = 1.0
 var _looks: HouseLooks = null
 var _looks_measured: bool = false
 
@@ -48,6 +43,7 @@ func _ready() -> void:
 		push_warning("MenuBackground: assign projection, house_scene and at least one level.")
 		set_process(false)
 		return
+	_daylight.projection = projection
 	_backdrop.projection = projection
 	($Sky as NightSky).projection = projection
 	($Street as StreetSurface).projection = projection
@@ -61,7 +57,7 @@ func _process(delta: float) -> void:
 	_travelled += _config.street_speed * delta
 	_backdrop.set_travelled(_travelled)
 	($Street as StreetSurface).set_travelled(_travelled)
-	_advance_hour(delta)
+	_daylight.advance(delta)
 	_sync_views()
 
 	_time_on_level += delta
@@ -80,53 +76,10 @@ func _enter_level(index: int) -> void:
 	# building, since the street is what decides which one a house is.
 	_street = StreetModel.new(_config, street_seed + index, Vector2.ZERO, 0.0,
 		_house_looks())
-	_begin_hour(_config.time_of_day)
+	_daylight.begin(_config.time_of_day)
 	_clear_views()
 
 
-#region daylight, as in the game
-
-func _begin_hour(hour: TimeOfDay) -> void:
-	if hour == null:
-		return
-	_hour_from = _hour if _hour != null else hour
-	_hour_to = hour
-	_hour_blend = 0.0 if _hour != null and daylight_crossfade > 0.0 else 1.0
-	_apply_hour(_hour_from.blended_with(_hour_to, _hour_blend))
-
-
-func _advance_hour(delta: float) -> void:
-	if _hour_blend >= 1.0 or _hour_to == null:
-		return
-	_hour_blend = minf(1.0, _hour_blend + delta / maxf(0.01, daylight_crossfade))
-	_apply_hour(_hour_from.blended_with(_hour_to, _hour_blend))
-
-
-func _apply_hour(hour: TimeOfDay) -> void:
-	_hour = hour
-
-	var sky := ($Sky as ColorRect).material as ShaderMaterial
-	if sky != null:
-		sky.set_shader_parameter("top_colour", hour.sky_top)
-		sky.set_shader_parameter("horizon_colour", hour.sky_horizon)
-		sky.set_shader_parameter("star_brightness", hour.star_brightness)
-		sky.set_shader_parameter("star_chance", hour.star_chance)
-
-	var road := ($Street as ColorRect).material as ShaderMaterial
-	if road != null:
-		road.set_shader_parameter("asphalt", hour.asphalt)
-		road.set_shader_parameter("asphalt_grain", hour.asphalt_grain)
-		road.set_shader_parameter("verge_colour", hour.verge)
-		road.set_shader_parameter("lane_colour", hour.lane)
-		road.set_shader_parameter("haze_colour", hour.haze_colour)
-		road.set_shader_parameter("haze_strength", hour.haze_strength)
-
-	projection.haze_colour = hour.haze_colour
-	projection.haze_strength = hour.haze_strength
-	_backdrop.modulate = hour.world_tint
-	_backdrop.queue_redraw()
-
-#endregion
 
 #region houses, as in the game, but without a landing ring
 
@@ -177,7 +130,7 @@ func _house_looks() -> HouseLooks:
 
 
 func _world_tint() -> Color:
-	return _hour.world_tint if _hour != null else Color.WHITE
+	return _daylight.world_tint()
 
 
 func _clear_views() -> void:

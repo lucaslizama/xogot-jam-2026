@@ -40,6 +40,7 @@
 [ext_resource type="Script" uid="uid://bwsxsmhi31rpe" path="res://scripts/pizza/view/splat_burst.gd" id="38_splatter"]
 [ext_resource type="PackedScene" uid="uid://dia85j4q4pmx5" path="res://scenes/rider.tscn" id="39_riderscene"]
 [ext_resource type="Shader" uid="uid://bfmgoocgitfnp" path="res://shaders/rider_recolour.gdshader" id="40_recolour"]
+[ext_resource type="Script" path="res://scripts/pizza/game_daylight.gd" id="90_daylight"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -111,6 +112,9 @@ bank = ExtResource("27_bank")
 [node name="LevelState" type="Node" parent="." unique_id=597674888]
 script = ExtResource("2_state")
 scoring = ExtResource("29_score")
+
+[node name="Daylight" type="Node" parent="."]
+script = ExtResource("90_daylight")
 
 [node name="Sky" type="ColorRect" parent="." unique_id=959181805]
 z_index = -4096

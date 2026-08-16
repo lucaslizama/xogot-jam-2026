@@ -52,10 +52,6 @@ signal flavour_changed(flavour: PizzaFlavour)
 @export_range(0.0, 1.0, 0.01) var rider_hue_step: float = 0.31
 
 @export_group("Daylight")
-## How long the sky takes to cross from one street's hour to the next. The sun
-## should be seen coming up, not be found already up.
-@export_range(0.0, 12.0, 0.1) var daylight_crossfade: float = 2.5
-
 ## Clear space left between the bottom of the strike dots and the top of the order
 ## ticket. The ticket's own y in the scene is overridden from this: the dots are a
 ## container whose height depends on how many the level asked for and how big the
@@ -156,6 +152,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _state: LevelState = $LevelState
 @onready var _audio: GameAudio = $Audio
 @onready var _music: GameMusic = $Music
+@onready var _daylight: GameDaylight = $Daylight
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: PizzaView = $Pizza
@@ -200,10 +197,6 @@ var _grab_offset: Vector2
 var _returning: bool = false
 var _spin_now: float = 0.0
 var _last_flick: float = 0.0
-var _hour: TimeOfDay
-var _hour_from: TimeOfDay
-var _hour_to: TimeOfDay
-var _hour_blend: float = 1.0
 var _strikes_seen: int = -1
 ## Read off the house scene once by _measure_house.
 var _house_body: Vector2 = Vector2.ZERO
@@ -266,6 +259,7 @@ func _ready() -> void:
 	# After _ready_home, which is what a tap is measured against: the pizza itself
 	# wanders about while it is being dragged, and the ring must not wander with it.
 	_apply_flavour()
+	_daylight.projection = projection
 	_backdrop.projection = projection
 	($Sky as NightSky).projection = projection
 	($Street as StreetSurface).projection = projection
@@ -304,7 +298,7 @@ func start_level() -> void:
 
 	# The landing ring promises exactly the room this street actually gives.
 	_aim.marker_radius = _config.drop_radius
-	_begin_hour(_config.time_of_day)
+	_daylight.begin(_config.time_of_day)
 	# The street's own music, at the street's own speed. Told here rather than in
 	# _ready because a run crosses three streets without the scene being rebuilt.
 	_music.play_for_level(_level_index, _config.music_speed)
@@ -337,7 +331,7 @@ func _process(delta: float) -> void:
 		_ticket.show_clock_of(_orders.open_order())
 	_backdrop.set_travelled(_travelled)
 	($Street as StreetSurface).set_travelled(_travelled)
-	_advance_hour(delta)
+	_daylight.advance(delta)
 	_sync_views()
 	# The rider bobs and leans as she rides, so where her rack is is a different
 	# answer every frame. This used to be asked once, at _ready, which was true
@@ -737,52 +731,6 @@ func _win_street_now() -> void:
 	_state.note_flight_settled()
 
 
-## Start crossing to a street's hour. The first street simply is its hour; every
-## one after that is arrived at from wherever the last one left the sky.
-func _begin_hour(hour: TimeOfDay) -> void:
-	if hour == null:
-		return
-	_hour_from = _hour if _hour != null else hour
-	_hour_to = hour
-	_hour_blend = 0.0 if _hour != null and daylight_crossfade > 0.0 else 1.0
-	_apply_hour(_hour_from.blended_with(_hour_to, _hour_blend))
-
-
-func _advance_hour(delta: float) -> void:
-	if _hour_blend >= 1.0 or _hour_to == null:
-		return
-	_hour_blend = minf(1.0, _hour_blend + delta / maxf(0.01, daylight_crossfade))
-	_apply_hour(_hour_from.blended_with(_hour_to, _hour_blend))
-
-
-## Hand the palette to everything that paints with it. The haze lives on the
-## projection because the houses and the skyline ask it for their tint, so
-## changing the hour changes those without either of them knowing about hours.
-func _apply_hour(hour: TimeOfDay) -> void:
-	_hour = hour
-
-	var sky := ($Sky as ColorRect).material as ShaderMaterial
-	if sky != null:
-		sky.set_shader_parameter("top_colour", hour.sky_top)
-		sky.set_shader_parameter("horizon_colour", hour.sky_horizon)
-		sky.set_shader_parameter("star_brightness", hour.star_brightness)
-		sky.set_shader_parameter("star_chance", hour.star_chance)
-
-	var road := ($Street as ColorRect).material as ShaderMaterial
-	if road != null:
-		road.set_shader_parameter("asphalt", hour.asphalt)
-		road.set_shader_parameter("asphalt_grain", hour.asphalt_grain)
-		road.set_shader_parameter("verge_colour", hour.verge)
-		road.set_shader_parameter("lane_colour", hour.lane)
-		road.set_shader_parameter("haze_colour", hour.haze_colour)
-		road.set_shader_parameter("haze_strength", hour.haze_strength)
-
-	projection.haze_colour = hour.haze_colour
-	projection.haze_strength = hour.haze_strength
-	_backdrop.modulate = hour.world_tint
-	_backdrop.queue_redraw()
-
-
 ## The pizza waiting in your hand, at the bottom of the screen. It is the thing
 ## you drag, so it has to be there before the throw rather than appearing only
 ## once one is in the air.
@@ -917,7 +865,7 @@ func _place_house(view: HouseView, house: House) -> void:
 
 
 func _world_tint() -> Color:
-	return _hour.world_tint if _hour != null else Color.WHITE
+	return _daylight.world_tint()
 
 
 func _clear_views() -> void:

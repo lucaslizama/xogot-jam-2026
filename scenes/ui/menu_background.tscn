@@ -16,6 +16,7 @@
 [ext_resource type="Resource" path="res://data/backdrop/mid.tres" id="14_mid"]
 [ext_resource type="Resource" path="res://data/backdrop/near.tres" id="15_near"]
 [ext_resource type="Script" path="res://scripts/pizza/rules/level_config.gd" id="16_levelcfg"]
+[ext_resource type="Script" path="res://scripts/pizza/game_daylight.gd" id="90_daylight"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("5_skyshader")
@@ -51,6 +52,9 @@ script = ExtResource("1_menubg")
 levels = Array[ExtResource("16_levelcfg")]([ExtResource("10_lvl1"), ExtResource("11_lvl2"), ExtResource("12_lvl3")])
 projection = ExtResource("9_proj")
 house_scene = ExtResource("8_house")
+
+[node name="Daylight" type="Node" parent="."]
+script = ExtResource("90_daylight")
 
 [node name="Sky" type="ColorRect" parent="."]
 z_index = -4096
