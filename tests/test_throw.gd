@@ -6,34 +6,44 @@ extends Node
 var _failures: Array[String] = []
 var _checks: int = 0
 
+## The floor under the check count. See [method _report].
+const EXPECTED: int = 73
+
 const STEP: float = 1.0 / 120.0
 
 
 func _ready() -> void:
-	_test_harder_flick_goes_further()
-	_test_power_is_clamped()
-	_test_aim_leans_the_right_way()
-	_test_spin_curves_the_flight()
-	_test_the_arc_holds_its_shape()
-	_test_straight_drag_has_no_windup()
-	_test_hooked_flick_has_windup()
-	_test_circling_beats_hooking()
-	_test_windup_survives_a_fast_sampling_device()
-	_test_up_and_down_loads_no_spin()
-	_test_idle_wobble_loads_no_spin()
-	_test_wind_up_runs_down_when_the_finger_stops()
-	_test_a_throw_begins_where_it_was_let_go()
-	_test_preview_matches_the_real_flight()
-	_test_preview_is_bounded()
-	_test_projection_shrinks_with_distance()
-	_test_projection_ground_meets_horizon()
+	var per_test := {}
+	for test in _tests():
+		var before := _checks
+		test.call()
+		per_test[test.get_method()] = _checks - before
+	_report(per_test)
 
-	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
-	for f in _failures:
-		print("  FAIL  ", f)
-	if _failures.is_empty():
-		print("  all good")
-	get_tree().quit(1 if _failures.size() > 0 else 0)
+
+## Every test, in the order they run. A list rather than a run of calls so the
+## runner can see what each one contributed; see [method _report].
+func _tests() -> Array[Callable]:
+	return [
+		_test_harder_flick_goes_further,
+		_test_power_is_clamped,
+		_test_aim_leans_the_right_way,
+		_test_spin_curves_the_flight,
+		_test_the_arc_holds_its_shape,
+		_test_straight_drag_has_no_windup,
+		_test_hooked_flick_has_windup,
+		_test_circling_beats_hooking,
+		_test_windup_survives_a_fast_sampling_device,
+		_test_up_and_down_loads_no_spin,
+		_test_idle_wobble_loads_no_spin,
+		_test_wind_up_runs_down_when_the_finger_stops,
+		_test_a_throw_begins_where_it_was_let_go,
+		_test_preview_matches_the_real_flight,
+		_test_preview_is_bounded,
+		_test_projection_shrinks_with_distance,
+		_test_projection_ground_meets_horizon,
+	]
+
 
 
 # --- flight -----------------------------------------------------------------
@@ -370,3 +380,37 @@ func _check(what: String, ok: bool) -> void:
 	_checks += 1
 	if not ok:
 		_failures.append(what)
+
+
+## Say how it went, and refuse to call a short run a good one.
+##
+## A GDScript error inside a test kills the rest of that test and nothing else:
+## the run carries on, the summary prints, and the only trace is a check count
+## that quietly dropped. That happened three times in one afternoon and was
+## noticed each time by eye. So the count is held to a floor, and a test that
+## made no checks at all is named.
+##
+## Raise EXPECTED in the same commit that adds checks. Lowering it is a decision,
+## not a tidy-up: it means checks that used to run no longer do.
+func _report(per_test: Dictionary) -> void:
+	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
+	for f in _failures:
+		print("  FAIL  ", f)
+
+	var silent := PackedStringArray()
+	for name in per_test:
+		if per_test[name] == 0:
+			silent.append(name)
+	var short := _checks < EXPECTED
+	if short:
+		print("  SHORT  %d checks, expected at least %d. A test died part way and"
+			% [_checks, EXPECTED])
+		print("         took its remaining checks with it. Per test:")
+		for name in per_test:
+			print("           %-56s %d" % [name, per_test[name]])
+	for name in silent:
+		print("  SILENT  %s made no checks at all" % name)
+
+	if _failures.is_empty() and not short and silent.is_empty():
+		print("  all good")
+	get_tree().quit(1 if _failures.size() > 0 or short or not silent.is_empty() else 0)

@@ -6,55 +6,99 @@ extends Node
 var _failures: Array[String] = []
 var _checks: int = 0
 
+## The floor under the check count. See [method _report].
+const EXPECTED: int = 147
+
 
 func _ready() -> void:
-	_test_street_starts_stocked()
-	_test_street_scrolls_past_the_rider()
-	_test_street_stays_stocked_forever()
-	_test_street_is_reproducible()
-	_test_houses_respect_their_ranges()
-	_test_every_house_can_be_reached()
-	_test_landing_in_a_drop_point_delivers()
-	_test_landing_short_misses()
-	_test_a_house_cannot_be_served_twice()
-	_test_scenery_is_never_a_delivery()
-	_test_nearest_drop_point_wins()
-	_test_a_pizza_into_the_house_delivers()
-	_test_a_pizza_past_the_house_hits_nothing()
-	_test_a_fast_pizza_cannot_pass_through_a_wall()
-	_test_only_houses_that_want_a_pizza_are_solid()
-	_test_a_street_with_no_bodies_behaves_as_before()
-	_test_the_nearest_wall_stops_the_pizza()
-	_test_every_house_the_street_makes_is_solid()
-	_test_the_wall_does_not_stand_in_its_own_doorway()
-	_test_the_street_gives_every_house_the_same_doorstep()
-	_test_the_window_is_its_own_target()
-	_test_a_tier_is_earned_by_how_close_it_landed()
-	_test_every_tier_has_something_to_say()
-	_test_a_streak_pays_more_and_is_capped()
-	_test_a_miss_breaks_the_streak_but_keeps_the_tips()
-	_test_a_street_with_no_rules_still_plays()
-	_test_round_is_lost_on_the_last_strike()
-	_test_round_is_won_when_the_stack_empties()
-	_test_round_is_not_won_before_the_last_pizza_lands()
-	_test_strikes_are_clamped_to_the_dots_available()
-	_test_a_street_with_no_order_rules_never_asks()
-	_test_an_order_turns_up_when_it_is_due()
-	_test_an_order_only_asks_for_things_on_the_menu()
-	_test_delivering_what_was_asked_fills_the_order()
-	_test_a_flavour_nobody_asked_for_is_ignored()
-	_test_a_line_already_full_takes_no_more()
-	_test_an_order_that_runs_out_costs_nothing()
-	_test_a_street_ending_drops_the_open_order_quietly()
-	_test_a_bonus_pays_without_counting_as_a_delivery()
-	_test_a_chance_back_never_beats_the_budget()
+	var per_test := {}
+	for test in _tests():
+		var before := _checks
+		test.call()
+		per_test[test.get_method()] = _checks - before
+	_report(per_test)
 
+
+## Every test, in the order they run. A list rather than a run of calls so the
+## runner can see what each one contributed; see [method _report].
+func _tests() -> Array[Callable]:
+	return [
+		_test_street_starts_stocked,
+		_test_street_scrolls_past_the_rider,
+		_test_street_stays_stocked_forever,
+		_test_street_is_reproducible,
+		_test_houses_respect_their_ranges,
+		_test_every_house_can_be_reached,
+		_test_landing_in_a_drop_point_delivers,
+		_test_landing_short_misses,
+		_test_a_house_cannot_be_served_twice,
+		_test_scenery_is_never_a_delivery,
+		_test_nearest_drop_point_wins,
+		_test_a_pizza_into_the_house_delivers,
+		_test_a_pizza_past_the_house_hits_nothing,
+		_test_a_fast_pizza_cannot_pass_through_a_wall,
+		_test_only_houses_that_want_a_pizza_are_solid,
+		_test_a_street_with_no_bodies_behaves_as_before,
+		_test_the_nearest_wall_stops_the_pizza,
+		_test_every_house_the_street_makes_is_solid,
+		_test_the_wall_does_not_stand_in_its_own_doorway,
+		_test_the_street_gives_every_house_the_same_doorstep,
+		_test_the_window_is_its_own_target,
+		_test_a_tier_is_earned_by_how_close_it_landed,
+		_test_every_tier_has_something_to_say,
+		_test_a_streak_pays_more_and_is_capped,
+		_test_a_miss_breaks_the_streak_but_keeps_the_tips,
+		_test_a_street_with_no_rules_still_plays,
+		_test_round_is_lost_on_the_last_strike,
+		_test_round_is_won_when_the_stack_empties,
+		_test_round_is_not_won_before_the_last_pizza_lands,
+		_test_strikes_are_clamped_to_the_dots_available,
+		_test_a_street_with_no_order_rules_never_asks,
+		_test_an_order_turns_up_when_it_is_due,
+		_test_an_order_only_asks_for_things_on_the_menu,
+		_test_delivering_what_was_asked_fills_the_order,
+		_test_a_flavour_nobody_asked_for_is_ignored,
+		_test_a_line_already_full_takes_no_more,
+		_test_an_order_that_runs_out_costs_nothing,
+		_test_a_street_ending_drops_the_open_order_quietly,
+		_test_a_bonus_pays_without_counting_as_a_delivery,
+		_test_a_chance_back_never_beats_the_budget,
+	]
+
+
+
+## Say how it went, and refuse to call a short run a good one.
+##
+## A GDScript error inside a test kills the rest of that test and nothing else:
+## the run carries on, the summary prints, and the only trace is a check count
+## that quietly dropped. That happened three times in one afternoon and was
+## noticed each time by eye. So the count is held to a floor, and a test that
+## made no checks at all is named.
+##
+## Raise EXPECTED in the same commit that adds checks. Lowering it is a decision,
+## not a tidy-up: it means checks that used to run no longer do.
+func _report(per_test: Dictionary) -> void:
 	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
 	for f in _failures:
 		print("  FAIL  ", f)
-	if _failures.is_empty():
+
+	var silent := PackedStringArray()
+	for name in per_test:
+		if per_test[name] == 0:
+			silent.append(name)
+	var short := _checks < EXPECTED
+	if short:
+		print("  SHORT  %d checks, expected at least %d. A test died part way and"
+			% [_checks, EXPECTED])
+		print("         took its remaining checks with it. Per test:")
+		for name in per_test:
+			print("           %-56s %d" % [name, per_test[name]])
+	for name in silent:
+		print("  SILENT  %s made no checks at all" % name)
+
+	if _failures.is_empty() and not short and silent.is_empty():
 		print("  all good")
-	get_tree().quit(1 if _failures.size() > 0 else 0)
+	get_tree().quit(1 if _failures.size() > 0 or short or not silent.is_empty() else 0)
 
 
 # --- streaming --------------------------------------------------------------

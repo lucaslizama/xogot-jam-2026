@@ -7,44 +7,16 @@ extends Node
 var _failures: Array[String] = []
 var _checks: int = 0
 
+## The floor under the check count. See [method _report].
+const EXPECTED: int = 186
+
 
 func _ready() -> void:
-	await _test_scene_runs_and_draws_houses()
-	await _test_a_flick_spends_a_pizza()
-	await _test_a_fumble_spends_nothing()
-	await _test_one_pizza_in_the_air_at_a_time()
-	await _test_the_waiting_pizza_is_there_to_grab()
-	await _test_a_touch_away_from_the_pizza_does_nothing()
-	await _test_a_fumble_puts_the_pizza_back()
-	await _test_a_round_ends_on_its_own()
-	await _test_the_tuning_tools_are_absent_from_a_shipped_build()
-	await _test_houses_are_solid_at_the_size_they_are_drawn()
-	await _test_a_delivery_pays_and_says_so()
-	await _test_the_skyline_stands_as_nodes()
-	await _test_the_scenes_show_on_the_canvas_what_the_game_shows()
-	await _test_the_house_previews_a_building_without_a_street()
-	await _test_the_stack_rides_with_the_rider()
-	await _test_a_house_shows_the_street_and_not_its_preview()
-	await _test_a_house_is_the_same_building_in_every_state()
-	await _test_the_menu_says_which_build_it_is()
-	await _test_a_throw_starts_from_where_the_pizza_was()
-	await _test_a_street_cleared_is_handed_on()
-	await _test_you_become_the_rider_you_handed_the_bag_to()
-	await _test_a_street_lost_is_not_handed_on()
-	await _test_the_shop_sells_more_than_one_thing()
-	await _test_a_tap_on_the_road_changes_the_flavour()
-	await _test_a_tap_near_the_pizza_leaves_the_flavour_alone()
-	await _test_the_pizza_in_the_air_keeps_what_it_was_thrown_as()
-	await _test_only_the_pizza_you_can_grab_is_animated()
-	await _test_the_strike_row_shows_the_chances_this_street_dealt()
-	_test_a_sheet_is_cut_into_frames()
-	await _test_every_street_asks_for_orders()
-	await _test_the_order_ticket_clears_the_strike_dots()
-	await _test_a_ticket_shows_what_is_wanted_and_pays_when_filled()
-	await _test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw()
-	await _test_a_lost_pizza_comes_apart_where_it_landed()
-	await _test_the_page_teaches_the_tap()
-	await _test_the_card_says_how_the_orders_went()
+	var per_test := {}
+	for test in _tests():
+		var before := _checks
+		await test.call()
+		per_test[test.get_method()] = _checks - before
 
 	# Not idle padding. A test that throws frees its game a frame later, while the
 	# throw is still sounding, and quitting straight after that leaves the clip
@@ -53,13 +25,51 @@ func _ready() -> void:
 	# all the audio server needs to let go. Tests that only fumble never trip it,
 	# which is what makes the throw the culprit.
 	await get_tree().create_timer(0.25).timeout
+	_report(per_test)
 
-	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
-	for f in _failures:
-		print("  FAIL  ", f)
-	if _failures.is_empty():
-		print("  all good")
-	get_tree().quit(1 if _failures.size() > 0 else 0)
+
+## Every test, in the order they run. A list rather than a run of calls so the
+## runner can see what each one contributed; see [method _report].
+func _tests() -> Array[Callable]:
+	return [
+		_test_scene_runs_and_draws_houses,
+		_test_a_flick_spends_a_pizza,
+		_test_a_fumble_spends_nothing,
+		_test_one_pizza_in_the_air_at_a_time,
+		_test_the_waiting_pizza_is_there_to_grab,
+		_test_a_touch_away_from_the_pizza_does_nothing,
+		_test_a_fumble_puts_the_pizza_back,
+		_test_a_round_ends_on_its_own,
+		_test_the_tuning_tools_are_absent_from_a_shipped_build,
+		_test_houses_are_solid_at_the_size_they_are_drawn,
+		_test_a_delivery_pays_and_says_so,
+		_test_the_skyline_stands_as_nodes,
+		_test_the_scenes_show_on_the_canvas_what_the_game_shows,
+		_test_the_house_previews_a_building_without_a_street,
+		_test_the_stack_rides_with_the_rider,
+		_test_a_house_shows_the_street_and_not_its_preview,
+		_test_a_house_is_the_same_building_in_every_state,
+		_test_the_menu_says_which_build_it_is,
+		_test_a_throw_starts_from_where_the_pizza_was,
+		_test_a_street_cleared_is_handed_on,
+		_test_you_become_the_rider_you_handed_the_bag_to,
+		_test_a_street_lost_is_not_handed_on,
+		_test_the_shop_sells_more_than_one_thing,
+		_test_a_tap_on_the_road_changes_the_flavour,
+		_test_a_tap_near_the_pizza_leaves_the_flavour_alone,
+		_test_the_pizza_in_the_air_keeps_what_it_was_thrown_as,
+		_test_only_the_pizza_you_can_grab_is_animated,
+		_test_the_strike_row_shows_the_chances_this_street_dealt,
+		_test_a_sheet_is_cut_into_frames,
+		_test_every_street_asks_for_orders,
+		_test_the_order_ticket_clears_the_strike_dots,
+		_test_a_ticket_shows_what_is_wanted_and_pays_when_filled,
+		_test_a_ticket_cannot_ask_for_more_lines_than_it_can_draw,
+		_test_a_lost_pizza_comes_apart_where_it_landed,
+		_test_the_page_teaches_the_tap,
+		_test_the_card_says_how_the_orders_went,
+	]
+
 
 
 func _test_scene_runs_and_draws_houses() -> void:
@@ -1397,3 +1407,37 @@ func _check(what: String, ok: bool) -> void:
 	_checks += 1
 	if not ok:
 		_failures.append(what)
+
+
+## Say how it went, and refuse to call a short run a good one.
+##
+## A GDScript error inside a test kills the rest of that test and nothing else:
+## the run carries on, the summary prints, and the only trace is a check count
+## that quietly dropped. That happened three times in one afternoon and was
+## noticed each time by eye. So the count is held to a floor, and a test that
+## made no checks at all is named.
+##
+## Raise EXPECTED in the same commit that adds checks. Lowering it is a decision,
+## not a tidy-up: it means checks that used to run no longer do.
+func _report(per_test: Dictionary) -> void:
+	print("\n=== %d checks, %d failed ===" % [_checks, _failures.size()])
+	for f in _failures:
+		print("  FAIL  ", f)
+
+	var silent := PackedStringArray()
+	for name in per_test:
+		if per_test[name] == 0:
+			silent.append(name)
+	var short := _checks < EXPECTED
+	if short:
+		print("  SHORT  %d checks, expected at least %d. A test died part way and"
+			% [_checks, EXPECTED])
+		print("         took its remaining checks with it. Per test:")
+		for name in per_test:
+			print("           %-56s %d" % [name, per_test[name]])
+	for name in silent:
+		print("  SILENT  %s made no checks at all" % name)
+
+	if _failures.is_empty() and not short and silent.is_empty():
+		print("  all good")
+	get_tree().quit(1 if _failures.size() > 0 or short or not silent.is_empty() else 0)

@@ -102,10 +102,20 @@ jobs:
           godot --headless --import || true
           failed=0
           for suite in test_throw test_street test_game; do
-            output="$(godot --headless "res://tests/${suite}.tscn" 2>&1 | sed 's/\x1b\[[0-9;]*m//g')"
+            set +e
+            godot --headless "res://tests/${suite}.tscn" > "${suite}.log" 2>&1
+            code=$?
+            set -e
+            output="$(sed 's/\x1b\[[0-9;]*m//g' "${suite}.log")"
             summary="$(echo "$output" | grep -E '^=== ' || echo 'no summary')"
             echo "${suite}: ${summary}"
-            echo "$output" | grep -E '^  FAIL' || true
+            echo "$output" | grep -E '^  (FAIL|SHORT|SILENT)' || true
+            # The exit code is the honest answer: it covers a failed check, and
+            # also a run that came up short because a test died part way through
+            # and took its remaining checks with it, which still prints 0 failed.
+            [ "$code" -eq 0 ] || failed=1
+            # And the summary line separately, because a suite that will not parse
+            # never runs, prints nothing, and exits 0.
             echo "$summary" | grep -qE '0 failed' || failed=1
           done
           exit $failed
