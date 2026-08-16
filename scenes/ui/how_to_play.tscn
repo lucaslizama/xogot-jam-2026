@@ -33,7 +33,7 @@ anchor_bottom = 1.0
 offset_left = 56.0
 offset_top = 72.0
 offset_right = -56.0
-offset_bottom = -72.0
+offset_bottom = -216.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
@@ -91,11 +91,20 @@ note = "The stack of boxes on the bike shrinking as pizzas are thrown, and the s
 diagram = 4
 caption = "The boxes on the bike are the pizzas you have left. Empty the stack with a strike to spare and you win the street."
 
-[node name="BackButton" type="Button" parent="Scroll/Steps"]
+[node name="BackButton" type="Button" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(660, 130)
-layout_mode = 2
-size_flags_horizontal = 4
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -330.0
+offset_top = -186.0
+offset_right = 330.0
+offset_bottom = -56.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Back"
 script = ExtResource("3_boxbtn")
 art = ExtResource("4_box")

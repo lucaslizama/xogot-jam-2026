@@ -1,11 +1,18 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/ui/how_to_step.gd" id="1_step"]
 [ext_resource type="Script" path="res://scripts/pizza/ui/placeholder_rect.gd" id="2_slot"]
 [ext_resource type="Script" path="res://scripts/pizza/ui/how_to_diagram.gd" id="3_diagram"]
-[ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="4_box"]
+[ext_resource type="Texture2D" uid="uid://bm0ojgepweb3j" path="res://sprites/pizzabox_stack_A.tres" id="4_box"]
 [ext_resource type="Texture2D" uid="uid://djxcvnvv3gpsg" path="res://sprites/pizza_lose.png" id="5_lose"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="6_theme"]
+[ext_resource type="Texture2D" uid="uid://rgkub7bu3yj6" path="res://sprites/pizzabox_pepperoni_flying.png" id="7_pep"]
+[ext_resource type="Texture2D" path="res://sprites/pizzabox_margherita_flying.png" id="8_marg"]
+[ext_resource type="Texture2D" path="res://sprites/pizzabox_hawaiian_flying.png" id="9_haw"]
+[ext_resource type="Texture2D" uid="uid://bgwqxai5mcsiy" path="res://sprites/pizza_pepperoni_icon.png" id="10_pepicon"]
+[ext_resource type="Texture2D" uid="uid://bwetfmon2cyy8" path="res://sprites/pizza_margherita_icon.png" id="11_margicon"]
+[ext_resource type="Texture2D" uid="uid://di0sdtnebfp66" path="res://sprites/pizza_hawaiian_icon.png" id="12_hawicon"]
+[ext_resource type="Texture2D" uid="uid://bn0wtnsv0v8tp" path="res://sprites/houses.png" id="13_houses"]
 
 [node name="HowToStep" type="VBoxContainer"]
 theme = ExtResource("6_theme")
@@ -31,6 +38,10 @@ mouse_filter = 2
 script = ExtResource("3_diagram")
 box_art = ExtResource("4_box")
 dropped_art = ExtResource("5_lose")
+pizza_art = ExtResource("7_pep")
+flavour_art = Array[Texture2D]([ExtResource("7_pep"), ExtResource("8_marg"), ExtResource("9_haw")])
+flavour_icons = Array[Texture2D]([ExtResource("10_pepicon"), ExtResource("11_margicon"), ExtResource("12_hawicon")])
+house_art = ExtResource("13_houses")
 
 [node name="Caption" type="Label" parent="."]
 theme_type_variation = &"Caption"

@@ -166,14 +166,36 @@ godot-4.6 --headless res://tests/test_game.tscn     # the scene, driven by fake 
 
 ## Releasing
 
+Two ways, and they differ only in which machine builds the game.
+
+**The cloud builds it.** Needs nothing installed here.
+
 ```
 bash tools/release.sh 0.27.0
 ```
 
-Bumps the version, commits, tags and pushes. Pushing the tag runs the tests and, if they all
-pass, publishes the browser build to itch.io named after the tag. An ordinary push publishes
-nothing, and neither does a tag left sitting on one machine: it is the tag arriving at the
-remote that starts the build.
+Bumps the version, commits, tags and pushes. The tag arriving at the remote runs the three
+test suites and builds the browser game, and leaves it as a downloadable artifact. It no
+longer publishes on its own: to put it on itch, run the workflow from the Actions tab with
+**publish** ticked.
+
+**Xogot builds it.** For publishing what you exported on the iPad, exactly as you saw it.
+
+```
+bash tools/release.sh 0.27.0 --prepare          # bump, commit, push
+# pull in Xogot, export the Web preset as a release build, bring the folder over
+bash tools/release.sh 0.27.0 --build build/web  # publish it, then tag
+```
+
+Two steps because the version the game shows in its corner is baked into the `.pck` when the
+export runs, so the number has to move before Xogot exports, not after. `--build` refuses if
+the two disagree, if the export is older than any source file, if `index.html`, `index.wasm`
+or `index.pck` is missing, or if anything in the tree is uncommitted or untracked. Needs
+[butler](https://itch.io/docs/butler/) on the PATH and `butler login` done once.
+
+Whichever you use, publishing is always something a person asked for. Two publishers racing
+for the same itch channel means whichever finishes last wins, silently, which is why the tag
+stopped doing it by itself.
 
 ## Roadmap
 

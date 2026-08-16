@@ -44,6 +44,56 @@ enum DiagramKind {
 	set(value):
 		dropped_art = value
 		queue_redraw()
+## The pizza in hand and in the air. Drawn as a disc with a rim without it.
+##
+## The page has to show the game as it is now, or it teaches something the player
+## then fails to recognise. That is a debt these diagrams take on by being drawings
+## rather than screenshots: art lands in the game and the page keeps teaching the
+## placeholders. Every slot here exists so paying it is a drag-and-drop.
+@export var pizza_art: Texture2D:
+	set(value):
+		pizza_art = value
+		queue_redraw()
+## The flavours, in menu order, for the picture that has to show all three at once.
+## Falls back to [member pizza_art], and then to discs with toppings on them.
+@export var flavour_art: Array[Texture2D] = []:
+	set(value):
+		flavour_art = value
+		queue_redraw()
+## The small square each flavour gets on the order ticket, in the same order. This
+## is what the real ticket puts beside a line, so the mock-up puts it there too.
+@export var flavour_icons: Array[Texture2D] = []:
+	set(value):
+		flavour_icons = value
+		queue_redraw()
+## The buildings, several across one sheet. Without it a house is a box with a
+## triangle on top.
+@export var house_art: Texture2D:
+	set(value):
+		house_art = value
+		queue_redraw()
+## How many buildings sit side by side in [member house_art]. The street's own
+## sprite reads the sheet the same way, with hframes.
+@export_range(1, 16) var house_frames: int = 4:
+	set(value):
+		house_frames = maxi(1, value)
+		queue_redraw()
+## How wide a house is drawn, as a fraction of the picture's width. The frames are
+## square, so this is its height in pixels too — which is not the same fraction
+## down the picture, the picture being wider than it is tall. 0.19 puts the art in
+## about the footprint the drawn house had, roughly 190 by 200 at the size these
+## diagrams are given; much more and the roof leaves through the top of the frame.
+@export_range(0.05, 0.6, 0.01) var house_size: float = 0.19:
+	set(value):
+		house_size = value
+		queue_redraw()
+## What scenery is multiplied by. A house nobody is waiting in is dark, and that
+## contrast is the read the game asks for most often, so it is worth being able to
+## push it here without touching the art.
+@export var scenery_shade: Color = Color(0.42, 0.38, 0.55):
+	set(value):
+		scenery_shade = value
+		queue_redraw()
 
 @export_group("Colours")
 ## The night the game is played in, and the road under it.
@@ -184,6 +234,11 @@ func _draw_lane(y: float, dash: float, thick: float) -> void:
 ## Control's own property, and a parameter called that shadows it.
 func _draw_house(foot: Vector2, waiting: bool, shrink: float) -> void:
 	var base := _at(foot.x, foot.y)
+	if house_art != null:
+		if waiting:
+			_draw_ring(DROP)
+		_draw_building(base, waiting, shrink)
+		return
 	var px := size.x * 0.18 * shrink
 	var wall_h := size.y * 0.24 * shrink
 	var wall_rect := Rect2(base - Vector2(px * 0.5, wall_h), Vector2(px, wall_h))
@@ -198,6 +253,30 @@ func _draw_house(foot: Vector2, waiting: bool, shrink: float) -> void:
 	if waiting:
 		var win := Rect2(wall_rect.position + wall_rect.size * Vector2(0.3, 0.18), wall_rect.size * Vector2(0.4, 0.3))
 		draw_rect(win, window_lit)
+
+
+## One building off the sheet, standing on [param base], which is where it meets
+## the ground exactly as the street places it.
+##
+## Which of the buildings it is comes from where it stands, so a row is not the same
+## house three times over, and so it is the same house every time the page is
+## drawn: a diagram that reshuffles itself on every redraw is a diagram nobody can
+## point at.
+##
+## Waiting is drawn as the art is, scenery multiplied down. The game does this with
+## a shader, three sets of parameters over one sprite; what matters to the page is
+## only the outcome, that a house worth throwing at is bright and the rest of the
+## street is not.
+func _draw_building(base: Vector2, waiting: bool, shrink: float) -> void:
+	var side := size.x * house_size * shrink
+	var frame := absi(int(base.x)) % house_frames
+	var sheet := house_art.get_size()
+	var region := Rect2(Vector2(sheet.x / float(house_frames) * frame, 0.0),
+		Vector2(sheet.x / float(house_frames), sheet.y))
+	# Anchored at the foot: the sheet's frames stand on their bottom edge, which is
+	# why the street can put a house on the pavement without knowing how tall it is.
+	var where := Rect2(base - Vector2(side * 0.5, side), Vector2(side, side))
+	draw_texture_rect_region(house_art, where, region, Color.WHITE if waiting else scenery_shade)
 
 
 ## The landing ring, lying flat on the road, so squashed into an ellipse.
@@ -316,9 +395,9 @@ func _draw_orders() -> void:
 	var tap := Vector2(0.26, 0.66)
 	_draw_tap(tap)
 	_arc(tap, Vector2(0.34, 0.82), IN_HAND + Vector2(-IN_HAND_RADIUS * 1.5, 0.0), gesture)
-	# Topped to match the ticket's first line, so the picture shows the tap having
-	# already produced what was asked for.
-	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_a, 8, 0.15)
+	# The flavour the ticket's first line asks for, so the picture shows the tap
+	# having already produced what was wanted.
+	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_a, 8, 0.15, _flavour_art(0))
 
 
 ## The swap on its own: the tap, and the three flavours it turns the pizza through.
@@ -334,9 +413,11 @@ func _draw_orders() -> void:
 ## player nothing.
 func _draw_flavours() -> void:
 	var small := IN_HAND_RADIUS * 0.62
-	_draw_topped_pizza(Vector2(0.22, 0.72), small, topping_a, 8, 0.15)
-	_draw_topped_pizza(Vector2(0.78, 0.72), small, topping_b, 13, 0.1)
-	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_c, 5, 0.19)
+	# Second and third on the menu to the sides, the first in hand, so the row is
+	# the menu in its own order rather than three pizzas in no particular one.
+	_draw_topped_pizza(Vector2(0.22, 0.72), small, topping_a, 8, 0.15, _flavour_art(1))
+	_draw_topped_pizza(Vector2(0.78, 0.72), small, topping_b, 13, 0.1, _flavour_art(2))
+	_draw_topped_pizza(IN_HAND, IN_HAND_RADIUS, topping_c, 5, 0.19, _flavour_art(0))
 	# Well away from the pizza, because that is the whole rule: a touch near it takes
 	# hold of it, and only one further off is read as a tap.
 	var tap := Vector2(0.26, 0.6)
@@ -346,6 +427,10 @@ func _draw_flavours() -> void:
 
 ## The ticket as it appears in the corner of the screen: two lines, each a flavour
 ## and a bar standing in for its wording, and the clock under them part run down.
+##
+## The flavour beside a line is the icon the real ticket uses, not the pizza: the
+## ticket shows a small square rather than the box you throw, and a page that
+## showed the box would have a player looking for something that is not there.
 func _draw_ticket() -> void:
 	var card := Rect2(_at(0.04, 0.05), Vector2(size.x * 0.42, size.y * 0.2))
 	draw_rect(card, ticket_card)
@@ -358,7 +443,7 @@ func _draw_ticket() -> void:
 		var line: Dictionary = lines[i]
 		var y := 0.1 + i * 0.062
 		_draw_topped_pizza(Vector2(0.09, y), 0.026, line["colour"], line["count"],
-			line["size"])
+			line["size"], _flavour_icon(i))
 		# A bar rather than words: the diagram is drawn without a font, and a row of
 		# blocks reads as writing at this size anyway.
 		var bar := Rect2(_at(0.135, y - 0.012),
@@ -385,9 +470,17 @@ func _draw_tap(at: Vector2) -> void:
 
 
 ## The pizza with something on it. `spots` and `spot_size` are what tell one flavour
-## from another, the same way the real ones do.
+## from another, the same way the drawn ones did.
+##
+## `art` is the finished picture of that flavour. Given one, it is the whole pizza
+## and nothing is drawn on top: the toppings are already in the picture, and a
+## second set of dots over them would be the placeholder showing through the art
+## meant to replace it.
 func _draw_topped_pizza(at: Vector2, radius: float, spot: Color, spots: int,
-		spot_size: float) -> void:
+		spot_size: float, art: Texture2D = null) -> void:
+	if art != null:
+		_draw_art(art, at, radius)
+		return
 	_draw_pizza(at, radius)
 	var c := _at(at.x, at.y)
 	var r := size.x * radius
@@ -397,6 +490,29 @@ func _draw_topped_pizza(at: Vector2, radius: float, spot: Color, spots: int,
 		var angle := float(i) * 2.399963
 		var reach: float = 0.64 * sqrt((float(i) + 0.5) / float(spots))
 		draw_circle(c + Vector2(cos(angle), sin(angle)) * r * reach, r * spot_size, spot)
+
+
+## A picture centred on a point, square, sized by the same radius the drawn pizza
+## uses so swapping one for the other does not change the layout around it.
+func _draw_art(art: Texture2D, at: Vector2, radius: float) -> void:
+	var c := _at(at.x, at.y)
+	var r := size.x * radius
+	draw_texture_rect(art, Rect2(c - Vector2(r, r), Vector2(r, r) * 2.0), false)
+
+
+## Which picture a flavour has, by its place on the menu. Empty slots and a short
+## array both mean "not drawn yet", which is what makes the page survive art
+## arriving one flavour at a time.
+func _flavour_art(index: int) -> Texture2D:
+	if index >= 0 and index < flavour_art.size() and flavour_art[index] != null:
+		return flavour_art[index]
+	return pizza_art
+
+
+func _flavour_icon(index: int) -> Texture2D:
+	if index >= 0 and index < flavour_icons.size() and flavour_icons[index] != null:
+		return flavour_icons[index]
+	return null
 
 
 ## The strike dots as the game shows them: clean, and crossed off once spent.
@@ -412,6 +528,9 @@ func _draw_dots(total: int, crossed: int) -> void:
 
 
 func _draw_pizza(at: Vector2, radius: float = IN_HAND_RADIUS) -> void:
+	if pizza_art != null:
+		_draw_art(pizza_art, at, radius)
+		return
 	var c := _at(at.x, at.y)
 	var r := size.x * radius
 	draw_circle(c, r, pizza)
