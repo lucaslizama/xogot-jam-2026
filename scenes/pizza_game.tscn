@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://bn84vdq0ffesh" path="res://scenes/ui/pizza_stack.tscn" id="8_stack"]
 [ext_resource type="PackedScene" path="res://scenes/ui/result_card.tscn" id="9_result"]
 [ext_resource type="Resource" path="res://data/pizza_physics.tres" id="10_physics"]
-[ext_resource type="Resource" path="res://data/street_projection.tres" id="11_proj"]
+[ext_resource type="Resource" uid="uid://djxx60ewhsm0h" path="res://data/street_projection.tres" id="11_proj"]
 [ext_resource type="Resource" path="res://data/levels/street_1.tres" id="12_lvl1"]
 [ext_resource type="Resource" path="res://data/levels/street_2.tres" id="13_lvl2"]
 [ext_resource type="Resource" path="res://data/levels/street_3.tres" id="14_lvl3"]
@@ -24,14 +24,14 @@
 [ext_resource type="Script" uid="uid://ckhkiamdqxbpl" path="res://scripts/pizza/view/night_sky.gd" id="22_sky"]
 [ext_resource type="Shader" uid="uid://tsk7fi60d6c2" path="res://shaders/night_sky.gdshader" id="23_skyshader"]
 [ext_resource type="Script" uid="uid://kcgu6qqemrss" path="res://scripts/pizza/view/street_surface.gd" id="24_street"]
-[ext_resource type="ShaderMaterial" path="res://data/street_material.tres" id="25_streetmat"]
+[ext_resource type="Material" path="res://data/street_material.tres" id="25_streetmat"]
 [ext_resource type="Script" uid="uid://dwpl7rng8ioug" path="res://scripts/pizza/game_audio.gd" id="26_audio"]
 [ext_resource type="Resource" path="res://data/sound_bank.tres" id="27_bank"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tip_popup.tscn" id="28_tip"]
 [ext_resource type="Resource" path="res://data/score_rules.tres" id="29_score"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="30_theme"]
 [ext_resource type="Script" uid="uid://cek8qyse70qn4" path="res://scripts/pizza/view/money_burst.gd" id="31_money"]
-[ext_resource type="PackedScene" path="res://scenes/ui/handoff.tscn" id="32_handoff"]
+[ext_resource type="PackedScene" uid="uid://b6m510ym3u62n" path="res://scenes/ui/handoff.tscn" id="32_handoff"]
 [ext_resource type="PackedScene" path="res://scenes/pizza.tscn" id="33_pizzascene"]
 [ext_resource type="Resource" path="res://data/pizza_menu.tres" id="34_menu"]
 [ext_resource type="Texture2D" uid="uid://djxcvnvv3gpsg" path="res://sprites/pizza_lose.png" id="35_splat"]
@@ -40,8 +40,8 @@
 [ext_resource type="Script" uid="uid://bwsxsmhi31rpe" path="res://scripts/pizza/view/splat_burst.gd" id="38_splatter"]
 [ext_resource type="PackedScene" uid="uid://dia85j4q4pmx5" path="res://scenes/rider.tscn" id="39_riderscene"]
 [ext_resource type="Shader" uid="uid://bfmgoocgitfnp" path="res://shaders/rider_recolour.gdshader" id="40_recolour"]
-[ext_resource type="Script" path="res://scripts/pizza/game_daylight.gd" id="90_daylight"]
-[ext_resource type="Script" path="res://scripts/pizza/game_payouts.gd" id="91_payouts"]
+[ext_resource type="Script" uid="uid://bb3hh6mye33cr" path="res://scripts/pizza/game_daylight.gd" id="90_daylight"]
+[ext_resource type="Script" uid="uid://b0uffdg42hjxy" path="res://scripts/pizza/game_payouts.gd" id="91_payouts"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="92_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending_screen.tscn" id="93_ending"]
 
@@ -88,10 +88,10 @@ bank = ExtResource("27_bank")
 script = ExtResource("2_state")
 scoring = ExtResource("29_score")
 
-[node name="Payouts" type="Node" parent="."]
+[node name="Payouts" type="Node" parent="." unique_id=273598188]
 script = ExtResource("91_payouts")
 
-[node name="Daylight" type="Node" parent="."]
+[node name="Daylight" type="Node" parent="." unique_id=841955729]
 script = ExtResource("90_daylight")
 
 [node name="Sky" type="ColorRect" parent="." unique_id=959181805]
@@ -213,12 +213,13 @@ visible = false
 [node name="ResultCard" parent="Ui" unique_id=673933465 instance=ExtResource("9_result")]
 unique_name_in_owner = true
 
-[node name="PauseMenu" parent="Ui" instance=ExtResource("92_pause")]
+[node name="PauseMenu" parent="Ui" unique_id=173170517 instance=ExtResource("92_pause")]
 unique_name_in_owner = true
 
-[node name="EndingScreen" parent="Ui" instance=ExtResource("93_ending")]
+[node name="EndingScreen" parent="Ui" unique_id=1270203579 instance=ExtResource("93_ending")]
 unique_name_in_owner = true
 visible = false
+body = "%d streets, and you rode them all."
 
 [node name="DebugPanel" parent="Ui" unique_id=966095215 instance=ExtResource("20_debug")]
 unique_name_in_owner = true
