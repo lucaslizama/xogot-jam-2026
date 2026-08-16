@@ -371,6 +371,12 @@ func _test_clearing_the_last_street_ends_the_night() -> void:
 		% [game._run_streets, game.levels.size()], game._run_streets == game.levels.size())
 	_check("and totals more tips than the last street alone did (%d against %d)"
 		% [game._run_tips, game._state.tips], game._run_tips > game._state.tips)
+	# The second number on the card is the night's deliveries, not the best streak.
+	# Getting those two the wrong way round is invisible until it reports a streak as
+	# a total, which is exactly what the wording would then be claiming.
+	_check("and counts the night's deliveries, not the last street's (%d against %d)"
+		% [game._run_delivered, game._pending_delivered],
+		game._run_delivered > game._pending_delivered)
 	_check("nothing can be paused once the night is over",
 		not (game.get_node("Ui/PauseMenu") as PauseMenu).get_node("PauseButton").visible)
 

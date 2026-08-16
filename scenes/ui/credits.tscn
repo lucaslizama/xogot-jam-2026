@@ -95,7 +95,7 @@ horizontal_alignment = 1
 [node name="NameDesignArt" type="Label" parent="CreditsContainer"]
 theme_type_variation = &"CreditName"
 layout_mode = 2
-text = "Ian Genskowsky"
+text = "Ian Genskowsky & Belén Fuentes"
 horizontal_alignment = 1
 autowrap_mode = 2
 

@@ -196,7 +196,7 @@ remote that starts the build.
 Made for the Xogot Game Jam 2026.
 
 - Design and programming: Lucas Lizama, Belén Fuentes
-- Design and art: Ian Genskowsky
+- Design and art: Ian Genskowsky, Belén Fuentes
 
 ## License
 

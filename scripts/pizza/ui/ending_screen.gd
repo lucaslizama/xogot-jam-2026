@@ -25,12 +25,13 @@ signal menu_pressed
 @export var heading: String = "SUN'S UP!"
 ## %d is how many streets were cleared.
 @export var body: String = "%d streets, and you rode every one."
-## In order: the night's tips, and the longest the player went without missing.
+## In order: what the night paid, and how many pizzas were delivered across it.
 ##
-## Not "best run of %d", which the result card says and which reads fine on a card
-## about one street. Here the word is already taken: a run is the whole night, so a
-## best run of twelve invites the reader to work out twelve of what. Say deliveries.
-@export var tips_line: String = "$%d in tips, %d deliveries in a row at best"
+## Both are totals for the run, which is the only reason this screen exists apart
+## from the result card. Deliveries rather than the best streak, because a streak
+## needs explaining on a screen where "run" already means the night: "best run of 12"
+## invites the reader to work out twelve of what.
+@export var tips_line: String = "$%d in tips, %d pizzas delivered in total"
 ## Filled and written. Empty either line to say nothing.
 @export var orders_line: String = "%d of %d orders filled"
 ## When every one of them was filled, which deserves better than a fraction.
@@ -53,10 +54,10 @@ func _ready() -> void:
 
 
 ## Put the night on screen. Called once, by the game, when the last street is done.
-func show_run(streets: int, tips: int, best_streak: int, filled: int, written: int) -> void:
+func show_run(streets: int, tips: int, delivered: int, filled: int, written: int) -> void:
 	_heading.text = heading
 	_body.text = body % streets
-	_tips.text = tips_line % [tips, best_streak]
+	_tips.text = tips_line % [tips, delivered]
 	_tips.visible = not tips_line.is_empty()
 	_show_orders(filled, written)
 	_again.text = again_button

@@ -205,6 +205,7 @@ var _rider_index: int = 0
 ## both times, and a night you had to try twice is still the night you had.
 var _run_streets: int = 0
 var _run_tips: int = 0
+var _run_delivered: int = 0
 var _run_best_streak: int = 0
 var _run_orders_filled: int = 0
 var _run_orders_written: int = 0
@@ -933,6 +934,7 @@ func _show_result_card() -> void:
 	# The street's books close into the night's before either screen is shown, so
 	# whichever one comes up is reporting numbers that include this street.
 	_run_tips += _state.tips
+	_run_delivered += _pending_delivered
 	_run_best_streak = maxi(_run_best_streak, _state.best_streak)
 	_run_orders_filled += _orders.filled
 	_run_orders_written += _orders.filled + _orders.lost
@@ -944,7 +946,7 @@ func _show_result_card() -> void:
 		# the ending screen existed the level index simply clamped here and the player
 		# rode street three again for ever, with the game never admitting it had been
 		# finished.
-		_ending.show_run(_run_streets, _run_tips, _run_best_streak,
+		_ending.show_run(_run_streets, _run_tips, _run_delivered,
 			_run_orders_filled, _run_orders_written)
 	else:
 		_result.show_result(_pending_won, _pending_delivered, _level_index + 1,
@@ -968,6 +970,7 @@ func _start_a_new_run() -> void:
 	_rider_index = 0
 	_run_streets = 0
 	_run_tips = 0
+	_run_delivered = 0
 	_run_best_streak = 0
 	_run_orders_filled = 0
 	_run_orders_written = 0
