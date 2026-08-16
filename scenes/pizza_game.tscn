@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://4f3vmj2faiti"]
+[gd_scene format=3 uid="uid://bfka85kmeppdm"]
 
 [ext_resource type="Script" uid="uid://57dx2l52xd1h" path="res://scripts/pizza/pizza_game.gd" id="1_game"]
 [ext_resource type="Script" uid="uid://e2fnpn0q2l6q" path="res://scripts/pizza/sim/level_state.gd" id="2_state"]
@@ -14,9 +14,9 @@
 [ext_resource type="Resource" path="res://data/levels/street_1.tres" id="12_lvl1"]
 [ext_resource type="Resource" path="res://data/levels/street_2.tres" id="13_lvl2"]
 [ext_resource type="Resource" path="res://data/levels/street_3.tres" id="14_lvl3"]
-[ext_resource type="Resource" path="res://data/backdrop/far.tres" id="15_far"]
-[ext_resource type="Resource" path="res://data/backdrop/mid.tres" id="16_mid"]
-[ext_resource type="Resource" path="res://data/backdrop/near.tres" id="17_near"]
+[ext_resource type="Resource" uid="uid://bn6hb3mcn6p7" path="res://data/backdrop/far.tres" id="15_far"]
+[ext_resource type="Resource" uid="uid://c4o0x43dy3sts" path="res://data/backdrop/mid.tres" id="16_mid"]
+[ext_resource type="Resource" uid="uid://b1nt0b07lnpbe" path="res://data/backdrop/near.tres" id="17_near"]
 [ext_resource type="Script" uid="uid://0p2uqnatjo4v" path="res://scripts/pizza/view/ground_shadow.gd" id="18_shadow"]
 [ext_resource type="Script" uid="uid://bl46reoq3oni3" path="res://scripts/pizza/view/aim_preview.gd" id="19_aim"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="20_debug"]
@@ -24,7 +24,7 @@
 [ext_resource type="Script" uid="uid://ckhkiamdqxbpl" path="res://scripts/pizza/view/night_sky.gd" id="22_sky"]
 [ext_resource type="Shader" uid="uid://tsk7fi60d6c2" path="res://shaders/night_sky.gdshader" id="23_skyshader"]
 [ext_resource type="Script" uid="uid://kcgu6qqemrss" path="res://scripts/pizza/view/street_surface.gd" id="24_street"]
-[ext_resource type="Shader" path="res://shaders/street.gdshader" id="25_streetshader"]
+[ext_resource type="Shader" uid="uid://b2ava31h4ydfg" path="res://shaders/street.gdshader" id="25_streetshader"]
 [ext_resource type="Script" uid="uid://dwpl7rng8ioug" path="res://scripts/pizza/game_audio.gd" id="26_audio"]
 [ext_resource type="Resource" path="res://data/sound_bank.tres" id="27_bank"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tip_popup.tscn" id="28_tip"]
@@ -71,6 +71,8 @@ shader_parameter/grain_amount = 0.35
 shader_parameter/grain_scale = 1.1
 shader_parameter/verge_colour = Color(0.196078, 0.243137, 0.309804, 1)
 shader_parameter/verge_depth = 1.6
+shader_parameter/outer_layer_colour = Color(0.15, 0.18999998, 0.25, 1)
+shader_parameter/outer_layer_depth = 800.000038
 shader_parameter/lane_colour = Color(1, 0.894118, 0.470588, 0.7)
 shader_parameter/lane_distance = 7.0
 shader_parameter/lane_width = 1.1
@@ -119,7 +121,7 @@ mouse_filter = 2
 script = ExtResource("22_sky")
 
 [node name="Street" type="ColorRect" parent="." unique_id=2039508007]
-z_index = -4094
+z_index = -4095
 material = SubResource("ShaderMaterial_street")
 offset_right = 1170.0
 offset_bottom = 2532.0
@@ -127,12 +129,13 @@ mouse_filter = 2
 script = ExtResource("24_street")
 
 [node name="Backdrop" type="Node2D" parent="." unique_id=1268133472]
-z_index = -4095
+z_index = -4094
 script = ExtResource("3_backdrop")
 projection = ExtResource("11_proj")
 layers = Array[ExtResource("5_layercfg")]([ExtResource("15_far"), ExtResource("16_mid"), ExtResource("17_near")])
 
 [node name="Houses" type="Node2D" parent="." unique_id=1603870968]
+z_index = 1
 
 [node name="Shadow" type="Node2D" parent="." unique_id=778190582]
 visible = false

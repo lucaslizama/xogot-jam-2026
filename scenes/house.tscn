@@ -5,7 +5,7 @@
 [ext_resource type="Shader" uid="uid://cj2mkqth4bvpb" path="res://shaders/house.gdshader" id="3_3bgk5"]
 [ext_resource type="Texture2D" uid="uid://bn0wtnsv0v8tp" path="res://sprites/houses.png" id="3_se78b"]
 [ext_resource type="Script" uid="uid://55syobf3n7yk" path="res://scripts/pizza/view/house_drop_point.gd" id="4_drop"]
-[ext_resource type="Texture2D" uid="uid://mwutnnrpp1s7" path="res://sprites/houses_RGB.png" id="4_ptc3g"]
+[ext_resource type="Texture2D" uid="uid://mwutnnrpp1s7" path="res://sprites/houses_rgb.png" id="4_ptc3g"]
 [ext_resource type="Script" uid="uid://v8k2g3m2efor" path="res://scripts/pizza/view/house_color.gd" id="5_f74lx"]
 [ext_resource type="Resource" uid="uid://dolx1r1fbkeqc" path="res://data/house_looks.tres" id="6_looks"]
 
@@ -15,9 +15,9 @@ shader_parameter/mask_texture = ExtResource("4_ptc3g")
 shader_parameter/color_r = Color(0.5, 0.5, 0.5, 1)
 shader_parameter/color_g = Color(0.19607843, 0.16078432, 0.2784314, 1)
 shader_parameter/color_b = Color(1, 1, 1, 1)
-shader_parameter/global_tint = Color(0.5294999, 0.43500003, 0.75, 1)
-shader_parameter/desaturation = 0.606000028785
-shader_parameter/darken = 0.4800000228
+shader_parameter/global_tint = Color(0.10063997, 0.07520001, 0.16, 0.7764706)
+shader_parameter/desaturation = 0.0
+shader_parameter/darken = 0.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_bwc8c"]
 shader = ExtResource("3_3bgk5")
@@ -25,7 +25,7 @@ shader_parameter/mask_texture = ExtResource("4_ptc3g")
 shader_parameter/color_r = Color(1, 1, 1, 1)
 shader_parameter/color_g = Color(0.9490196, 0.6509804, 0.36862746, 1)
 shader_parameter/color_b = Color(1, 1, 1, 1)
-shader_parameter/global_tint = Color(1, 1, 1, 1)
+shader_parameter/global_tint = Color(1, 1, 1, 0)
 shader_parameter/desaturation = 0.50000002375
 shader_parameter/darken = 0.50000002375
 
@@ -35,7 +35,7 @@ shader_parameter/mask_texture = ExtResource("4_ptc3g")
 shader_parameter/color_r = Color(1, 1, 1, 1)
 shader_parameter/color_g = Color(1.286514, 0.88685185, 0.5129743, 1)
 shader_parameter/color_b = Color(1, 1, 1, 1)
-shader_parameter/global_tint = Color(1, 1, 1, 1)
+shader_parameter/global_tint = Color(1, 1, 1, 0)
 shader_parameter/desaturation = 0.0
 shader_parameter/darken = 0.0
 
@@ -50,6 +50,7 @@ script = ExtResource("4_drop")
 visible = false
 
 [node name="Sprite" type="Sprite2D" parent="Scenery" unique_id=1949550382]
+z_index = 1
 material = SubResource("ShaderMaterial_wcu0q")
 scale = Vector2(2.2, 2.2)
 texture = ExtResource("3_se78b")
@@ -58,11 +59,14 @@ hframes = 4
 script = ExtResource("5_f74lx")
 follow_house_look = true
 follow_house_mirror = true
+palette = Array[Color]([Color(0.29411766, 0.35686275, 0.67058825, 1), Color(1, 0.5686275, 0.4, 1), Color(0.6901961, 0.1882353, 0.36078432, 1), Color(0.23529412, 0.6392157, 0.4392157, 1)])
+randomize_r = true
 
 [node name="Served" type="Node2D" parent="." unique_id=1940587593]
 visible = false
 
 [node name="Sprite" type="Sprite2D" parent="Served" unique_id=240357042]
+z_index = 1
 material = SubResource("ShaderMaterial_bwc8c")
 scale = Vector2(2.2, 2.2)
 texture = ExtResource("3_se78b")
@@ -77,6 +81,7 @@ randomize_r = true
 [node name="Waiting" type="Node2D" parent="." unique_id=1286802326]
 
 [node name="Sprite" type="Sprite2D" parent="Waiting" unique_id=66355570]
+z_index = 1
 material = SubResource("ShaderMaterial_f74lx")
 scale = Vector2(2.2, 2.2)
 texture = ExtResource("3_se78b")

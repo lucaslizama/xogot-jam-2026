@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://c3uswosmijwbf"]
+
+[ext_resource type="PackedScene" uid="uid://dk4lryvrwb4mw" path="res://scenes/backdrop_house_near.tscn" id="1_4wjha"]
+[ext_resource type="Shader" uid="uid://cj2mkqth4bvpb" path="res://shaders/house.gdshader" id="2_20fxg"]
+
+[sub_resource type="Gradient" id="Gradient_dh6af"]
+interpolation_mode = 2
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_k85io"]
+gradient = SubResource("Gradient_dh6af")
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0, 0.67094016)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_t4m40"]
+shader = ExtResource("2_20fxg")
+shader_parameter/color_r = Color(1, 1, 1, 1)
+shader_parameter/color_g = Color(1, 1, 1, 1)
+shader_parameter/color_b = Color(1, 1, 1, 1)
+shader_parameter/global_mask = SubResource("GradientTexture2D_k85io")
+shader_parameter/global_tint = Color(0.152941, 0.152941, 0.211765, 1)
+shader_parameter/desaturation = 0.0
+shader_parameter/darken = 0.0
+
+[node name="backdrop_house" unique_id=1936995579 instance=ExtResource("1_4wjha")]
+
+[node name="Sprite2D" parent="." index="0" unique_id=517224313]
+material = SubResource("ShaderMaterial_t4m40")

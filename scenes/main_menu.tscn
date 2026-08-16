@@ -1,35 +1,43 @@
-[gd_scene load_steps=10 format=3 uid="uid://dywnhe0kaq0mp"]
+[gd_scene format=3 uid="uid://dywnhe0kaq0mp"]
 
 [ext_resource type="Script" uid="uid://dyb8uy6eaxac4" path="res://scripts/pizza/ui/main_menu.gd" id="1_l6cm7"]
 [ext_resource type="PackedScene" uid="uid://dmt65b37wpllc" path="res://scenes/ui/menu_background.tscn" id="2_menubg"]
-[ext_resource type="Script" path="res://scripts/pizza/ui/pizza_box_button.gd" id="3_boxbtn"]
+[ext_resource type="Script" uid="uid://dum1op3vkoc1" path="res://scripts/pizza/ui/pizza_box_button.gd" id="3_boxbtn"]
 [ext_resource type="PackedScene" path="res://scenes/ui/how_to_play.tscn" id="4_howto"]
-[ext_resource type="Texture2D" path="res://sprites/pizza_box.png" id="5_box"]
+[ext_resource type="Texture2D" uid="uid://donsuvaswcfqs" path="res://sprites/pizza_box.png" id="5_box"]
 [ext_resource type="PackedScene" path="res://scenes/ui/credits.tscn" id="6_credits"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="7_theme"]
 [ext_resource type="PackedScene" path="res://scenes/music.tscn" id="8_music"]
 [ext_resource type="PackedScene" path="res://scenes/ui/settings.tscn" id="9_settings"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jk1qb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5dd4i"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lgwnu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_flqon"]
+
 [node name="MainMenu" type="Control" unique_id=416969500]
-theme = ExtResource("7_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("7_theme")
 script = ExtResource("1_l6cm7")
 
-[node name="Music" parent="." instance=ExtResource("8_music")]
+[node name="Music" parent="." unique_id=437128968 instance=ExtResource("8_music")]
 
-[node name="MenuBackground" parent="." instance=ExtResource("2_menubg")]
+[node name="MenuBackground" parent="." unique_id=434396885 instance=ExtResource("2_menubg")]
 
 [node name="Scrim" type="ColorRect" parent="." unique_id=2097322792]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.152941, 0.152941, 0.211765, 0.35)
 mouse_filter = 2
+color = Color(0.152941, 0.152941, 0.211765, 0.35)
 
 [node name="MenuContainer" type="VBoxContainer" parent="." unique_id=174579587]
 layout_mode = 0
@@ -47,8 +55,8 @@ theme_override_constants/separation = 24
 alignment = 1
 
 [node name="Title" type="Label" parent="MenuContainer" unique_id=1087584877]
-theme_type_variation = &"GameTitle"
 layout_mode = 2
+theme_type_variation = &"GameTitle"
 text = "Pizza Flicker"
 horizontal_alignment = 1
 
@@ -60,25 +68,40 @@ layout_mode = 2
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxEmpty_jk1qb")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_jk1qb")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_jk1qb")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_jk1qb")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_jk1qb")
 text = "Start"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
 
 [node name="HowToPlayButton" type="Button" parent="MenuContainer" unique_id=2008867430]
-theme_type_variation = &"SmallButton"
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_type_variation = &"SmallButton"
+theme_override_styles/normal = SubResource("StyleBoxEmpty_5dd4i")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_5dd4i")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_5dd4i")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_5dd4i")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5dd4i")
 text = "How to play"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
 flip_art_h = true
 
-[node name="SettingsButton" type="Button" parent="MenuContainer"]
-theme_type_variation = &"SmallButton"
+[node name="SettingsButton" type="Button" parent="MenuContainer" unique_id=1125955895]
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_type_variation = &"SmallButton"
+theme_override_styles/normal = SubResource("StyleBoxEmpty_lgwnu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_lgwnu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_lgwnu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_lgwnu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_lgwnu")
 text = "Settings"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
@@ -87,15 +110,19 @@ art = ExtResource("5_box")
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flqon")
 text = "Credits"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
 
-[node name="Version" type="Label" parent="."]
+[node name="Version" type="Label" parent="." unique_id=184305934]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.5)
-theme_type_variation = &"Caption"
-anchors_preset = 12
+layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -103,16 +130,19 @@ offset_top = -110.0
 offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 0
-mouse_filter = 2
+theme_type_variation = &"Caption"
 text = "v0.0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CreditsPage" parent="." instance=ExtResource("6_credits")]
+[node name="CreditsPage" parent="." unique_id=1923561026 instance=ExtResource("6_credits")]
 visible = false
+layout_mode = 1
 
-[node name="HowToPlayPage" parent="." instance=ExtResource("4_howto")]
+[node name="HowToPlayPage" parent="." unique_id=1912726895 instance=ExtResource("4_howto")]
 visible = false
+layout_mode = 1
 
-[node name="SettingsPage" parent="." instance=ExtResource("9_settings")]
+[node name="SettingsPage" parent="." unique_id=1175016833 instance=ExtResource("9_settings")]
 visible = false
+layout_mode = 1

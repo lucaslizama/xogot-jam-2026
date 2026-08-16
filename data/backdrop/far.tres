@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="BackdropLayer" format=3 uid="uid://fjctyj5bioko"]
+[gd_resource type="Resource" script_class="BackdropLayer" format=3 uid="uid://bn6hb3mcn6p7"]
 
+[ext_resource type="PackedScene" uid="uid://c3uswosmijwbf" path="res://scenes/backdrop_house_far.tscn" id="1_k0wnt"]
 [ext_resource type="Script" uid="uid://bv0v342pqsobx" path="res://scripts/pizza/rules/backdrop_layer.gd" id="1_tpg53"]
 
 [resource]
 script = ExtResource("1_tpg53")
 distance = 420.0
-height = 142.0
-width = 105.0
-gap = 37.0
+height = 200.0
+width = 1.0
+gap = 16.0
 height_variation = 0.45
+art = ExtResource("1_k0wnt")

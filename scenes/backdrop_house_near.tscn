@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://dk4lryvrwb4mw"]
+
+[ext_resource type="Shader" uid="uid://cj2mkqth4bvpb" path="res://shaders/house.gdshader" id="1_tg4m2"]
+[ext_resource type="Texture2D" uid="uid://bn0wtnsv0v8tp" path="res://sprites/houses.png" id="2_fk4rj"]
+[ext_resource type="Script" uid="uid://v8k2g3m2efor" path="res://scripts/pizza/view/house_color.gd" id="3_ux73g"]
+
+[sub_resource type="Gradient" id="Gradient_dh6af"]
+interpolation_mode = 2
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_k85io"]
+gradient = SubResource("Gradient_dh6af")
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0, 0.67094016)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_na8in"]
+shader = ExtResource("1_tg4m2")
+shader_parameter/color_r = Color(1, 1, 1, 1)
+shader_parameter/color_g = Color(1, 1, 1, 1)
+shader_parameter/color_b = Color(1, 1, 1, 1)
+shader_parameter/global_mask = SubResource("GradientTexture2D_k85io")
+shader_parameter/global_tint = Color(0.243137, 0.137255, 0.278431, 1)
+shader_parameter/desaturation = 0.0
+shader_parameter/darken = 0.0
+
+[node name="backdrop_house" type="Node2D" unique_id=1936995579]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=517224313]
+material = SubResource("ShaderMaterial_na8in")
+scale = Vector2(2.25, 2.25)
+texture = ExtResource("2_fk4rj")
+offset = Vector2(0, -256)
+hframes = 4
+script = ExtResource("3_ux73g")
+follow_house_look = true
+follow_house_mirror = true

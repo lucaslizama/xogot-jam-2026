@@ -6,20 +6,13 @@ uniform vec4 color_g : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 color_b : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 
 // Global sprite adjustments
-uniform vec4 global_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform sampler2D global_mask : hint_default_white; // Slot for the gradient/mask texture
+uniform vec4 global_tint : source_color = vec4(1.0, 1.0, 1.0, 0.0);
 uniform float desaturation : hint_range(0.0, 1.0) = 0.0;
 uniform float darken : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
     // The base sprite, taken from COLOR rather than sampled again.
-    //
-    // COLOR already holds the texel multiplied by this node's modulate and every
-    // modulate above it, which is how the street's distance haze and the hour's
-    // world tint reach a house at all. Sampling TEXTURE here instead drops both:
-    // far houses stay as bright as near ones while the ring at their feet still
-    // fades, and midnight looks like noon. Multiplying a fresh TEXTURE sample by
-    // COLOR is not the fix either, since that puts the texture in twice and
-    // squares every channel.
     vec4 base_color = COLOR;
 
     // Sample the RGB mask texture
@@ -34,8 +27,8 @@ void fragment() {
     vec3 final_color = base_color.rgb * r_tint * g_tint * b_tint;
     
     // --- GLOBAL TINT ---
-    // Multiply the result by the global tint color
-    final_color *= global_tint.rgb;
+    // Mix the result with the global tint color using its alpha as the weight
+    final_color = mix(final_color, global_tint.rgb, global_tint.a);
     
     // --- DESATURATION ---
     // Calculate the perceived luminance (grayscale) using standard dot product weights
@@ -47,6 +40,12 @@ void fragment() {
     // Mix the resulting color towards black (0.0 = no change, 1.0 = pitch black)
     final_color = mix(final_color, vec3(0.0), darken);
     
-    // Output final color, multiplying the base alpha by the global tint's alpha
-    COLOR = vec4(final_color, base_color.a * global_tint.a);
+    // --- GLOBAL MASK ---
+    // Sample the new procedural/mask texture
+    vec4 mask_sample = texture(global_mask, UV);
+    // Combine the red channel and alpha channel to support both B&W and transparent masks
+    float mask_alpha = mask_sample.r * mask_sample.a;
+    
+    // Output final color, multiplying the base alpha by the new mask
+    COLOR = vec4(final_color, base_color.a * mask_alpha);
 }
