@@ -7,6 +7,19 @@ extends ColorRect
 ## projection resource, and to tell it how far the world has travelled. Those
 ## numbers exist in exactly one place; this hands them over rather than keeping
 ## a second set that could drift.
+##
+## Which is why data/street_material.tres holds the road's look and none of the
+## camera: no screen size, no horizon, no focal length, no haze. Every one of those
+## is pushed in below from the projection, so a copy stored on the material would be
+## overwritten a frame later while still being what the canvas showed. Both scenes
+## point at that one material, so the road is tuned once and both the menu and the
+## game get it. They each carried a copy of their own until the pavement in one
+## quietly stopped matching the pavement in the other.
+##
+## The consequence worth knowing: on the canvas, with nothing running, the shader
+## falls back to its own defaults for the camera. They are written to match the
+## projection's defaults, so the preview is right until somebody changes the
+## projection, and then it is the preview that is wrong rather than the game.
 
 ## Assigned by the game. Refits on assignment because a child's _ready runs
 ## before its parent's, so this cannot wait until startup to be told.
