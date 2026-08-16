@@ -51,6 +51,7 @@ func _tests() -> Array[Callable]:
 		_test_a_house_is_the_same_building_in_every_state,
 		_test_the_menu_says_which_build_it_is,
 		_test_the_menu_street_keeps_its_town_when_the_hour_turns,
+		_test_the_street_can_be_paused_and_left,
 		_test_a_throw_starts_from_where_the_pizza_was,
 		_test_a_street_cleared_is_handed_on,
 		_test_you_become_the_rider_you_handed_the_bag_to,
@@ -325,6 +326,74 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 ## it is printed on, it is worse than not being there, because it will be trusted
 ## in exactly the moment somebody is trying to work out whether they are looking at
 ## an old build.
+## Pausing, and the two ways out of it.
+##
+## Three of these are worth more than they look. The street must actually stop, or
+## the pause is only a picture over a game still being played. The way out must hand
+## back a running tree, because a scene changed into a paused one arrives frozen with
+## no pause button left to free it. And pausing has to be off once the round is over,
+## or the menu offers to resume a street that has finished.
+func _test_the_street_can_be_paused_and_left() -> void:
+	var game := await _spawn()
+	var pause: PauseMenu = game.get_node("Ui/PauseMenu")
+	_check("the street offers a way to pause it", pause.get_node("PauseButton").visible)
+	_check("and nothing is paused to start with", not get_tree().paused and not pause.is_open())
+
+	pause.open()
+	await get_tree().process_frame
+	_check("pausing stops the tree", get_tree().paused)
+	_check("and puts the menu up", pause.is_open())
+
+	# The street really has to stop, not just be covered over.
+	var where: float = game._travelled
+	await get_tree().create_timer(0.15).timeout
+	_check("the street stopped moving (travelled %.2f, was %.2f)" % [game._travelled, where],
+		is_equal_approx(game._travelled, where))
+
+	pause.get_node("%OptionsButton").pressed.emit()
+	await get_tree().process_frame
+	_check("options opens the same settings page the menu uses",
+		pause.get_node("%SettingsPage").visible and pause.get_node("%SettingsPage") is SettingsPage)
+
+	pause.get_node("%SettingsPage").back_pressed.emit()
+	await get_tree().process_frame
+	_check("and comes back to the buttons", pause.get_node("%Panel").visible)
+
+	pause.close()
+	await get_tree().process_frame
+	_check("resuming starts the tree again", not get_tree().paused)
+	await get_tree().create_timer(0.15).timeout
+	_check("and the street moves again (travelled %.2f)" % game._travelled, game._travelled > where)
+
+	# Leaving. The game's own handler is unhooked first, because letting it run would
+	# change scene for real and take this test out with it: the suite is the current
+	# scene, and change_scene_to_file frees it mid-await. What is checked instead is
+	# the promise the handler depends on, that the tree is running when it is asked.
+	var running_when_asked := [false]
+	pause.leave_pressed.disconnect(game._leave_for_the_menu)
+	pause.leave_pressed.connect(func() -> void: running_when_asked[0] = not get_tree().paused)
+	pause.open()
+	await get_tree().process_frame
+	pause.get_node("%MenuButton").pressed.emit()
+	await get_tree().process_frame
+	_check("leaving unpauses before it asks to change scene", running_when_asked[0])
+	_check("and there is a scene for it to go to (%s)" % game.menu_scene,
+		ResourceLoader.exists(game.menu_scene))
+
+	# And once the street is over there is nothing left to pause.
+	game._state.note_miss()
+	game._state.note_miss()
+	game._state.note_miss()
+	game._state.note_miss()
+	game._state.note_miss()
+	await get_tree().process_frame
+	_check("the round is over", game._state.is_over())
+	_check("so the pause button is gone", not pause.get_node("PauseButton").visible)
+	_check("and nothing is left paused", not get_tree().paused)
+	game.queue_free()
+	await get_tree().process_frame
+
+
 ## The menu walks its levels end to end in front of the player, so the crossing has
 ## to be an hour turning over and nothing else. It used to build a second street each
 ## time, which replaced every house on screen in the frame the light changed.

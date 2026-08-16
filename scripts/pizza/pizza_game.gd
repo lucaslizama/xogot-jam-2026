@@ -28,6 +28,10 @@ signal flavour_changed(flavour: PizzaFlavour)
 
 @export_group("Flow")
 @export var start_automatically: bool = true
+## Where the pause menu's way out leads. A path rather than a scene reference, the
+## same way the menu names the game, so neither of the two has to load the other to
+## be opened on its own.
+@export_file("*.tscn") var menu_scene: String = "res://scenes/main_menu.tscn"
 ## Streets are generated from this plus the level number, so a run is
 ## reproducible while every level still looks different.
 @export var street_seed: int = 20260807
@@ -170,6 +174,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _stack: PizzaStack = %PizzaStack
 @onready var _result: ResultCard = %ResultCard
 @onready var _debug: DebugPanel = %DebugPanel
+@onready var _pause: PauseMenu = %PauseMenu
 
 var _config: LevelConfig
 var _street: StreetModel
@@ -243,6 +248,7 @@ func _ready() -> void:
 	_result.again_pressed.connect(_on_again)
 	_handoff.finished.connect(_show_result_card)
 	_debug.win_requested.connect(_win_street_now)
+	_pause.leave_pressed.connect(_leave_for_the_menu)
 	_orders.opened.connect(_ticket.show_order)
 	_orders.progressed.connect(_on_order_progressed)
 	_orders.completed.connect(_on_order_filled)
@@ -315,6 +321,8 @@ func start_level() -> void:
 	_strikes.show_granted(_state.strike_budget())
 	_ticket.clear()
 	_orders.begin(_orders_for(_config), menu, street_seed + _level_index * 7919)
+	# A street being ridden is the only thing there is to pause.
+	_pause.allow_pausing(true)
 
 
 func _process(delta: float) -> void:
@@ -678,6 +686,20 @@ func _place_pizza() -> void:
 ## through the same moves a real win is made of, throwing the rest of the stack
 ## away and letting the round settle, rather than reaching past the rules. A
 ## street with no strikes left is already lost and stays lost.
+## Leave the street for the front menu. Asked for by the pause menu, which has
+## already put the tree back in motion before saying so, so there is nothing to undo
+## here: a scene changed into a paused tree arrives frozen.
+##
+## The run is abandoned rather than saved. Nothing carries over between streets
+## except what the result card shows, and there is no way back into a street you
+## walked out of, which is the honest reading of leaving.
+func _leave_for_the_menu() -> void:
+	if menu_scene.is_empty() or not ResourceLoader.exists(menu_scene):
+		push_warning("PizzaGame: no menu scene to go back to at %s" % menu_scene)
+		return
+	get_tree().change_scene_to_file(menu_scene)
+
+
 func _win_street_now() -> void:
 	if _state.is_over():
 		return
@@ -855,6 +877,10 @@ func _on_strikes_changed(left: int) -> void:
 
 func _on_round_ended(won: bool, delivered: int) -> void:
 	_clear_flight()
+	# Nothing left to pause. The handoff and the result card are their own screens
+	# with their own way onward, and a menu offering to resume a finished street
+	# would be offering something that no longer exists.
+	_pause.allow_pausing(false)
 	# Silently, verdict and all. A street ending under an open ticket is not the
 	# player having failed that ticket, and "order gone" floating up as the result
 	# card arrives would say it was.

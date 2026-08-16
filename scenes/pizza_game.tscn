@@ -42,6 +42,7 @@
 [ext_resource type="Shader" uid="uid://bfmgoocgitfnp" path="res://shaders/rider_recolour.gdshader" id="40_recolour"]
 [ext_resource type="Script" path="res://scripts/pizza/game_daylight.gd" id="90_daylight"]
 [ext_resource type="Script" path="res://scripts/pizza/game_payouts.gd" id="91_payouts"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="92_pause"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -209,6 +210,9 @@ unique_name_in_owner = true
 visible = false
 
 [node name="ResultCard" parent="Ui" unique_id=673933465 instance=ExtResource("9_result")]
+unique_name_in_owner = true
+
+[node name="PauseMenu" parent="Ui" instance=ExtResource("92_pause")]
 unique_name_in_owner = true
 
 [node name="DebugPanel" parent="Ui" unique_id=966095215 instance=ExtResource("20_debug")]
