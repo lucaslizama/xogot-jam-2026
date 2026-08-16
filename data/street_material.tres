@@ -1,20 +1,43 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cmugbbhiup1vp"]
 
-[ext_resource type="Shader" path="res://shaders/street.gdshader" id="1_streetshader"]
+[ext_resource type="Shader" uid="uid://b2ava31h4ydfg" path="res://shaders/street.gdshader" id="1_streetshader"]
+
+[sub_resource type="Gradient" id="Gradient_ova8e"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.829233)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_n20ga"]
+gradient = SubResource("Gradient_ova8e")
 
 [resource]
 shader = ExtResource("1_streetshader")
+shader_parameter/screen_size = Vector2(1170, 2532)
+shader_parameter/horizon_y = 900.0
+shader_parameter/near_ground_y = 2100.0
+shader_parameter/centre_x = 585.0
+shader_parameter/focal = 28.0
+shader_parameter/pixels_per_unit = 46.0
+shader_parameter/travelled = 0.0
 shader_parameter/road_far = 18.0
-shader_parameter/asphalt = Color(0.152941, 0.152941, 0.211765, 1)
-shader_parameter/asphalt_grain = Color(0.196078, 0.160784, 0.278431, 1)
+shader_parameter/asphalt = Color(0.072000004, 0.072000004, 0.1, 1)
+shader_parameter/asphalt_grain = Color(0.27959996, 0.228, 0.4, 1)
 shader_parameter/grain_amount = 0.35
-shader_parameter/grain_scale = 1.1
+shader_parameter/grain_scale = 0.6750000304325601
+shader_parameter/use_stepped_grain = false
+shader_parameter/grain_steps = 2.0
+shader_parameter/use_gradient = true
+shader_parameter/grain_gradient = SubResource("GradientTexture2D_n20ga")
 shader_parameter/verge_colour = Color(0.196078, 0.243137, 0.309804, 1)
 shader_parameter/verge_depth = 1.6
 shader_parameter/outer_layer_colour = Color(0.14902, 0.18824, 0.24706, 1)
-shader_parameter/outer_layer_depth = 20.0
+shader_parameter/outer_layer_depth = 700.00003325
 shader_parameter/lane_colour = Color(1, 0.894118, 0.470588, 0.7)
 shader_parameter/lane_distance = 7.0
 shader_parameter/lane_width = 1.1
 shader_parameter/lane_dash = 7.0
 shader_parameter/lane_gap = 9.0
+shader_parameter/haze_colour = Color(0.278431, 0.231373, 0.470588, 1)
+shader_parameter/haze_from = 18.0
+shader_parameter/haze_full = 260.0
+shader_parameter/haze_strength = 0.75

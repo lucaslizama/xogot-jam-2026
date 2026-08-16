@@ -1,17 +1,6 @@
 shader_type canvas_item;
 
 // The road surface, drawn by inverting the street's projection.
-//
-// Every pixel works out where on the street it actually is, which is what makes
-// this worth doing at all: the grain and the markings then scroll at the right
-// rate at every depth, quickly under the wheel and barely at all near the
-// horizon, instead of the whole surface sliding as one sheet.
-//
-// The projection puts a point at distance d on the screen row
-//     y = horizon + (near_ground - horizon) * focal / (focal + d)
-// so with t as that fraction, d = focal * (1 - t) / t, and the sideways
-// position falls out of the same scale.
-
 uniform vec2 screen_size = vec2(1170.0, 2532.0);
 uniform float horizon_y = 900.0;
 uniform float near_ground_y = 2100.0;
@@ -19,9 +8,7 @@ uniform float centre_x = 585.0;
 uniform float focal = 28.0;
 uniform float pixels_per_unit = 46.0;
 
-// How far the world has slid past. The road scrolls with it.
 uniform float travelled = 0.0;
-// Where the tarmac stops and the verge begins.
 uniform float road_far : hint_range(1.0, 200.0) = 18.0;
 
 uniform vec4 asphalt : source_color = vec4(0.152941, 0.152941, 0.211765, 1.0);
@@ -29,10 +16,18 @@ uniform vec4 asphalt_grain : source_color = vec4(0.196078, 0.160784, 0.278431, 1
 uniform float grain_amount : hint_range(0.0, 1.0) = 0.35;
 uniform float grain_scale : hint_range(0.05, 8.0) = 1.1;
 
+// NEW: Stepped grain parameters
+uniform bool use_stepped_grain = false;
+uniform float grain_steps : hint_range(2.0, 20.0, 1.0) = 4.0;
+
+// NEW: Gradient mapping parameters
+uniform bool use_gradient = false;
+// Note: In the inspector, assign a "GradientTexture1D" to this.
+uniform sampler2D grain_gradient : repeat_disable; 
+
 uniform vec4 verge_colour : source_color = vec4(0.196078, 0.243137, 0.309804, 1.0);
 uniform float verge_depth : hint_range(0.0, 20.0) = 1.6;
 
-// NEW: The layer beyond the verge (Range increased to 1000.0)
 uniform vec4 outer_layer_colour : source_color = vec4(0.14902, 0.18824, 0.24706, 1.0);
 uniform float outer_layer_depth : hint_range(0.0, 1000.0) = 20.0;
 
@@ -53,7 +48,6 @@ float hash21(vec2 p) {
     return fract(p.x * p.y);
 }
 
-// Value noise, so the grain reads as tarmac rather than as a grid of tiles.
 float noise(vec2 p) {
     vec2 cell = floor(p);
     vec2 f = fract(p);
@@ -70,30 +64,38 @@ void fragment() {
 
     float t = (px.y - horizon_y) / (near_ground_y - horizon_y);
     if (t <= 0.0001) {
-        discard;                       // above the horizon is sky, not road
+        discard;
     }
 
     float dist = focal * (1.0 - t) / t;
     
-    // CHANGED: Added outer_layer_depth to the discard distance so the new layer renders
     if (dist > road_far + verge_depth + outer_layer_depth) {
-        discard;                       // beyond the outer layer the backdrop takes over
+        discard;
     }
 
-    // Sideways position in world units, scrolled by how far the rider has gone.
     float side = (px.x - centre_x) / (pixels_per_unit * t) + travelled;
 
-    // Two scales of grain, the finer one only near the camera, so distant road
-    // does not dissolve into noise it could not resolve anyway.
     float near_weight = clamp(1.0 - dist / max(road_far, 0.001), 0.0, 1.0);
     float g = noise(vec2(side, dist) * grain_scale);
     g = mix(g, noise(vec2(side, dist) * grain_scale * 3.7), 0.35 * near_weight);
 
+    // --- NEW: Modify the noise value ---
+    
+    if (use_stepped_grain) {
+        // Quantizes the noise into distinct bands
+        g = floor(g * grain_steps) / (grain_steps - 1.0);
+    }
+    
+    if (use_gradient) {
+        // Maps the noise value (0.0 to 1.0) to the X-axis of the gradient texture.
+        // We use the red channel (.r) to dictate the new intensity.
+        g = texture(grain_gradient, vec2(g, 0.5)).r;
+    }
+    
+    // -----------------------------------
+
     vec3 colour = mix(asphalt.rgb, asphalt_grain.rgb, g * grain_amount);
 
-    // The markings: a band at one depth, dashed along the street. Both edges are
-    // softened against the pixel size at this depth, which is what keeps a far
-    // dash from flickering as it scrolls.
     float across = abs(dist - lane_distance);
     float depth_px = max(pixels_per_unit * t, 0.0001);
     float edge = 1.5 / depth_px;
@@ -102,15 +104,12 @@ void fragment() {
     float dash = 1.0 - smoothstep(lane_dash - edge, lane_dash + edge, along);
     colour = mix(colour, lane_colour.rgb, band * dash * lane_colour.a);
 
-    // The verge, past the tarmac.
     float verge = smoothstep(road_far - 0.15, road_far + 0.15, dist);
     colour = mix(colour, verge_colour.rgb, verge);
     
-    // NEW: The outer layer, past the verge.
     float outer_layer = smoothstep(road_far + verge_depth - 0.15, road_far + verge_depth + 0.15, dist);
     colour = mix(colour, outer_layer_colour.rgb, outer_layer);
 
-    // The same haze everything else recedes into.
     float haze = clamp((dist - haze_from) / max(haze_full - haze_from, 0.01), 0.0, 1.0) * haze_strength;
     colour = mix(colour, colour * haze_colour.rgb, haze);
 

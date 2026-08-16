@@ -4,19 +4,24 @@
 [ext_resource type="PackedScene" uid="uid://dmt65b37wpllc" path="res://scenes/ui/menu_background.tscn" id="2_menubg"]
 [ext_resource type="Script" uid="uid://dum1op3vkoc1" path="res://scripts/pizza/ui/pizza_box_button.gd" id="3_boxbtn"]
 [ext_resource type="PackedScene" path="res://scenes/ui/how_to_play.tscn" id="4_howto"]
+[ext_resource type="FontFile" uid="uid://bjkyfxv7def0i" path="res://fonts/Fredoka-SemiBold.ttf" id="5_5dd4i"]
 [ext_resource type="Texture2D" uid="uid://donsuvaswcfqs" path="res://sprites/pizza_box.png" id="5_box"]
 [ext_resource type="PackedScene" path="res://scenes/ui/credits.tscn" id="6_credits"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="7_theme"]
 [ext_resource type="PackedScene" path="res://scenes/music.tscn" id="8_music"]
 [ext_resource type="PackedScene" path="res://scenes/ui/settings.tscn" id="9_settings"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jk1qb"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5dd4i"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lgwnu"]
+[sub_resource type="Theme" id="Theme_lgwnu"]
+default_font = ExtResource("5_5dd4i")
+default_font_size = 128
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_flqon"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rcqid"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1ajci"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7b55j"]
 
 [node name="MainMenu" type="Control" unique_id=416969500]
 layout_mode = 3
@@ -54,10 +59,18 @@ grow_vertical = 2
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="Title" type="Label" parent="MenuContainer" unique_id=1087584877]
+[node name="Title" type="RichTextLabel" parent="MenuContainer" unique_id=713719978]
+clip_contents = false
 layout_mode = 2
+size_flags_vertical = 4
+theme = SubResource("Theme_lgwnu")
 theme_type_variation = &"GameTitle"
-text = "Pizza Flicker"
+theme_override_colors/default_color = Color(0.7411765, 0.28235295, 0.50980395, 1)
+bbcode_enabled = true
+text = "[tornado radius=1.0 freq=10.0 connected=100]Pizza Flicker"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="MenuContainer" unique_id=1087584878]
@@ -68,11 +81,11 @@ layout_mode = 2
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_styles/normal = SubResource("StyleBoxEmpty_jk1qb")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_jk1qb")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_jk1qb")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_jk1qb")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_jk1qb")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_flqon")
 text = "Start"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
@@ -82,11 +95,11 @@ custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"SmallButton"
-theme_override_styles/normal = SubResource("StyleBoxEmpty_5dd4i")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_5dd4i")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_5dd4i")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_5dd4i")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_5dd4i")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_rcqid")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_rcqid")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_rcqid")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_rcqid")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_rcqid")
 text = "How to play"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
@@ -97,11 +110,11 @@ custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"SmallButton"
-theme_override_styles/normal = SubResource("StyleBoxEmpty_lgwnu")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_lgwnu")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_lgwnu")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_lgwnu")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_lgwnu")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_1ajci")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_1ajci")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_1ajci")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_1ajci")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_1ajci")
 text = "Settings"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
@@ -110,11 +123,11 @@ art = ExtResource("5_box")
 custom_minimum_size = Vector2(660, 130)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_styles/normal = SubResource("StyleBoxEmpty_flqon")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_flqon")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_flqon")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_flqon")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_flqon")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_7b55j")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_7b55j")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_7b55j")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_7b55j")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_7b55j")
 text = "Credits"
 script = ExtResource("3_boxbtn")
 art = ExtResource("5_box")
