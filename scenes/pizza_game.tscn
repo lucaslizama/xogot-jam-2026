@@ -24,7 +24,7 @@
 [ext_resource type="Script" uid="uid://ckhkiamdqxbpl" path="res://scripts/pizza/view/night_sky.gd" id="22_sky"]
 [ext_resource type="Shader" uid="uid://tsk7fi60d6c2" path="res://shaders/night_sky.gdshader" id="23_skyshader"]
 [ext_resource type="Script" uid="uid://kcgu6qqemrss" path="res://scripts/pizza/view/street_surface.gd" id="24_street"]
-[ext_resource type="Material" path="res://data/street_material.tres" id="25_streetmat"]
+[ext_resource type="Material" uid="uid://cmugbbhiup1vp" path="res://data/street_material.tres" id="25_streetmat"]
 [ext_resource type="Script" uid="uid://dwpl7rng8ioug" path="res://scripts/pizza/game_audio.gd" id="26_audio"]
 [ext_resource type="Resource" path="res://data/sound_bank.tres" id="27_bank"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tip_popup.tscn" id="28_tip"]
@@ -158,7 +158,6 @@ unique_name_in_owner = true
 z_index = -15
 
 [node name="Ui" type="CanvasLayer" parent="." unique_id=1549966776]
-visible = false
 
 [node name="StrikeDots" parent="Ui" unique_id=1855799191 instance=ExtResource("7_dots")]
 unique_name_in_owner = true
