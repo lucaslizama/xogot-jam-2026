@@ -342,20 +342,28 @@ func _test_clearing_the_last_street_ends_the_night() -> void:
 	_check("the run starts on the first of %d streets" % game.levels.size(), game._level_index == 0)
 	_check("and no ending is up", not ending.visible)
 
-	var earned := 0
 	for street in game.levels.size():
+		# Typed rather than inferred: game is an untyped Node here, so levels.size()
+		# comes back as a Variant and := has nothing to infer from.
+		var last: bool = street == game.levels.size() - 1
 		_check("street %d is being ridden" % [street + 1], game._level_index == street)
 		_win_the_street(game)
 		await get_tree().process_frame
+
+		if last:
+			# There is no next rider at the end of the night, so the bag goes nowhere.
+			_check("the last street hands the bag to nobody", not relay.is_playing())
+			_check("and nothing of the relay is on screen", not relay.visible)
+			continue
+
+		# The streets before it carry on handing over as they always did.
+		_check("street %d hands the bag on" % [street + 1], relay.is_playing())
 		relay.skip()
 		await get_tree().process_frame
-		earned += game._state.tips if street == game.levels.size() - 1 else 0
-		if street < game.levels.size() - 1:
-			# The streets before the last carry on as they always did.
-			_check("street %d hands on to the result card" % [street + 1], card.visible)
-			_check("and not to an ending" , not ending.visible)
-			card.again_pressed.emit()
-			await get_tree().process_frame
+		_check("street %d then shows the result card" % [street + 1], card.visible)
+		_check("and not an ending", not ending.visible)
+		card.again_pressed.emit()
+		await get_tree().process_frame
 
 	_check("clearing the last street ends the night", ending.visible)
 	_check("and the result card stays out of the way", not card.visible)

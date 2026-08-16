@@ -25,8 +25,12 @@ signal menu_pressed
 @export var heading: String = "SUN'S UP!"
 ## %d is how many streets were cleared.
 @export var body: String = "%d streets, and you rode every one."
-## In order: the night's tips, and the longest run of deliveries in it.
-@export var tips_line: String = "$%d in tips, best run of %d"
+## In order: the night's tips, and the longest the player went without missing.
+##
+## Not "best run of %d", which the result card says and which reads fine on a card
+## about one street. Here the word is already taken: a run is the whole night, so a
+## best run of twelve invites the reader to work out twelve of what. Say deliveries.
+@export var tips_line: String = "$%d in tips, %d deliveries in a row at best"
 ## Filled and written. Empty either line to say nothing.
 @export var orders_line: String = "%d of %d orders filled"
 ## When every one of them was filled, which deserves better than a fraction.

@@ -910,9 +910,13 @@ func _on_round_ended(won: bool, delivered: int) -> void:
 	# paid. A street lost has nothing to hand over, so it goes straight to the
 	# card: making somebody watch a triumphant relay after being fired would be a
 	# joke at their expense.
+	#
+	# Nor does the last street hand over. There is no next rider at the end of the
+	# night — the bag goes nowhere, and the ending is the beat, so playing the relay
+	# first would promise a fourth street that does not exist and then take it back.
 	_pending_won = won
 	_pending_delivered = delivered
-	if won and _handoff != null:
+	if won and not _is_the_last_street() and _handoff != null:
 		# You in the colours you have been playing, and the rider you are about to be
 		# in hers. The beat is the only place the two are ever on screen together, so
 		# it is the only place the change of rider can be seen happening rather than
