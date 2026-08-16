@@ -20,6 +20,16 @@ signal win_requested
 ## in a release build, and remember to turn it back off.
 @export var force_visible: bool = false
 
+## Keep the tools out of the way even in a build that could have them.
+##
+## Beats [member force_visible], and beats being a debug build, because it answers a
+## different question: not "may these be shown" but "is the corner they sit in
+## wanted for something else". The pause button took that corner, and two buttons on
+## top of each other is worse than tuning by editing the resource for a while.
+##
+## A checkbox rather than a deletion so it comes back the same way it went.
+@export var suppressed: bool = false
+
 ## Whether this build is one a developer is running. Seeded from the engine, but
 ## left writable so a test can say "pretend this is what players get": the suite
 ## itself runs as a debug build, and there is no way to export a release build and
@@ -51,7 +61,7 @@ const BINDINGS := {
 ## button that clears a street would have the game finish itself for no reason, so
 ## in a shipped build the whole panel is gone rather than merely collapsed.
 func is_available() -> bool:
-	return force_visible or development_build
+	return not suppressed and (force_visible or development_build)
 
 
 func _ready() -> void:

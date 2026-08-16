@@ -217,3 +217,4 @@ unique_name_in_owner = true
 
 [node name="DebugPanel" parent="Ui" unique_id=966095215 instance=ExtResource("20_debug")]
 unique_name_in_owner = true
+suppressed = true

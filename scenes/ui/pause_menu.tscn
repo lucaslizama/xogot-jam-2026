@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/pizza/ui/pause_menu.gd" id="1_pause"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="2_theme"]
 [ext_resource type="PackedScene" path="res://scenes/ui/settings.tscn" id="3_settings"]
+[ext_resource type="Script" path="res://scripts/pizza/ui/pause_icon_button.gd" id="4_pauseicon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_box"]
 content_margin_left = 64.0
@@ -37,16 +38,12 @@ script = ExtResource("1_pause")
 [node name="PauseButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -220.0
-offset_top = 156.0
-offset_right = -40.0
-offset_bottom = 264.0
-grow_horizontal = 0
-theme_type_variation = &"SmallButton"
-text = "Pause"
+anchors_preset = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 194.0
+offset_bottom = 114.0
+script = ExtResource("4_pauseicon")
 
 [node name="Overlay" type="Control" parent="."]
 unique_name_in_owner = true

@@ -975,9 +975,20 @@ func _test_the_tuning_tools_are_absent_from_a_shipped_build() -> void:
 	_check("throwing with the panel gone does not fault", shipped._flight != null)
 	shipped.queue_free()
 
-	var ours := await _spawn()
+	# What the scene itself asks for, read off it before anything wakes up. The tuning
+	# tools are suppressed there at the moment because the pause button took their
+	# corner, and saying so here keeps this test about shipped builds rather than
+	# letting it quietly become a test of that decision.
+	var probe: Node = (load("res://scenes/pizza_game.tscn") as PackedScene).instantiate()
+	var authored: DebugPanel = probe.find_child("DebugPanel", true, false)
+	_check("the scene currently keeps the tuning tools out of the way", authored.suppressed)
+	probe.free()
+
+	# And with that lifted, a build we are running still offers them, which is the
+	# part that has to keep working for the day the corner is free again.
+	var ours := await _spawn(true, false)
 	var dev_panel: DebugPanel = ours.find_child("DebugPanel", true, false)
-	_check("a build we are running still offers them", dev_panel.is_available())
+	_check("unsuppressed, a build we are running still offers them", dev_panel.is_available())
 	_check("and its button is on screen", dev_panel.visible)
 	ours.queue_free()
 
@@ -1202,12 +1213,16 @@ func _test_the_card_says_how_the_orders_went() -> void:
 
 # --- helpers ----------------------------------------------------------------
 
-func _spawn(development_build: bool = true) -> Node:
+## `tuning_suppressed` defaults to what the scene itself says, so an ordinary spawn
+## is the game as authored. Pass false to get the tuning tools back for a test that
+## is about them.
+func _spawn(development_build: bool = true, tuning_suppressed: bool = true) -> Node:
 	var game: Node = (load("res://scenes/pizza_game.tscn") as PackedScene).instantiate()
 	# Set before the tree wakes the panel: it decides once, in _ready.
 	var panel: DebugPanel = game.find_child("DebugPanel", true, false)
 	if panel != null:
 		panel.development_build = development_build
+		panel.suppressed = tuning_suppressed
 	# No music under the tests. A four-minute track started by every one of two dozen
 	# spawns is still playing when its game is freed, and a stream the audio server
 	# has not let go of is reported at exit as a resource still in use — the message
