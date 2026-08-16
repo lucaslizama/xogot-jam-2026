@@ -43,6 +43,7 @@
 [ext_resource type="Script" path="res://scripts/pizza/game_daylight.gd" id="90_daylight"]
 [ext_resource type="Script" path="res://scripts/pizza/game_payouts.gd" id="91_payouts"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="92_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ending_screen.tscn" id="93_ending"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("23_skyshader")
@@ -214,6 +215,10 @@ unique_name_in_owner = true
 
 [node name="PauseMenu" parent="Ui" instance=ExtResource("92_pause")]
 unique_name_in_owner = true
+
+[node name="EndingScreen" parent="Ui" instance=ExtResource("93_ending")]
+unique_name_in_owner = true
+visible = false
 
 [node name="DebugPanel" parent="Ui" unique_id=966095215 instance=ExtResource("20_debug")]
 unique_name_in_owner = true

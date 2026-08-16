@@ -52,6 +52,7 @@ func _tests() -> Array[Callable]:
 		_test_the_menu_says_which_build_it_is,
 		_test_the_menu_street_keeps_its_town_when_the_hour_turns,
 		_test_the_street_can_be_paused_and_left,
+		_test_clearing_the_last_street_ends_the_night,
 		_test_a_throw_starts_from_where_the_pizza_was,
 		_test_a_street_cleared_is_handed_on,
 		_test_you_become_the_rider_you_handed_the_bag_to,
@@ -326,6 +327,56 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 ## it is printed on, it is worse than not being there, because it will be trusted
 ## in exactly the moment somebody is trying to work out whether they are looking at
 ## an old build.
+## Riding the whole night, which nothing had ever done before this.
+##
+## Winning the last street used to clamp the level index and hand the player street
+## three again, for ever, with the game never admitting it had been finished. So the
+## first thing checked is that the run ends at all, and the second is that the ending
+## reports the run rather than the street it happens to follow: the tips have to be
+## the three streets added up, or it is only the result card wearing a hat.
+func _test_clearing_the_last_street_ends_the_night() -> void:
+	var game := await _spawn()
+	var card: ResultCard = game.get_node("Ui/ResultCard")
+	var ending: EndingScreen = game.get_node("Ui/EndingScreen")
+	var relay: Handoff = game.get_node("Ui/Handoff")
+	_check("the run starts on the first of %d streets" % game.levels.size(), game._level_index == 0)
+	_check("and no ending is up", not ending.visible)
+
+	var earned := 0
+	for street in game.levels.size():
+		_check("street %d is being ridden" % [street + 1], game._level_index == street)
+		_win_the_street(game)
+		await get_tree().process_frame
+		relay.skip()
+		await get_tree().process_frame
+		earned += game._state.tips if street == game.levels.size() - 1 else 0
+		if street < game.levels.size() - 1:
+			# The streets before the last carry on as they always did.
+			_check("street %d hands on to the result card" % [street + 1], card.visible)
+			_check("and not to an ending" , not ending.visible)
+			card.again_pressed.emit()
+			await get_tree().process_frame
+
+	_check("clearing the last street ends the night", ending.visible)
+	_check("and the result card stays out of the way", not card.visible)
+	_check("the night counts every street ridden (%d of %d)"
+		% [game._run_streets, game.levels.size()], game._run_streets == game.levels.size())
+	_check("and totals more tips than the last street alone did (%d against %d)"
+		% [game._run_tips, game._state.tips], game._run_tips > game._state.tips)
+	_check("nothing can be paused once the night is over",
+		not (game.get_node("Ui/PauseMenu") as PauseMenu).get_node("PauseButton").visible)
+
+	# Riding again is a new night, not a fourth street.
+	ending.again_pressed.emit()
+	await get_tree().process_frame
+	_check("riding again starts from the first street", game._level_index == 0)
+	_check("with the ending gone", not ending.visible)
+	_check("and the night's books cleared (%d tips)" % game._run_tips, game._run_tips == 0)
+	_check("and you are the first rider again", game._rider_index == 0)
+	game.queue_free()
+	await get_tree().process_frame
+
+
 ## Pausing, and the two ways out of it.
 ##
 ## Three of these are worth more than they look. The street must actually stop, or

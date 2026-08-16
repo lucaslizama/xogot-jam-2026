@@ -175,6 +175,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _result: ResultCard = %ResultCard
 @onready var _debug: DebugPanel = %DebugPanel
 @onready var _pause: PauseMenu = %PauseMenu
+@onready var _ending: EndingScreen = %EndingScreen
 
 var _config: LevelConfig
 var _street: StreetModel
@@ -193,6 +194,21 @@ var _level_index: int = 0
 ## you are correctly however long the run goes on. A street lost hands nothing over
 ## and so leaves this alone: you are still you, and you try the same street again.
 var _rider_index: int = 0
+
+## The night so far, across every street of this run.
+##
+## LevelState keeps a street's books and clears them when the next one begins, which
+## is right for the card that reports a street. The ending screen reports the run, so
+## somebody has to add the streets up, and this is the only place that sees them all.
+##
+## Retries are counted in. A street you lost and rode again earned what it earned
+## both times, and a night you had to try twice is still the night you had.
+var _run_streets: int = 0
+var _run_tips: int = 0
+var _run_best_streak: int = 0
+var _run_orders_filled: int = 0
+var _run_orders_written: int = 0
+
 var _touch_index: int = -1
 var _ready_home: Vector2
 var _drag_from: Vector2
@@ -249,6 +265,8 @@ func _ready() -> void:
 	_handoff.finished.connect(_show_result_card)
 	_debug.win_requested.connect(_win_street_now)
 	_pause.leave_pressed.connect(_leave_for_the_menu)
+	_ending.again_pressed.connect(_start_a_new_run)
+	_ending.menu_pressed.connect(_leave_for_the_menu)
 	_orders.opened.connect(_ticket.show_order)
 	_orders.progressed.connect(_on_order_progressed)
 	_orders.completed.connect(_on_order_filled)
@@ -313,6 +331,7 @@ func start_level() -> void:
 	_clear_flight()
 	_clear_views()
 	_result.hide()
+	_ending.hide()
 	_strikes_seen = -1
 	_state.begin(_config)
 	# After begin, which is what settles how many strikes the street actually dealt:
@@ -907,9 +926,48 @@ func _on_round_ended(won: bool, delivered: int) -> void:
 ## round handler left waiting on a beat is a coroutine suspended for good if the
 ## scene goes away mid-beat, holding the tween with it.
 func _show_result_card() -> void:
-	_result.show_result(_pending_won, _pending_delivered, _level_index + 1,
-		_state.tips, _state.best_streak, _orders.filled, _orders.filled + _orders.lost)
+	# The street's books close into the night's before either screen is shown, so
+	# whichever one comes up is reporting numbers that include this street.
+	_run_tips += _state.tips
+	_run_best_streak = maxi(_run_best_streak, _state.best_streak)
+	_run_orders_filled += _orders.filled
+	_run_orders_written += _orders.filled + _orders.lost
+	if _pending_won:
+		_run_streets += 1
+
+	if _pending_won and _is_the_last_street():
+		# Nothing after this one to move on to, so the run is over and says so. Before
+		# the ending screen existed the level index simply clamped here and the player
+		# rode street three again for ever, with the game never admitting it had been
+		# finished.
+		_ending.show_run(_run_streets, _run_tips, _run_best_streak,
+			_run_orders_filled, _run_orders_written)
+	else:
+		_result.show_result(_pending_won, _pending_delivered, _level_index + 1,
+			_state.tips, _state.best_streak, _orders.filled, _orders.filled + _orders.lost)
 	round_ended.emit(_pending_won, _pending_delivered)
+
+
+func _is_the_last_street() -> bool:
+	return _level_index >= levels.size() - 1
+
+
+## A fresh night from the first street. Asked for by the ending screen, which is the
+## only place a run is ever over.
+##
+## Everything the run was keeping goes back to nothing, the rider included: you are
+## the first rider again, not the fourth, because this is a new night rather than a
+## fourth street.
+func _start_a_new_run() -> void:
+	_ending.hide()
+	_level_index = 0
+	_rider_index = 0
+	_run_streets = 0
+	_run_tips = 0
+	_run_best_streak = 0
+	_run_orders_filled = 0
+	_run_orders_written = 0
+	start_level()
 
 
 func _on_again() -> void:
