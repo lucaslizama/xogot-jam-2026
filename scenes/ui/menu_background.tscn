@@ -50,7 +50,7 @@ mouse_filter = 2
 script = ExtResource("4_sky")
 
 [node name="Street" type="ColorRect" parent="."]
-z_index = -4094
+z_index = -4095
 material = ExtResource("7_streetmat")
 offset_right = 1170.0
 offset_bottom = 2532.0
@@ -58,7 +58,7 @@ mouse_filter = 2
 script = ExtResource("6_street")
 
 [node name="Backdrop" type="Node2D" parent="."]
-z_index = -4095
+z_index = -4094
 script = ExtResource("2_backdrop")
 projection = ExtResource("9_proj")
 layers = Array[ExtResource("3_layercfg")]([ExtResource("13_far"), ExtResource("14_mid"), ExtResource("15_near")])
