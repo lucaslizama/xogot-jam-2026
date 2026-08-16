@@ -30,14 +30,14 @@ signal leave_pressed
 @onready var _panel: Control = %Panel
 @onready var _settings: SettingsPage = %SettingsPage
 @onready var _resume: Button = %ResumeButton
-@onready var _options: Button = %OptionsButton
+@onready var _settings_button: Button = %SettingsButton
 @onready var _menu: Button = %MenuButton
 
 
 func _ready() -> void:
 	_button.pressed.connect(open)
 	_resume.pressed.connect(close)
-	_options.pressed.connect(_show_settings)
+	_settings_button.pressed.connect(_show_settings)
 	_menu.pressed.connect(_leave)
 	_settings.back_pressed.connect(_show_buttons)
 	_overlay.visible = false

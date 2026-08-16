@@ -350,7 +350,7 @@ func _test_the_street_can_be_paused_and_left() -> void:
 	_check("the street stopped moving (travelled %.2f, was %.2f)" % [game._travelled, where],
 		is_equal_approx(game._travelled, where))
 
-	pause.get_node("%OptionsButton").pressed.emit()
+	pause.get_node("%SettingsButton").pressed.emit()
 	await get_tree().process_frame
 	_check("options opens the same settings page the menu uses",
 		pause.get_node("%SettingsPage").visible and pause.get_node("%SettingsPage") is SettingsPage)

@@ -98,12 +98,12 @@ layout_mode = 2
 theme_type_variation = &"GoButton"
 text = "Resume"
 
-[node name="OptionsButton" type="Button" parent="Overlay/Panel/Rows"]
+[node name="SettingsButton" type="Button" parent="Overlay/Panel/Rows"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
 theme_type_variation = &"GoButton"
-text = "Options"
+text = "Settings"
 
 [node name="MenuButton" type="Button" parent="Overlay/Panel/Rows"]
 unique_name_in_owner = true
