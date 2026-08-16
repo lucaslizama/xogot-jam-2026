@@ -1,30 +1,45 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://b6m510ym3u62n"]
 
-[ext_resource type="Script" path="res://scripts/pizza/ui/handoff.gd" id="1_handoff"]
-[ext_resource type="Script" path="res://scripts/pizza/view/placeholder_2d.gd" id="2_ph"]
+[ext_resource type="Script" uid="uid://bea3qsgb0cgkl" path="res://scripts/pizza/ui/handoff.gd" id="1_handoff"]
+[ext_resource type="Script" uid="uid://bvcqxfdh3mdbs" path="res://scripts/pizza/view/placeholder_2d.gd" id="2_ph"]
 [ext_resource type="Theme" path="res://data/ui_theme.tres" id="3_theme"]
-[ext_resource type="PackedScene" path="res://scenes/rider.tscn" id="4_rider"]
-[ext_resource type="Shader" path="res://shaders/rider_recolour.gdshader" id="5_recolour"]
+[ext_resource type="PackedScene" uid="uid://dia85j4q4pmx5" path="res://scenes/rider.tscn" id="4_rider"]
+[ext_resource type="Shader" uid="uid://bfmgoocgitfnp" path="res://shaders/rider_recolour.gdshader" id="5_recolour"]
+[ext_resource type="Texture2D" uid="uid://rgkub7bu3yj6" path="res://sprites/pizzabox_pepperoni_flying.png" id="6_px85a"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_riderout"]
 shader = ExtResource("5_recolour")
 shader_parameter/hue_shift = 0.0
+shader_parameter/saturation = 1.0
+shader_parameter/brightness = 1.0
+shader_parameter/keep_hue = 0.05
+shader_parameter/keep_band = 0.055
+shader_parameter/keep_softness = 0.0
+shader_parameter/spare_colour = Color(0.549, 0.247, 0.365, 1)
+shader_parameter/spare_tolerance = 0.1
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_riderin"]
 shader = ExtResource("5_recolour")
 shader_parameter/hue_shift = 0.31
+shader_parameter/saturation = 1.0
+shader_parameter/brightness = 1.0
+shader_parameter/keep_hue = 0.05
+shader_parameter/keep_band = 0.055
+shader_parameter/keep_softness = 0.0
+shader_parameter/spare_colour = Color(0.549, 0.247, 0.365, 1)
+shader_parameter/spare_tolerance = 0.1
 
-[node name="Handoff" type="Control"]
-theme = ExtResource("3_theme")
+[node name="Handoff" type="Control" unique_id=1348520316]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 script = ExtResource("1_handoff")
 
-[node name="Scrim" type="ColorRect" parent="."]
+[node name="Scrim" type="ColorRect" parent="." unique_id=1432019486]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -32,12 +47,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.152941, 0.152941, 0.211765, 0.55)
 mouse_filter = 2
+color = Color(0.152941, 0.152941, 0.211765, 0.55)
 
-[node name="Caption" type="Label" parent="."]
+[node name="Caption" type="Label" parent="." unique_id=1337661636]
 unique_name_in_owner = true
-theme_type_variation = &"PageSubtitle"
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -47,30 +61,31 @@ offset_top = 1180.0
 offset_right = 500.0
 offset_bottom = 1270.0
 grow_horizontal = 2
-mouse_filter = 2
+theme_type_variation = &"PageSubtitle"
 text = "Handing over"
 horizontal_alignment = 1
 
-[node name="RiderOut" parent="." instance=ExtResource("4_rider")]
+[node name="RiderOut" parent="." unique_id=727026873 instance=ExtResource("4_rider")]
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_riderout")
 position = Vector2(400, 1700)
 scale = Vector2(0.385, 0.385)
 
-[node name="RiderIn" parent="." instance=ExtResource("4_rider")]
+[node name="RiderIn" parent="." unique_id=2101169582 instance=ExtResource("4_rider")]
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_riderin")
 position = Vector2(790, 1700)
 scale = Vector2(-0.385, 0.385)
 
-[node name="BoxTarget" type="Node2D" parent="."]
+[node name="BoxTarget" type="Node2D" parent="." unique_id=1389196766]
 unique_name_in_owner = true
 position = Vector2(730, 1530)
 
-[node name="Box" type="Node2D" parent="."]
+[node name="Box" type="Node2D" parent="." unique_id=1281378584]
 unique_name_in_owner = true
-position = Vector2(460, 1530)
 z_index = 10
+position = Vector2(460, 1530)
 script = ExtResource("2_ph")
+texture = ExtResource("6_px85a")
 size = Vector2(150, 150)
 corner_mark = true
