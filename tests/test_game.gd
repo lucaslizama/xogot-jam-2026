@@ -809,9 +809,10 @@ func _test_a_delivery_pays_and_says_so() -> void:
 		total.text == rules.label_total % paid)
 
 	# The popup is the game's own reaction, not the state's, so it is driven the
-	# way the game drives it.
+	# way the game drives it: through the node that owns the money.
 	var money: MoneyBurst = game.get_node("Ui/MoneyBurst")
-	game._show_tip(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, paid, 1)
+	var payouts: GamePayouts = game.get_node("Payouts")
+	payouts.pay_throw(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, paid, 1)
 	_check("the tip is said where the pizza landed", popup.visible)
 	_check("and the money went up with it (%d bills)" % money.in_flight(),
 		money.in_flight() > 0)
@@ -1012,7 +1013,8 @@ func _test_a_lost_pizza_comes_apart_where_it_landed() -> void:
 		splatter.in_flight() == 0)
 
 	# A delivery is not a splat: the money goes up instead, and nothing comes apart.
-	game._show_tip(Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, 500, 1)
+	(game.get_node("Payouts") as GamePayouts).pay_throw(
+		Vector2(500.0, 900.0), ScoreRules.ThrowTier.BULLSEYE, 500, 1)
 	_check("a delivery throws no debris", splatter.in_flight() == 0)
 	game.queue_free()
 	await get_tree().process_frame

@@ -164,7 +164,7 @@ only values.
 ## Where a new script goes
 
 `scripts/pizza/` holds only the glue: `pizza_game.gd`, `game_audio.gd`,
-`game_daylight.gd`, `game_music.gd` and `game_volume.gd`. The `game_*` ones are
+`game_daylight.gd`, `game_music.gd`, `game_payouts.gd` and `game_volume.gd`. The `game_*` ones are
 subsystems `pizza_game.gd` grew too big to keep, each a child node in the scene
 with its own script, and each usable by the menu's decorative street as well. Everything else sits in one of four folders, and which one is not a matter of
 taste:

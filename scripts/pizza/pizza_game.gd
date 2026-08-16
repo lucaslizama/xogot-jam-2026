@@ -153,6 +153,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _audio: GameAudio = $Audio
 @onready var _music: GameMusic = $Music
 @onready var _daylight: GameDaylight = $Daylight
+@onready var _payouts: GamePayouts = $Payouts
 @onready var _backdrop: Backdrop = $Backdrop
 @onready var _houses_root: Node2D = $Houses
 @onready var _pizza: PizzaView = $Pizza
@@ -162,10 +163,7 @@ signal flavour_changed(flavour: PizzaFlavour)
 @onready var _aim: AimPreview = $AimPreview
 @onready var _rider: RiderView = %Rider
 @onready var _strikes: StrikeDots = %StrikeDots
-@onready var _tips: Label = %Tips
-@onready var _tip_popup: TipPopup = %TipPopup
 @onready var _order_popup: TipPopup = %OrderPopup
-@onready var _money: MoneyBurst = %MoneyBurst
 @onready var _splatter: SplatBurst = %SplatBurst
 @onready var _handoff: Handoff = %Handoff
 @onready var _ticket: OrderTicket = %OrderTicket
@@ -208,7 +206,6 @@ var _pending_won: bool = false
 var _pending_delivered: int = 0
 ## Where the last pizza came down, so a lost streak can be said at the spot that
 ## lost it. Set before the state is told, because the state answers immediately.
-var _last_landing: Vector2 = Vector2.ZERO
 ## The dropped pizza lying on the road. Held in street coordinates rather than as a
 ## screen position, and scrolled the way the houses are, so it stays on the piece of
 ## road it landed on instead of sliding along with the camera.
@@ -241,8 +238,7 @@ func _ready() -> void:
 	_state.pizzas_changed.connect(_stack.show_pizzas)
 	_state.strikes_changed.connect(_strikes.show_strikes)
 	_state.strikes_changed.connect(_on_strikes_changed)
-	_state.tips_changed.connect(_show_total)
-	_state.streak_lost.connect(_on_streak_lost)
+	_payouts.bind(_state)
 	_state.round_ended.connect(_on_round_ended)
 	_result.again_pressed.connect(_on_again)
 	_handoff.finished.connect(_show_result_card)
@@ -521,7 +517,7 @@ func _resolve_landing(struck: House = null,
 	# Where it ended, kept before the flight is dropped, so the tip can be shown
 	# at the spot the player was looking at rather than somewhere generic.
 	var landed_at := projection.project(_flight.side, 0.0, _flight.distance)
-	_last_landing = landed_at
+	_payouts.note_landing(landed_at)
 	# Kept too, because a dropped pizza has to be scrolled along the street after the
 	# flight that put it there is gone.
 	var landed_side := _flight.side
@@ -544,7 +540,7 @@ func _resolve_landing(struck: House = null,
 				# worth reading, so it is told outright that it scraped in.
 				tier = _state.scoring.tier_for(miss, house.drop_radius, struck != null)
 		var award := _state.note_delivery(tier)
-		_show_tip(landed_at, tier, award, _state.streak)
+		_payouts.pay_throw(landed_at, tier, award, _state.streak)
 		_audio.play(&"delivered")
 		# After the tip, and the two no longer compete for the same spot: the tip
 		# floats where the pizza landed, the order verdict over the rider. Still in
@@ -611,7 +607,7 @@ func _on_order_filled(order: PizzaOrder) -> void:
 	_ticket.close_order()
 	_order_popup.show_here(_ticket.filled_wording, _ticket.paid_line(order.pays),
 		_ticket.strike_back_wording if gave_one_back else "", _ticket.line_filled)
-	_money.burst(_last_landing, _money.bills_for(ScoreRules.ThrowTier.WINDOW))
+	_payouts.celebrate_order()
 	_audio.play(&"delivered")
 
 
@@ -623,46 +619,6 @@ func _on_order_lost(_order: PizzaOrder) -> void:
 
 #endregion
 
-#region tips
-
-## Say what the throw earned, where it landed. A tip nobody sees is only a number
-## going up in the corner, and the corner is not where anyone is looking.
-func _show_tip(at: Vector2, tier: ScoreRules.ThrowTier, award: int, streak: int) -> void:
-	# The bills go up before the words do, and there are more of them for a better
-	# throw. Across the room the burst is the only part anyone can read, so it has
-	# to be the part that says how it went.
-	_money.burst(at, _money.bills_for(tier))
-	var rules: ScoreRules = _state.scoring
-	if rules == null:
-		return
-	var run := ""
-	if rules.streak_is_paying(streak):
-		run = rules.label_streak % streak
-	_tip_popup.show_tip(at, rules.label_for(tier), rules.label_tip % award, run,
-		_tip_popup.colour_for(tier))
-
-
-## A run ending is worth saying only when it was long enough to have been worth
-## keeping. The popup goes where the miss happened, so it reads as the consequence
-## of that throw rather than as an announcement.
-func _on_streak_lost(had: int) -> void:
-	var rules: ScoreRules = _state.scoring
-	if rules == null:
-		return
-	# The wording may or may not want the number in it, so both spellings work
-	# and neither crashes the round over a format string.
-	var said := rules.label_streak_lost
-	if said.contains("%d"):
-		said = said % had
-	_tip_popup.show_message(_last_landing, said, _tip_popup.colour_streak_lost)
-
-
-func _show_total(total: int) -> void:
-	if _state.scoring == null:
-		return
-	_tips.text = _state.scoring.label_total % total
-
-#endregion
 
 #region the pizza that did not make it
 
