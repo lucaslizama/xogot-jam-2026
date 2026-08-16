@@ -50,6 +50,7 @@ func _tests() -> Array[Callable]:
 		_test_a_house_shows_the_street_and_not_its_preview,
 		_test_a_house_is_the_same_building_in_every_state,
 		_test_the_menu_says_which_build_it_is,
+		_test_the_menu_street_keeps_its_town_when_the_hour_turns,
 		_test_a_throw_starts_from_where_the_pizza_was,
 		_test_a_street_cleared_is_handed_on,
 		_test_you_become_the_rider_you_handed_the_bag_to,
@@ -324,6 +325,46 @@ func _test_houses_are_solid_at_the_size_they_are_drawn() -> void:
 ## it is printed on, it is worse than not being there, because it will be trusted
 ## in exactly the moment somebody is trying to work out whether they are looking at
 ## an old build.
+## The menu walks its levels end to end in front of the player, so the crossing has
+## to be an hour turning over and nothing else. It used to build a second street each
+## time, which replaced every house on screen in the frame the light changed.
+##
+## StreetModel is where that is now guaranteed and test_street proves it there. This
+## watches the actual nodes, because the guarantee is only worth anything while the
+## menu still asks for it: reinstating a new model here would put the bug straight
+## back with every sim test passing.
+func _test_the_menu_street_keeps_its_town_when_the_hour_turns() -> void:
+	var bg: MenuBackground = (load("res://scenes/ui/menu_background.tscn") as PackedScene).instantiate()
+	bg.seconds_per_level = 1.0
+	add_child(bg)
+	for i in 20:
+		await get_tree().process_frame
+
+	var houses: Node2D = bg.get_node("Houses")
+	var before := {}
+	for view in houses.get_children():
+		before[view.get_instance_id()] = true
+	var hour_before: TimeOfDay = bg._config.time_of_day
+	_check("the menu street has a town on it (got %d houses)" % before.size(), before.size() > 2)
+
+	var guard := 0
+	while bg._level_index == 0 and guard < 600:
+		guard += 1
+		await get_tree().process_frame
+	await get_tree().process_frame
+	_check("the level crossed within a reasonable time", bg._level_index == 1)
+	_check("and the hour changed with it", bg._config.time_of_day != hour_before)
+
+	var kept := 0
+	for view in houses.get_children():
+		if before.has(view.get_instance_id()):
+			kept += 1
+	_check("every house that was standing is still standing (%d of %d)" % [kept, before.size()],
+		kept == before.size())
+	bg.queue_free()
+	await get_tree().process_frame
+
+
 func _test_the_menu_says_which_build_it_is() -> void:
 	var menu: Control = (load("res://scenes/main_menu.tscn") as PackedScene).instantiate()
 	# Silent here too, for the reason given in _spawn.

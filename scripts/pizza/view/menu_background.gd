@@ -69,15 +69,20 @@ func _enter_level(index: int) -> void:
 	_level_index = index
 	_config = levels[index]
 	_time_on_level = 0.0
-	# Keep travelling: the world does not jolt when one street becomes the next,
-	# only its houses, speed and hour change.
-	# The looks table is passed for the variety, not for the targets: nothing here
-	# can be thrown at. Without it every house on the menu street would be the same
-	# building, since the street is what decides which one a house is.
-	_street = StreetModel.new(_config, street_seed + index, Vector2.ZERO, 0.0,
-		_house_looks())
+	if _street == null:
+		# The looks table is passed for the variety, not for the targets: nothing here
+		# can be thrown at. Without it every house on the menu street would be the same
+		# building, since the street is what decides which one a house is.
+		_street = StreetModel.new(_config, street_seed + index, Vector2.ZERO, 0.0,
+			_house_looks())
+	else:
+		# Keep travelling, and keep the town. Building a second model here replaced
+		# every house on screen in the frame the hour changed, so the row of buildings
+		# the player was watching became a different row for no reason they could see.
+		# The new level's rules take over for the houses still to come; the ones
+		# already standing ride out of view as they were.
+		_street.carry_on_as(_config)
 	_daylight.begin(_config.time_of_day)
-	_clear_views()
 
 
 
@@ -131,11 +136,5 @@ func _house_looks() -> HouseLooks:
 
 func _world_tint() -> Color:
 	return _daylight.world_tint()
-
-
-func _clear_views() -> void:
-	for view in _views.values():
-		(view as Node).queue_free()
-	_views.clear()
 
 #endregion

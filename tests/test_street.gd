@@ -27,6 +27,7 @@ func _tests() -> Array[Callable]:
 		_test_street_scrolls_past_the_rider,
 		_test_street_stays_stocked_forever,
 		_test_street_is_reproducible,
+		_test_a_street_can_become_another_without_being_rebuilt,
 		_test_houses_respect_their_ranges,
 		_test_every_house_can_be_reached,
 		_test_landing_in_a_drop_point_delivers,
@@ -296,6 +297,49 @@ func _test_only_houses_that_want_a_pizza_are_solid() -> void:
 	served.houses()[0].served = true
 	_check("a house already served is thin air too",
 		served.struck_house(Vector3(12.0, 6.0, 18.0), Vector3(12.0, 6.0, 26.0)) == null)
+
+
+## The menu crosses from one level to the next in full view, so the houses standing
+## there have to survive the change. Building a second model instead replaced every
+## one of them in a single frame, which read as the town being reshuffled because the
+## hour had turned over.
+func _test_a_street_can_become_another_without_being_rebuilt() -> void:
+	var first := _config()
+	first.distance_min = 18.0
+	first.distance_max = 20.0
+	var street := StreetModel.new(first, 4242)
+	for i in 40:
+		street.advance(0.05)
+
+	var standing := street.houses().duplicate()
+	var places := standing.map(func(h: House) -> float: return h.side)
+	_check("there are houses standing to keep (got %d)" % standing.size(), standing.size() > 2)
+
+	# A second level, deliberately unlike the first, so anything built by its rules is
+	# obvious from its distance alone.
+	var second := _config()
+	second.distance_min = 60.0
+	second.distance_max = 64.0
+	street.carry_on_as(second)
+
+	var kept := 0
+	for i in standing.size():
+		if street.houses().has(standing[i]) and is_equal_approx(standing[i].side, places[i]):
+			kept += 1
+	_check("every house still stands where it stood (%d of %d)" % [kept, standing.size()],
+		kept == standing.size())
+	_check("and none of them moved back to the new level's distances",
+		standing.all(func(h: House) -> bool: return h.distance < 30.0))
+
+	# What comes next, though, is the new street.
+	for i in 400:
+		street.advance(0.05)
+	var arrived := street.houses().filter(func(h: House) -> bool: return not standing.has(h))
+	_check("houses arrive under the new rules (got %d)" % arrived.size(), arrived.size() > 2)
+	_check("and they stand at the new level's distances",
+		arrived.all(func(h: House) -> bool: return h.distance >= 60.0 and h.distance <= 64.0))
+	_check("the old ones have gone by on their own rather than vanishing at the change",
+		street.houses().all(func(h: House) -> bool: return not standing.has(h)))
 
 
 func _test_a_street_with_no_bodies_behaves_as_before() -> void:

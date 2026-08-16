@@ -57,6 +57,34 @@ func houses() -> Array[House]:
 	return _houses
 
 
+## Carry this street on under another level's rules, without starting it again.
+##
+## The houses already standing keep their places, their distances and their
+## buildings. Everything from here is the new level's: how fast the world moves, how
+## far apart the next ones stand, how far back they sit, how likely one is to be
+## waiting. So a street becomes another street the way a road changes character as
+## you ride down it, rather than the way a slide changes.
+##
+## Not for the game, where a new street is a new street and building a fresh one is
+## the right thing: a level starting is a clean break, and the result card and the
+## handoff are there to mark it. This is for the menu, which crosses from one level
+## to the next in full view of the player. Building a new model there swapped every
+## house on screen in a single frame, which read as the whole town being reshuffled
+## because the hour had turned over.
+##
+## The random stream is deliberately not reseeded. It carries on from where it was,
+## so the houses after the change are new ones rather than the same street told again
+## from the top.
+func carry_on_as(config: LevelConfig) -> void:
+	if config == null:
+		return
+	_config = config
+	# Under the new rules some standing houses may already be past its despawn line,
+	# and its frontier may reach further than the old one did.
+	_prune()
+	_restock()
+
+
 ## Slide the world past the rider, then top up and prune.
 func advance(delta: float) -> void:
 	var travelled := _config.street_speed * delta
